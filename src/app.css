@@ -1,0 +1,16 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+body {
+	margin: 0;
+	font-family: system-ui, sans-serif;
+}
+
+.content {
+	
+}
