@@ -11,7 +11,7 @@
 	export let data;
 
 	$: experiencia = data.experiencia;
-	$: ruta = data.slug;
+	$: ruta = data.ruta;
 
 	// Función para formatear la fecha tipo "Del 1 al 3 de Noviembre 2024"
 	function getFechaBonita(inicio, fin) {
@@ -191,7 +191,7 @@
 						conteo={hab.conteo}
 						lleno={hab.lleno}
 						idexperiencia={hab.idexperiencia}
-                        slot={hab.slot}
+                        slot={hab.ruta}
                         ruta={ruta}
 					/>
 				{/each}

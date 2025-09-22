@@ -14,8 +14,8 @@ export async function getExperiencias() {
 }
 
 
-export async function getExperienciaSlug(slug){
-    const nombre = slug.replace(/-/g, ' ');
+export async function getExperienciaByTitulo(titulo){
+    const nombre = titulo.replace(/-/g, ' ');
 
     const { data, error } = await supabase
         .from('cexperiencia')
@@ -48,24 +48,33 @@ export async function getHabitacionesExperiencia(idexperiencia) {
     const { data, error } = await supabase
         .from('chabitacion')
         .select('*')
-        .eq('idexperiencia', idexperiencia);
+        .eq('idexperiencia', idexperiencia)
+        .order('capacidad', { ascending: true });
 
     if (error) {
         throw new Error(error.message);
     }
-    return data;
+
+    //filtrar por capacidad
+    const unicosPorCapacidad = [];
+    const capacidadesIncluidas = new Set();
+
+    for (const habitacion of data) {
+        if (!capacidadesIncluidas.has(habitacion.capacidad)) {
+            capacidadesIncluidas.add(habitacion.capacidad);
+            unicosPorCapacidad.push(habitacion);
+        }
+    }
+    return unicosPorCapacidad;
 }
 
-export async function getHabitacionByExperiencia(slot) {
-    let id = slot.split('-')[0];
-    let nombre = slot.split('-').slice(1).join('-').replace(/-/g, ' ');
+export async function getHabitacionesByExperiencia(id, cantidad) {
 
     const { data, error } = await supabase
         .from('chabitacion')
         .select('*')
         .eq('idexperiencia', id)
-        .eq('nombre', nombre)
-        .single();
+        .eq('capacidad', cantidad);
 
 
     if (error) {
