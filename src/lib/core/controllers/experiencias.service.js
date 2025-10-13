@@ -1,85 +1,68 @@
-import { supabase } from "../supabase/client";
+import { supabase } from '../supabase/client';
 
 export async function getExperiencias() {
+	const { data, error } = await supabase.from('cexperiencia').select('*');
 
-    const { data, error } = await supabase
-        .from('cexperiencia')
-        .select('*');
+	if (error) {
+		throw new Error(error.message);
+	}
 
-    if (error) {
-        throw new Error(error.message);
-    }
-
-    return data;
+	return data;
 }
 
+export async function getExperienciaByTitulo(titulo) {
+	const nombre = titulo.replace(/-/g, ' ');
 
-export async function getExperienciaByTitulo(titulo){
-    const nombre = titulo.replace(/-/g, ' ');
+	const { data, error } = await supabase
+		.from('cexperiencia')
+		.select('*')
+		.eq('titulo', nombre)
+		.single();
 
-    const { data, error } = await supabase
-        .from('cexperiencia')
-        .select('*')
-        .eq('titulo', nombre)
-        .single();
-
-    if (error) {
-        throw new Error(error.message);
-    }
-    return data;
+	if (error) {
+		throw new Error(error.message);
+	}
+	return data;
 }
 
 export async function getDetalleExperiencia(idexperiencia) {
+	const { data, error } = await supabase
+		.from('dexperiencia')
+		.select('*')
+		.eq('idexperiencia', idexperiencia)
+		.single();
 
-    const { data, error } = await supabase
-        .from('dexperiencia')
-        .select('*')
-        .eq('idexperiencia', idexperiencia)
-        .single();
-
-    if (error) {
-        throw new Error(error.message);
-    }
-    return data;
+	if (error) {
+		throw new Error(error.message);
+	}
+	return data;
 }
 
 export async function getHabitacionesExperiencia(idexperiencia) {
+	const { data, error } = await supabase
+		.from('chabitacion')
+		.select('*')
+		.eq('idexperiencia', idexperiencia);
 
-    const { data, error } = await supabase
-        .from('chabitacion')
-        .select('*')
-        .eq('idexperiencia', idexperiencia)
-        .order('capacidad', { ascending: true });
-
-    if (error) {
-        throw new Error(error.message);
-    }
-
-    //filtrar por capacidad
-    const unicosPorCapacidad = [];
-    const capacidadesIncluidas = new Set();
-
-    for (const habitacion of data) {
-        if (!capacidadesIncluidas.has(habitacion.capacidad)) {
-            capacidadesIncluidas.add(habitacion.capacidad);
-            unicosPorCapacidad.push(habitacion);
-        }
-    }
-    return unicosPorCapacidad;
+	if (error) {
+		throw new Error(error.message);
+	}
+	return data;
 }
 
-export async function getHabitacionesByExperiencia(id, cantidad) {
+export async function getHabitacionesByExperiencia(id, nombre) {
+	const nombreNormalized = (nombre ?? '').replace(/-/g, ' ').trim();
 
-    const { data, error } = await supabase
-        .from('chabitacion')
-        .select('*')
-        .eq('idexperiencia', id)
-        .eq('capacidad', cantidad);
+const { data, error } = await supabase
+  .from('dhabitacion')
+  .select('* , chabitacion!inner(*)')
+  .eq('chabitacion.idexperiencia', id)
+  .eq('chabitacion.nombre', nombreNormalized);
 
+	if (error) {
+		console.error('Error al obtener habitaciones:', error);
+		throw new Error(error.message);
+	}
 
-    if (error) {
-        throw new Error(error.message);
-    }
-
-    return data;
+	return data;
 }

@@ -12,7 +12,7 @@ export async function load({ params }) {
 
 	habitaciones = habitaciones.map((hab) => ({
 		...hab,
-		ruta: `${hab.idexperiencia}-habitacion-${hab.capacidad}`
+		ruta: `${hab.idexperiencia}-${hab.nombre.replace(/\s+/g, '-')}`
 	}));
 
 	experiencia.detalle = detalle;

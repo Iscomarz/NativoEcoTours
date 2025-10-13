@@ -1,0 +1,20 @@
+Flujo de reserva
+
+1. Seleccionar tipo de habitacion por capacidad
+2. Seleccionar lugares en las habitaciones disponibles
+
+
+//ejemplo: tenemos 4 gamplings 2 para 4 personas y 2 para 2 personas
+
+Modelo chabitacion
+
+nombre String
+precioPersona Numeric
+precioHabitacion Numeric
+cantidad Numeric (la cantidad de habitaciones no de capacidad de la habitacion)
+imagenes Array
+
+Modelo dhabitacion
+id_chabitacion
+capacidad
+
