@@ -40,6 +40,12 @@
 			>
 		</li>
 
+		<li>
+			<a href="/cotizacion" class="hover:text-green-400" class:text-white={$page.url.pathname !== '/'}
+				>Cotizaciones</a
+			>
+		</li>
+
 		{#if !session}
 			<li>
 				<a href="/login" class="hover:text-green-400" class:text-white={$page.url.pathname !== '/'}

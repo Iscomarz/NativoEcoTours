@@ -1,4 +1,3 @@
-import { id } from "prelude-ls";
 import { writable } from "svelte/store";
 
 export const reservaStore = writable({
@@ -16,6 +15,14 @@ export const reservaStore = writable({
   totalPersonas: null,
   precioUnitario: null,
   habitaciones: [{ idhabitacion: null, cantidad: null }],
+  // Campos para Stripe
+  payment_intent_id: null,
+  client_secret: null,
+  payment_status: 'pending', // 'pending', 'processing', 'succeeded', 'failed', 'canceled'
+  stripe_payment_method: null,
+  fecha_pago: null,
+  amount_mxn: null,
+  currency: 'mxn'
 });
 
 //Funciones para manipular el store
@@ -41,5 +48,56 @@ export function agregarHabitacion(id, cantidad) {
     reservaStore.update(datos => ({
         ...datos,
         habitaciones: [...datos.habitaciones, { idhabitacion: id, cantidad }]
+    }));
+}
+
+// Funciones específicas para manejo de pagos con Stripe
+export function iniciarPago(clientSecret, amountMXN) {
+    reservaStore.update(datos => ({
+        ...datos,
+        client_secret: clientSecret,
+        payment_status: 'processing',
+        amount_mxn: amountMXN
+    }));
+}
+
+export function confirmarPago(paymentIntent) {
+    reservaStore.update(datos => ({
+        ...datos,
+        payment_intent_id: paymentIntent.id,
+        payment_status: paymentIntent.status,
+        stripe_payment_method: paymentIntent.payment_method,
+        fecha_pago: new Date().toISOString(),
+        metodoPago: 'stripe_card'
+    }));
+}
+
+export function fallarPago(error) {
+    reservaStore.update(datos => ({
+        ...datos,
+        payment_status: 'failed',
+        payment_error: error
+    }));
+}
+
+export function cancelarPago() {
+    reservaStore.update(datos => ({
+        ...datos,
+        payment_status: 'canceled',
+        client_secret: null,
+        payment_intent_id: null
+    }));
+}
+
+export function resetearPago() {
+    reservaStore.update(datos => ({
+        ...datos,
+        payment_intent_id: null,
+        client_secret: null,
+        payment_status: 'pending',
+        stripe_payment_method: null,
+        fecha_pago: null,
+        amount_mxn: null,
+        payment_error: null
     }));
 }
