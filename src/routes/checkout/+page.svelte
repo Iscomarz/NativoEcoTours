@@ -2,7 +2,13 @@
     import { reservaStore } from '$lib/stores/reservaStore';
     import { onMount, onDestroy } from 'svelte';
     import { goto } from '$app/navigation';
+    import StripePayment from '$lib/components/pagos/StripePayment.svelte';
     
+    export let data;
+    
+    // Datos del servidor
+    let sesionActiva = data?.sesionActiva || false;
+    let session = data?.session || null;
     let currentReserva = {};
     let formaPago = 'tarjeta'; // tarjeta, transferencia
     let tarjeta = {
@@ -26,10 +32,53 @@
         return `${minutos.toString().padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
     }
     
-    // Inicializar cronómetro
+    // Variables para datos personales
+    let datosPersonales = {
+        nombre: '',
+        correo: '',
+        telefono: ''
+    };
+
+    // Inicializar cronómetro y validaciones
     onMount(() => {
         currentReserva = $reservaStore;
-        console.log('Reserva actual en el store:', currentReserva);
+        
+        // 1. Validar que existan datos de reserva
+        console.log('🔍 Verificando datos de reserva:', currentReserva);
+        
+        if (!currentReserva || !currentReserva.experiencia_id || !currentReserva.habitaciones || currentReserva.habitaciones.length === 0) {
+            console.log('❌ No hay datos de reserva válidos, redirigiendo al inicio');
+            console.log('Datos encontrados:', {
+                tieneReserva: !!currentReserva,
+                tieneExperiencia: !!currentReserva?.experiencia_id,
+                tieneHabitaciones: !!currentReserva?.habitaciones,
+                cantidadHabitaciones: currentReserva?.habitaciones?.length || 0
+            });
+            goto('/');
+            return;
+        }
+        console.log('✅ Datos de reserva válidos encontrados');
+        
+        // 2. Configurar datos personales según sesión
+        if (sesionActiva && session) {
+            // Si hay sesión activa, usar datos de la sesión
+            datosPersonales = {
+                nombre: session.user?.user_metadata?.full_name || session.user?.email?.split('@')[0] || '',
+                correo: session.user?.email || '',
+                telefono: session.user?.user_metadata?.phone || ''
+            };
+            console.log('✅ Sesión activa - Usando datos de sesión:', datosPersonales);
+        } else {
+            // Si no hay sesión, usar datos del store
+            datosPersonales = {
+                nombre: currentReserva.nombre_cliente || '',
+                correo: currentReserva.correo_cliente || '',
+                telefono: currentReserva.numero_cliente || ''
+            };
+            console.log('ℹ️ Sin sesión - Usando datos del store:', datosPersonales);
+        }
+        
+        //console.log('Reserva actual en el store:', currentReserva);
         
         // Iniciar el cronómetro
         tiempoFormateado = formatearTiempo(tiempoRestante);
@@ -71,7 +120,7 @@
     function procesarPago() {
         loadingPago = true;
         
-        // Simulamos procesamiento
+        // Simulamos procesamiento para transferencia
         setTimeout(() => {
             loadingPago = false;
             guardadoPago = true;
@@ -79,6 +128,39 @@
             // y manejarías la respuesta
         }, 1500);
     }
+
+    function handlePaymentSuccess(paymentIntent) {
+        console.log('Pago exitoso:', paymentIntent);
+        
+        // Limpiar el cronómetro
+        if (intervalId) {
+            clearInterval(intervalId);
+        }
+        
+        // Actualizar estado de pago
+        guardadoPago = true;
+        
+        // Aquí puedes hacer la llamada a tu API para guardar la reserva
+        // con los datos del pago exitoso
+        
+        // Opcional: Actualizar el store con información del pago
+        reservaStore.update(reserva => ({
+            ...reserva,
+            payment_intent_id: paymentIntent.id,
+            status: 'pagado',
+            fecha_pago: new Date().toISOString()
+        }));
+    }
+
+    function handlePaymentError(error) {
+        console.error('Error en el pago:', error);
+        // Aquí puedes mostrar el error al usuario
+        // Por ejemplo, con una notificación toast
+        alert(`Error en el pago: ${error.message}`);
+    }
+
+    // Función para obtener el monto total en MXN (ya viene en pesos mexicanos)
+    $: totalMXN = $reservaStore?.total || 0;
 </script>
 
 <div class="min-h-screen bg-[#181818] py-10 px-4 sm:px-6 lg:px-8">
@@ -127,15 +209,15 @@
                                 <div class="space-y-2 text-gray-200">
                                     <div class="flex justify-between">
                                         <span class="text-gray-400">Cliente:</span>
-                                        <span>{$reservaStore.nombre_cliente || 'No especificado'}</span>
+                                        <span>{datosPersonales.nombre || 'No especificado'}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-gray-400">Correo:</span>
-                                        <span>{$reservaStore.correo_cliente || 'No especificado'}</span>
+                                        <span>{datosPersonales.correo || 'No especificado'}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-gray-400">Teléfono:</span>
-                                        <span>{$reservaStore.numero_cliente || 'No especificado'}</span>
+                                        <span>{datosPersonales.telefono || 'No especificado'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -222,92 +304,34 @@
                         </div>
                         
                         {#if formaPago === 'tarjeta'}
-                            <!-- Formulario de Tarjeta -->
-                            <form class="space-y-4" on:submit|preventDefault={procesarPago}>
-                                <div>
-                                    <label for="card-number" class="block text-sm font-medium text-gray-300">Número de tarjeta</label>
-                                    <div class="mt-1 relative">
-                                        <input
-                                            id="card-number"
-                                            type="text"
-                                            bind:value={tarjeta.numero}
-                                            placeholder="1234 5678 9012 3456"
-                                            class="w-full px-4 py-2 bg-neutral-700 border border-neutral-600 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-white placeholder-gray-400"
-                                            required
-                                        />
-                                        <div class="absolute right-3 top-2">
-                                            <!-- Logos de tarjetas -->
-                                            <svg class="h-6 w-6 text-gray-400" fill="currentColor" viewBox="0 0 36 24">
-                                                <rect width="36" height="24" rx="4" fill="currentColor" />
-                                                <path d="M10 15.5H8l2-7h2l-2 7zm13 0h-2l1.5-7h2l-1.5 7z" fill="white" />
-                                                <path d="M20 15.5h-4c1-1.5 1.5-4 1-6 2 2 3 3.5 3 6z" fill="white" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <label for="card-name" class="block text-sm font-medium text-gray-300">Nombre del titular</label>
-                                    <input
-                                        id="card-name"
-                                        type="text"
-                                        bind:value={tarjeta.nombre}
-                                        placeholder="Nombre como aparece en la tarjeta"
-                                        class="mt-1 w-full px-4 py-2 bg-neutral-700 border border-neutral-600 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-white placeholder-gray-400"
-                                        required
-                                    />
-                                </div>
-                                
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="card-expiry" class="block text-sm font-medium text-gray-300">Fecha de expiración</label>
-                                        <input
-                                            id="card-expiry"
-                                            type="text"
-                                            bind:value={tarjeta.expiracion}
-                                            placeholder="MM/AA"
-                                            class="mt-1 w-full px-4 py-2 bg-neutral-700 border border-neutral-600 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-white placeholder-gray-400"
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label for="card-cvv" class="block text-sm font-medium text-gray-300">CVV</label>
-                                        <input
-                                            id="card-cvv"
-                                            type="text"
-                                            bind:value={tarjeta.cvv}
-                                            placeholder="123"
-                                            class="mt-1 w-full px-4 py-2 bg-neutral-700 border border-neutral-600 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-white placeholder-gray-400"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                
-                                <div class="pt-2">
-                                    <button
-                                        type="submit"
-                                        class="w-full px-4 py-3 flex items-center justify-center rounded-md bg-green-600 text-white font-medium hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                                        disabled={loadingPago}
-                                    >
-                                        {#if loadingPago}
-                                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                            Procesando...
-                                        {:else}
-                                            Pagar {formatoMoneda($reservaStore?.total || 0)}
-                                        {/if}
-                                    </button>
-                                </div>
-                                
-                                <div class="flex items-center justify-center mt-4 text-sm text-gray-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    </svg>
-                                    Pago seguro con encriptación SSL
-                                </div>
-                            </form>
+                            <!-- Componente de Pago con Stripe -->
+                            <StripePayment 
+                                amount={totalMXN}
+                                currency="mxn"
+                                metadata={{
+                                    reserva_id: $reservaStore?.id || 'temp',
+                                    cliente_nombre: datosPersonales.nombre || '',
+                                    cliente_email: datosPersonales.correo || '',
+                                    cliente_telefono: datosPersonales.telefono || '',
+                                    experiencia_id: $reservaStore?.experiencia_id || '',
+                                    cantidad_personas: $reservaStore?.cantidad_grupo || 1,
+                                    fecha_reserva: $reservaStore?.fecha_reserva || '',
+                                    sesion_activa: sesionActiva
+                                }}
+                                onPaymentSuccess={handlePaymentSuccess}
+                                onPaymentError={handlePaymentError}
+                            />
+                            
+                            <div class="flex items-center justify-center mt-4 text-sm text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                Pago seguro con encriptación SSL - Stripe
+                            </div>
+                            
+                            <div class="mt-2 text-xs text-gray-400 text-center">
+                                Procesado de forma segura con Stripe • Pagos en pesos mexicanos
+                            </div>
                         {:else}
                             <!-- Instrucciones para Transferencia -->
                             <div class="bg-neutral-700/50 rounded-lg p-4 border border-neutral-600">

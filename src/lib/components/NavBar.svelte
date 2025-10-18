@@ -50,14 +50,20 @@
       >
     </li>
 
-    {#if !session}
-      <li>
-        <a href="/login" class="hover:text-green-400" class:text-white={$page.url.pathname !== '/'}
-          >Login</a
-        >
-        <img src={User} alt="User Icon" class="ml-1 inline-block h-4 w-4" />
-      </li>
-    {/if}
+		<li>
+			<a href="/cotizacion" class="hover:text-green-400" class:text-white={$page.url.pathname !== '/'}
+				>Cotizaciones</a
+			>
+		</li>
+
+		{#if !session}
+			<li>
+				<a href="/login" class="hover:text-green-400" class:text-white={$page.url.pathname !== '/'}
+					>Login</a
+				>
+				<img src={User} alt="User Icon" class="ml-1 inline-block h-4 w-4" />
+			</li>
+		{/if}
 
     {#if session}
       <form method="POST" class="inline">
