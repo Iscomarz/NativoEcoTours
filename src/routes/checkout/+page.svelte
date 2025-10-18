@@ -3,6 +3,8 @@
     import { onMount, onDestroy } from 'svelte';
     import { goto } from '$app/navigation';
     import StripePayment from '$lib/components/pagos/StripePayment.svelte';
+	import { createReserva } from '$lib/core/controllers/reservas.service.js';
+	import MReserva from '$lib/objects/MReserva';
     
     export let data;
     
@@ -129,7 +131,7 @@
         }, 1500);
     }
 
-    function handlePaymentSuccess(paymentIntent) {
+    async function handlePaymentSuccess(paymentIntent) {
         console.log('Pago exitoso:', paymentIntent);
         
         // Limpiar el cronómetro
@@ -137,19 +139,68 @@
             clearInterval(intervalId);
         }
         
-        // Actualizar estado de pago
-        guardadoPago = true;
-        
-        // Aquí puedes hacer la llamada a tu API para guardar la reserva
-        // con los datos del pago exitoso
-        
-        // Opcional: Actualizar el store con información del pago
-        reservaStore.update(reserva => ({
-            ...reserva,
-            payment_intent_id: paymentIntent.id,
-            status: 'pagado',
-            fecha_pago: new Date().toISOString()
-        }));
+        try {
+            // 1. Crear un objeto MReserva con los datos necesarios
+            const nuevaReserva = new MReserva({
+                // Datos del usuario o cliente
+                usuario_id: sesionActiva ? session?.user?.id : null,
+                nombre_cliente: !sesionActiva ? datosPersonales.nombre : null,
+                correo_cliente: !sesionActiva ? datosPersonales.correo : null,
+                numero_cliente: !sesionActiva ? datosPersonales.telefono : null,
+                
+                // Datos de la experiencia
+                experiencia_id: $reservaStore.experiencia_id,
+                fecha_reserva: new Date($reservaStore.fecha_reserva || new Date()),
+                fecha_liquidacion: new Date(), // Pagado ahora
+                
+                // Datos financieros
+                total: $reservaStore.total,
+                metodo_pago_id: formaPago === 'tarjeta' ? 1 : 2, // Asumiendo IDs: 1=tarjeta, 2=transferencia
+                pago_a_plazos: false, // O según corresponda
+                
+                // Datos de grupo
+                grupo: $reservaStore.grupo,
+                cantidad_grupo: $reservaStore.cantidad_grupo || 1,
+                precio_unitario: $reservaStore.precio_unitario
+            });
+            
+            // 2. Agregar las habitaciones al objeto MReserva
+            if ($reservaStore.habitaciones && Array.isArray($reservaStore.habitaciones)) {
+                $reservaStore.habitaciones.forEach(hab => {
+                    nuevaReserva.agregarHabitacion(hab.habitacion_id, hab.cantidad);
+                });
+            }
+            
+            // 3. Añadir referencia al pago de Stripe
+            nuevaReserva.payment_intent_id = paymentIntent.id;
+            nuevaReserva.payment_status = 'completed';
+            
+            console.log('Enviando reserva a Supabase:', nuevaReserva);
+            
+            // 4. Guardar la reserva en Supabase
+            const resultado = await createReserva(nuevaReserva);
+            
+            console.log('Reserva guardada con éxito:', resultado);
+            
+            // 5. Actualizar UI
+            guardadoPago = true;
+            
+            // 6. Actualizar store con datos finales (incluyendo ID de la DB)
+            if (resultado?.id) {
+                reservaStore.update(reserva => ({
+                    ...reserva,
+                    id: resultado.id,
+                    payment_intent_id: paymentIntent.id,
+                    status: 'pagado',
+                    fecha_pago: new Date().toISOString()
+                }));
+            }
+            
+        } catch (error) {
+            console.error('Error al guardar la reserva:', error);
+            alert(`Error al guardar la reserva: ${error.message}`);
+            // Opcionalmente, manejar el error pero mantener visible que el pago fue exitoso
+        }
     }
 
     function handlePaymentError(error) {
