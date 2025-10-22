@@ -46,20 +46,10 @@
         currentReserva = $reservaStore;
         
         // 1. Validar que existan datos de reserva
-        console.log('🔍 Verificando datos de reserva:', currentReserva);
-        
         if (!currentReserva || !currentReserva.experiencia_id || !currentReserva.habitaciones || currentReserva.habitaciones.length === 0) {
-            console.log('❌ No hay datos de reserva válidos, redirigiendo al inicio');
-            console.log('Datos encontrados:', {
-                tieneReserva: !!currentReserva,
-                tieneExperiencia: !!currentReserva?.experiencia_id,
-                tieneHabitaciones: !!currentReserva?.habitaciones,
-                cantidadHabitaciones: currentReserva?.habitaciones?.length || 0
-            });
             goto('/');
             return;
         }
-        console.log('✅ Datos de reserva válidos encontrados');
         
         // 2. Configurar datos personales según sesión
         if (sesionActiva && session) {
@@ -69,7 +59,6 @@
                 correo: session.user?.email || '',
                 telefono: session.user?.user_metadata?.phone || ''
             };
-            console.log('✅ Sesión activa - Usando datos de sesión:', datosPersonales);
         } else {
             // Si no hay sesión, usar datos del store
             datosPersonales = {
@@ -77,10 +66,7 @@
                 correo: currentReserva.correo_cliente || '',
                 telefono: currentReserva.numero_cliente || ''
             };
-            console.log('ℹ️ Sin sesión - Usando datos del store:', datosPersonales);
         }
-        
-        //console.log('Reserva actual en el store:', currentReserva);
         
         // Iniciar el cronómetro
         tiempoFormateado = formatearTiempo(tiempoRestante);
@@ -132,15 +118,12 @@
     }
 
     async function handlePaymentSuccess(paymentIntent) {
-        console.log('Pago exitoso:', paymentIntent);
-        
         // Limpiar el cronómetro
         if (intervalId) {
             clearInterval(intervalId);
         }
         
         try {
-            console.log('Iniciando proceso de guardado después del pago exitoso...');
             
             // 1. Crear un objeto MReserva con los datos necesarios
             const nuevaReserva = new MReserva({
@@ -173,11 +156,8 @@
                 });
             }
             
-            console.log('Enviando reserva a Supabase:', nuevaReserva);
-            
             // 3. Guardar la reserva en Supabase
             const resultado = await createReserva(nuevaReserva);
-            
             
             // Obtener el ID de la reserva creada
             const reservaId = resultado?.[0]?.id;
@@ -186,7 +166,6 @@
             }
             
             // 4. Crear el registro de pago
-            console.log('Guardando información del pago...');
             const pagoData = {
                 reserva_id: reservaId,
                 fecha_pago: new Date().toISOString(),
@@ -197,10 +176,8 @@
             };
             
             const resultadoPago = await createPago(pagoData);
-            console.log('Pago guardado con éxito:', resultadoPago);
             
             // 5. Crear los registros de habitaciones reservadas
-            console.log('Guardando habitaciones reservadas...');
             if ($reservaStore.habitaciones && Array.isArray($reservaStore.habitaciones)) {
                 for (const habitacion of $reservaStore.habitaciones) {
                     try {
@@ -211,19 +188,15 @@
                         };
                         
                         const resultadoHabitacion = await createHabitacionReserva(habitacionReservaData);
-                        console.log(`Habitación ${habitacion.habitacion_id} reservada guardada:`, resultadoHabitacion);
                     } catch (errorHabitacion) {
                         console.error(`Error al guardar habitación ${habitacion.habitacion_id}:`, errorHabitacion);
                         // Continúa con las demás habitaciones aunque una falle
                     }
                 }
-            } else {
-                console.log('No hay habitaciones para reservar o el formato de habitaciones es inválido');
             }
             
             // 6. Actualizar UI
             guardadoPago = true;
-            console.log('Proceso completado exitosamente');
             
             // 7. Actualizar store con datos finales (incluyendo ID de la DB)
             reservaStore.update(reserva => ({

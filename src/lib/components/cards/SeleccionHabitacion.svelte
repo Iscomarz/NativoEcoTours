@@ -5,6 +5,7 @@
 	import { get } from 'svelte/store';
 	import { toast } from 'sonner';
 	import {goto} from '$app/navigation';
+	import { getOcupacionesMultiplesHabitaciones, calcularEspaciosOcupados, isEspacioOcupado } from '$lib/core/controllers/habitaciones.service.js';
 
 	export let habitaciones = []; // [{capacidad:number, conteo_capacidad:number, chabitacion.precioPersona?:number}]
 	export let imgHabitacion;
@@ -34,15 +35,76 @@
 
 	// Selecciones por habitación: arreglo de Sets con índices seleccionados
 	let selectedByRoom = [];
+	
+	// Variables para manejar ocupaciones reales
+	let espaciosOcupados = {}; // Espacios ocupados por reservas existentes
+	let loadingOcupaciones = false;
+	
+	// Variable reactiva para forzar re-render
+	let ocupacionesVersion = 0;
 
-	onMount(() => {
+	onMount(async () => {
 		selectedByRoom = (habitaciones ?? []).map(() => new Set());
+		
+		// Cargar ocupaciones si tenemos los datos necesarios
+		await cargarOcupaciones();
 	});
+	
+	// Función para cargar las ocupaciones de las habitaciones
+	async function cargarOcupaciones() {
+		if (habitaciones.length === 0) {
+			console.log('No hay habitaciones para cargar ocupaciones');
+			return;
+		}
+		
+		try {
+			loadingOcupaciones = true;
+			
+			// Obtener los IDs de las habitaciones
+			const habitacionIds = habitaciones.map(h => {
+				const id = h.id || h.id || h.id;
+				return id;
+			}).filter(Boolean);
+			
+			if (habitacionIds.length === 0) {
+				console.log('❌ No se encontraron IDs válidos de habitaciones');
+				return;
+			}
+			
+			const ocupaciones = await getOcupacionesMultiplesHabitaciones(habitacionIds);
+			
+			const nuevosEspaciosOcupados = calcularEspaciosOcupados(habitaciones, ocupaciones);
+			
+			// Forzar reactividad de Svelte
+			espaciosOcupados = { ...nuevosEspaciosOcupados };
+			ocupacionesVersion++; // Incrementar para forzar re-render
+			
+			// Test: verificar si isOccupied funciona
+			for (let roomIdx = 0; roomIdx < habitaciones.length; roomIdx++) {
+				for (let seatIdx = 0; seatIdx < 5; seatIdx++) { // test primeros 5 espacios
+					const ocupado = isEspacioOcupado(espaciosOcupados, roomIdx, seatIdx);
+					if (ocupado) {
+					}
+				}
+			}
+			
+		} catch (error) {
+			console.error('Error al cargar ocupaciones:', error);
+			toast.error('Error al cargar las ocupaciones de habitaciones');
+		} finally {
+			loadingOcupaciones = false;
+		}
+	}
 
 	// Si cambia el número de habitaciones, ajusta estructura (sin depender de selectedCount)
 	$: if (habitaciones && selectedByRoom.length !== habitaciones.length) {
 		const prev = selectedByRoom;
 		selectedByRoom = habitaciones.map((_, idx) => prev[idx] ?? new Set());
+	}
+	
+	// Recargar ocupaciones cuando cambien las habitaciones
+	$: if (habitaciones.length > 0) {
+		cargarOcupaciones();
 	}
 
 	// conteo_capacidad total seleccionado y máximo permitido según modo
@@ -98,8 +160,12 @@
 		setCantidad(cantidad - 1);
 	}
 
-	function isOccupied(h, idx) {
-		return idx < (h?.conteo_capacidad ?? 0);
+	// Función reactiva para verificar ocupación
+	function isOccupied(roomIdx, seatIdx) {
+		// Incluir ocupacionesVersion para forzar reactividad
+		const _ = ocupacionesVersion; // Esta línea fuerza que Svelte detecte el cambio
+		const ocupado = isEspacioOcupado(espaciosOcupados, roomIdx, seatIdx);
+		return ocupado;
 	}
 
 	function isSelected(roomIdx, seatIdx) {
@@ -108,7 +174,7 @@
 
 	function canSelect(h, roomIdx, seatIdx) {
 		// Ocupado => no seleccionable
-		if (isOccupied(h, seatIdx)) return false;
+		if (isOccupied(roomIdx, seatIdx)) return false;
 		// Si ya está seleccionado, puedes deseleccionar
 		if (isSelected(roomIdx, seatIdx)) return true;
 		// Si ya llegaste al máximo permitido, no permitir más
@@ -150,7 +216,7 @@
 		selectedByRoom.forEach((set, rIdx) => {
 			if (set.size > 0) {
 				habitacionesSeleccionadas.push({
-					idhabitacion: habitaciones[rIdx]?.chabitacion?.id ?? null,
+					idhabitacion: habitaciones[rIdx]?.id ?? null,
 					cantidad: set.size
 				});
 			}
@@ -252,42 +318,44 @@
 <div class="mb-3">
 	<h3 class="mb-1 text-sm font-bold text-white">
 		HABITACIONES {habitaciones?.[0]?.capacidad ?? 0} PERSONAS
+		{#if loadingOcupaciones}
+			<span class="ml-2 text-xs text-yellow-400">Cargando ocupaciones...</span>
+		{/if}
 	</h3>
 
-	<div class="grid grid-cols-3 gap-2">
-		{#each habitaciones as habitacion, rIdx}
+	<div class="grid grid-cols-2 gap-2">
+		{#each habitaciones as habitacion, rIdx (habitacion.id + '-' + ocupacionesVersion)}
 			<div class="relative rounded-md border border-white/10 p-2">
 				<img
 					src={imgHabitacion}
 					alt="Foto habitación"
-					class="h-20 w-full rounded-md object-cover"
+					class="h-32 w-full rounded-md object-cover"
 				/>
 				<div class="bottom-1 left-2 rounded bg-black/60 px-1 text-xs text-white/80">
 					<p>Habitacion {rIdx + 1}</p>
-					<p>{habitacion.conteo_capacidad}/{habitacion.capacidad}</p>
 				</div>
 
 				<!-- Slots -->
-				<div class="mt-2 flex flex-wrap gap-1">
+				<div class="mt-3 flex flex-wrap gap-2">
 					{#each Array(habitacion.capacidad ?? 0).fill(0) as _, i}
 						<!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
-						<p
+						<div
 							role="button"
 							tabindex="0"
-							class={`rounded px-1 text-sm select-none
+							class={`rounded-lg p-2 transition-all duration-200 select-none
 								${
-									isOccupied(habitacion, i)
-										? 'cursor-not-allowed text-green-400 opacity-60'
+									isOccupied(rIdx, i)
+										? 'cursor-not-allowed bg-green-500/20 border border-green-500/50'
 										: isSelected(rIdx, i)
-											? 'bg-white/10 text-white'
+											? 'cursor-pointer bg-blue-500/30 border border-blue-400 shadow-md'
 											: selectedCount >= maxSelectable
-												? 'cursor-not-allowed text-white/30'
-												: 'cursor-pointer text-white/80 hover:text-white'
+												? 'cursor-not-allowed bg-gray-600/20 border border-gray-600/30'
+												: 'cursor-pointer bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40'
 								}`}
 							on:click={() => toggleSeat(habitacion, rIdx, i)}
 							on:keydown={(e) =>
 								(e.key === 'Enter' || e.key === ' ') && toggleSeat(habitacion, rIdx, i)}
-							title={isOccupied(habitacion, i)
+							title={isOccupied(rIdx, i)
 								? 'Ocupado'
 								: isSelected(rIdx, i)
 									? 'Seleccionado'
@@ -295,8 +363,24 @@
 										? 'Límite alcanzado'
 										: 'Disponible'}
 						>
-							•
-						</p>
+							<!-- Ícono de persona -->
+							<svg 
+								class={`w-5 h-5 transition-colors
+									${
+										isOccupied(rIdx, i)
+											? 'text-green-400'
+											: isSelected(rIdx, i)
+												? 'text-blue-200'
+												: selectedCount >= maxSelectable
+													? 'text-gray-500'
+													: 'text-white/70'
+									}`}
+								fill="currentColor" 
+								viewBox="0 0 20 20"
+							>
+								<path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+							</svg>
+						</div>
 					{/each}
 				</div>
 			</div>
