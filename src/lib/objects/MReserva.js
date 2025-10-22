@@ -103,6 +103,26 @@ class MReserva {
             habitaciones: [...this.habitaciones]
         };
     }
+
+    // Convertir a objeto para insertar en la base de datos (sin habitaciones)
+    toDatabase() {
+        return {
+            usuario_id: this.usuario_id,
+            nombre_cliente: this.nombre_cliente,
+            correo_cliente: this.correo_cliente,
+            numero_cliente: this.numero_cliente,
+            experiencia_id: this.experiencia_id,
+            estatus_id: this.estatus_id,
+            fecha_reserva: this.fecha_reserva,
+            fecha_liquidacion: this.fecha_liquidacion,
+            total: this.total,
+            metodo_pago_id: this.metodo_pago_id,
+            pago_a_plazos: this.pago_a_plazos,
+            grupo: this.grupo,
+            cantidad_grupo: this.cantidad_grupo,
+            precio_unitario: this.precio_unitario
+        };
+    }
 }
 
 export default MReserva;

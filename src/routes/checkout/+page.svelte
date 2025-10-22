@@ -3,7 +3,7 @@
     import { onMount, onDestroy } from 'svelte';
     import { goto } from '$app/navigation';
     import StripePayment from '$lib/components/pagos/StripePayment.svelte';
-	import { createReserva } from '$lib/core/controllers/reservas.service.js';
+	import { createReserva, createPago, createHabitacionReserva } from '$lib/core/controllers/reservas.service.js';
 	import MReserva from '$lib/objects/MReserva';
     
     export let data;
@@ -140,6 +140,8 @@
         }
         
         try {
+            console.log('Iniciando proceso de guardado después del pago exitoso...');
+            
             // 1. Crear un objeto MReserva con los datos necesarios
             const nuevaReserva = new MReserva({
                 // Datos del usuario o cliente
@@ -164,42 +166,94 @@
                 precio_unitario: $reservaStore.precio_unitario
             });
             
-            // 2. Agregar las habitaciones al objeto MReserva
+            // 2. Agregar las habitaciones al objeto MReserva (para lógica local)
             if ($reservaStore.habitaciones && Array.isArray($reservaStore.habitaciones)) {
                 $reservaStore.habitaciones.forEach(hab => {
                     nuevaReserva.agregarHabitacion(hab.habitacion_id, hab.cantidad);
                 });
             }
             
-            // 3. Añadir referencia al pago de Stripe
-            nuevaReserva.payment_intent_id = paymentIntent.id;
-            nuevaReserva.payment_status = 'completed';
-            
             console.log('Enviando reserva a Supabase:', nuevaReserva);
             
-            // 4. Guardar la reserva en Supabase
+            // 3. Guardar la reserva en Supabase
             const resultado = await createReserva(nuevaReserva);
             
-            console.log('Reserva guardada con éxito:', resultado);
             
-            // 5. Actualizar UI
-            guardadoPago = true;
-            
-            // 6. Actualizar store con datos finales (incluyendo ID de la DB)
-            if (resultado?.id) {
-                reservaStore.update(reserva => ({
-                    ...reserva,
-                    id: resultado.id,
-                    payment_intent_id: paymentIntent.id,
-                    status: 'pagado',
-                    fecha_pago: new Date().toISOString()
-                }));
+            // Obtener el ID de la reserva creada
+            const reservaId = resultado?.[0]?.id;
+            if (!reservaId) {
+                throw new Error('No se pudo obtener el ID de la reserva creada');
             }
             
+            // 4. Crear el registro de pago
+            console.log('Guardando información del pago...');
+            const pagoData = {
+                reserva_id: reservaId,
+                fecha_pago: new Date().toISOString(),
+                monto_total: $reservaStore.total,
+                completado: true,
+                payment_intent_id: paymentIntent.id,
+                payment_status: paymentIntent.status || 'succeeded'
+            };
+            
+            const resultadoPago = await createPago(pagoData);
+            console.log('Pago guardado con éxito:', resultadoPago);
+            
+            // 5. Crear los registros de habitaciones reservadas
+            console.log('Guardando habitaciones reservadas...');
+            if ($reservaStore.habitaciones && Array.isArray($reservaStore.habitaciones)) {
+                for (const habitacion of $reservaStore.habitaciones) {
+                    try {
+                        const habitacionReservaData = {
+                            idhabitacion: habitacion.habitacion_id,
+                            idmreserva: reservaId,
+                            totalclientes: habitacion.cantidad
+                        };
+                        
+                        const resultadoHabitacion = await createHabitacionReserva(habitacionReservaData);
+                        console.log(`Habitación ${habitacion.habitacion_id} reservada guardada:`, resultadoHabitacion);
+                    } catch (errorHabitacion) {
+                        console.error(`Error al guardar habitación ${habitacion.habitacion_id}:`, errorHabitacion);
+                        // Continúa con las demás habitaciones aunque una falle
+                    }
+                }
+            } else {
+                console.log('No hay habitaciones para reservar o el formato de habitaciones es inválido');
+            }
+            
+            // 6. Actualizar UI
+            guardadoPago = true;
+            console.log('Proceso completado exitosamente');
+            
+            // 7. Actualizar store con datos finales (incluyendo ID de la DB)
+            reservaStore.update(reserva => ({
+                ...reserva,
+                id: reservaId,
+                payment_intent_id: paymentIntent.id,
+                payment_status: paymentIntent.status || 'succeeded',
+                status: 'pagado',
+                fecha_pago: new Date().toISOString(),
+                completado: true
+            }));
+            
         } catch (error) {
-            console.error('Error al guardar la reserva:', error);
-            alert(`Error al guardar la reserva: ${error.message}`);
-            // Opcionalmente, manejar el error pero mantener visible que el pago fue exitoso
+            console.error('Error en el proceso de guardado:', error);
+            
+            // Mostrar error específico según el tipo
+            let errorMessage = 'Error desconocido';
+            if (error.message.includes('reserva')) {
+                errorMessage = 'Error al guardar la reserva principal';
+            } else if (error.message.includes('pago')) {
+                errorMessage = 'Error al registrar el pago';
+            } else if (error.message.includes('habitacion')) {
+                errorMessage = 'Error al reservar las habitaciones';
+            } else {
+                errorMessage = error.message;
+            }
+            
+            alert(`${errorMessage}. El pago fue exitoso, pero contacta al soporte para verificar tu reserva.`);
+            // Mantener visible que el pago fue exitoso aunque haya errores en el guardado
+            guardadoPago = true;
         }
     }
 

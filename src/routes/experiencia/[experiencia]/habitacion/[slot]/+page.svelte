@@ -4,7 +4,6 @@
 	import GaleriaHabitacion from '$lib/components/galerias/GaleriaHabitacion.svelte';
 	import {onMount} from 'svelte';
 	import { on } from 'svelte/events';
-	import { Toaster } from 'svelte-french-toast';
 
 	export let data;
 
@@ -36,8 +35,6 @@
 	});
 
 </script>
-
-<Toaster />
 
 <GaleriaHabitacion {imagenes} titulo="Galería de la habitación" />
 <div class="min-h-screen bg-[#181818] px-4 py-8">

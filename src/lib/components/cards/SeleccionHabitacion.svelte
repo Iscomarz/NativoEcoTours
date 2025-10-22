@@ -3,7 +3,7 @@
 	import MReserva from '$lib/objects/MReserva';
 	import { reservaStore } from '$lib/stores/reservaStore.js';
 	import { get } from 'svelte/store';
-	import toast from 'svelte-french-toast';
+	import { toast } from 'sonner';
 	import {goto} from '$app/navigation';
 
 	export let habitaciones = []; // [{capacidad:number, conteo_capacidad:number, chabitacion.precioPersona?:number}]
@@ -141,9 +141,7 @@
 
 		if (!sesionActiva && (!formulario.nombre || !formulario.telefono || !formulario.email)) {
 			console.log('Formulario incompleto');
-			toast.error('Por favor, completa todos los campos del formulario.', {
-				style: 'border-radius: 200px; background: #333; color: #fff;'
-			});
+			toast.error('Por favor, completa todos los campos del formulario.');
 			return;
 		}
 
