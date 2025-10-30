@@ -47,7 +47,7 @@
 				>
 					<div class="p-6">
 						<h3 class="text-xl font-bold text-gray-900">{exp.titulo}</h3>
-						<p class="mb-2 text-sm text-gray-600">{exp.ubicacion}</p>
+						<p class="mb-2 text-sm text-gray-600">{exp.cubicacion.nombre_ubicacion}, {exp.cubicacion.estado_ubicacion}</p>
 						<p class="mb-4 text-gray-700">{exp.descripcion}</p>
 						<div class="text-sm text-gray-500">
 							<span>{new Date(exp.fecha_inicio).toLocaleDateString()}</span> -
