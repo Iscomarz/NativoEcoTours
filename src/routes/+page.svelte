@@ -2,6 +2,9 @@
     import ToursDestacados from '$lib/components/toursDestacados.svelte';
     import videoSrc from '$lib/assets/videos/22.mp4';
     import logoNativo from '$lib/assets/logos/logoNativoNegro.png';
+
+    export let data;
+    let ubicaciones = data.props.ubicaciones;
 </script>
 
 <!-- Contenedor relativo para video y gradiente -->
@@ -24,5 +27,5 @@
 
 <!-- Contenido principal debajo del video -->
 <div class="relative z-20 flex flex-col">
-    <ToursDestacados />
+    <ToursDestacados {ubicaciones} />
 </div>

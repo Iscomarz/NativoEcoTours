@@ -7,6 +7,6 @@ export const load = async ({ locals }) => {
 	} = await supabase.auth.getSession();
     
   return {
-    session: session, // ✅ esto sí es serializable
+    session: session, 
   };
 };

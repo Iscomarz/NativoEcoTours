@@ -3,7 +3,7 @@ import { supabase } from '../supabase/client';
 export async function getExperiencias() {
 	const { data, error } = await supabase
 	.from('cexperiencia')
-	.select(`id,titulo,descripcion,fecha_inicio,fecha_fin,capacidad,imagenes,activo,
+	.select(`id,titulo,descripcion,fecha_inicio,fecha_fin,capacidad,activo,
 			cubicacion (id_ubicacion,nombre_ubicacion,estado_ubicacion,pais_ubicacion)`);
 
 	if (error) {
@@ -18,7 +18,7 @@ export async function getExperienciaByTitulo(titulo) {
 
 	const { data, error } = await supabase
 		.from('cexperiencia')
-		.select(`id,titulo,descripcion,fecha_inicio,fecha_fin,capacidad,imagenes,activo,
+		.select(`id,titulo,descripcion,fecha_inicio,fecha_fin,capacidad,activo,
 			cubicacion(id_ubicacion,nombre_ubicacion,estado_ubicacion,pais_ubicacion)`)
 		.eq('titulo', nombre)
 		.single();

@@ -1,51 +1,128 @@
 <script>
+    import { onMount } from 'svelte';
     import Tour from './cards/Tour.svelte';
-    import sampleTour1 from '$lib/assets/tours/sampleTour1.png';
-    import sampleTour2 from '$lib/assets/tours/sampleTour2.png';
-    import sampleTour3 from '$lib/assets/tours/sampleTour3.png';
-
-    // Por ahora hardcodeado
-    const tours = [
-        {
-            id: 1,
-            titulo: "Día de Muertos",
-            subtitulo: "Úrique, Chihuahua, México",
-            fecha: "Del 1 al 3 de Noviembre del 2024",
-            boton: "RESERVAR",
-            banner: "INSCRIPCIONES ABIERTAS",
-            img: sampleTour1
-        },
-        {
-            id: 2,
-            titulo: "Reinicio - Cuevas Anayawari",
-            subtitulo: "Tónachi, Chihuahua, México",
-            fecha: "25 | 26 Enero 2025",
-            boton: "VER MÁS",
-            img: sampleTour2
-        },
-        {
-            id: 3,
-            titulo: "Tour Latidos",
-            subtitulo: "Tren Chepe | Ruta RZR | Barrancas del Cobre",
-            fecha: "15 al 16 Febrero 2025",
-            boton: "VER MÁS",
-            img: sampleTour3
+    
+    export let ubicaciones = [];
+    
+    let carouselContainer;
+    let currentIndex = 0;
+    let showNavigationButtons = false;
+    let isDesktop = false;
+    
+    // Calcular cuántas cards se ven por pantalla
+    let itemsPerView = 1;
+    
+    onMount(() => {
+        checkScreenSize();
+        window.addEventListener('resize', checkScreenSize);
+        return () => window.removeEventListener('resize', checkScreenSize);
+    });
+    
+    function checkScreenSize() {
+        if (typeof window !== 'undefined') {
+            isDesktop = window.innerWidth >= 1024; // lg breakpoint
+            
+            if (isDesktop) {
+                // En escritorio: calcular cuántas cards caben
+                if (window.innerWidth >= 1536) itemsPerView = 3; // 2xl
+                else if (window.innerWidth >= 1280) itemsPerView = 3; // xl  
+                else if (window.innerWidth >= 1024) itemsPerView = 2; // lg
+                
+                // Mostrar botones solo si hay más tours que los que caben
+                showNavigationButtons = ubicaciones.length > itemsPerView;
+            } else {
+                // En móvil siempre slide
+                itemsPerView = 1;
+                showNavigationButtons = false;
+            }
         }
-    ];
+    }
+    
+    function slideNext() {
+        const maxIndex = Math.max(0, ubicaciones.length - itemsPerView);
+        currentIndex = Math.min(currentIndex + 1, maxIndex);
+        updateCarouselPosition();
+    }
+    
+    function slidePrev() {
+        currentIndex = Math.max(currentIndex - 1, 0);
+        updateCarouselPosition();
+    }
+    
+    function updateCarouselPosition() {
+        if (carouselContainer && isDesktop) {
+            const cardWidth = 380; // Ancho de cada card
+            const gap = 40; // Gap entre cards (gap-10 = 40px)
+            const translateX = currentIndex * (cardWidth + gap);
+            carouselContainer.style.transform = `translateX(-${translateX}px)`;
+        }
+    }
+    
+    // Reactive statement para actualizar cuando cambien las ubicaciones
+    $: if (ubicaciones.length && typeof window !== 'undefined') {
+        checkScreenSize();
+    }
 </script>
 
 <section class="tours-destacados py-10 bg-black text-white">
     <h2 class="text-center text-3xl font-bold mb-8 tracking-wide uppercase">Tours Destacados</h2>
 
-    <!-- slider scroll-x -->
-    <div class="flex gap-6 overflow-x-auto px-6 snap-x snap-mandatory" style="display: flex; justify-content: center;">
-        {#each tours as tour}
-            <Tour {...tour} />
-        {/each}
+    <!-- Container del carrusel -->
+    <div class="relative px-6">
+        <!-- Botón anterior (solo escritorio) -->
+        {#if showNavigationButtons && currentIndex > 0}
+            <button 
+                on:click={slidePrev}
+                class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-black/50 backdrop-blur-sm border border-green-400 rounded-full flex items-center justify-center text-green-400 hover:bg-black/70 hover:border-green-300 hover:text-green-300 transition-all duration-300 hover:scale-105"
+            >
+                <svg class="w-6 h-6 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </button>
+        {/if}
+
+        <!-- Botón siguiente (solo escritorio) -->
+        {#if showNavigationButtons && currentIndex < ubicaciones.length - itemsPerView}
+            <button 
+                on:click={slideNext}
+                class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-black/50 backdrop-blur-sm border border-green-400 rounded-full flex items-center justify-center text-green-400 hover:bg-black/70 hover:border-green-300 hover:text-green-300 transition-all duration-300 hover:scale-105"
+            >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </button>
+        {/if}
+
+        <!-- Contenedor de las cards -->
+        <div class="overflow-hidden">
+            <div 
+                bind:this={carouselContainer}
+                class="flex gap-10 transition-transform duration-500 ease-in-out {isDesktop ? '' : 'overflow-x-auto snap-x snap-mandatory px-6'}"
+                style={isDesktop ? '' : 'padding-left: calc((100vw - 380px) / 2); padding-right: calc((100vw - 380px) / 2);'}
+            >
+                {#each ubicaciones as tour}
+                    <div class="flex-shrink-0 {isDesktop ? '' : 'snap-center'}">
+                        <Tour {...tour} />
+                    </div>
+                {/each}
+            </div>
+        </div>
+
+        <!-- Indicadores de posición (solo escritorio con navegación) -->
+        {#if showNavigationButtons}
+            <div class="flex justify-center mt-6 space-x-2">
+                {#each Array(Math.ceil(ubicaciones.length / itemsPerView)) as _, index}
+                    <button
+                        on:click={() => { currentIndex = index * itemsPerView; updateCarouselPosition(); }}
+                        class="w-2 h-2 rounded-full transition-all duration-300 {currentIndex === index * itemsPerView ? 'bg-green-400' : 'bg-gray-600 hover:bg-gray-500'}"
+                    ></button>
+                {/each}
+            </div>
+        {/if}
     </div>
 
-    <div class="text-center mt-6">
-        <a href="/experiencias" class="text-green-500 font-bold uppercase tracking-wide hover:underline">
+    <div class="text-center mt-8">
+        <a href="/experiencias" class="text-green-500 font-bold uppercase tracking-wide hover:underline hover:text-green-400 transition-colors duration-300">
             Ver todas las experiencias
         </a>
     </div>
