@@ -4,13 +4,11 @@
 	export let experiencias = [];
 
 	let search = '';
-	let mostrarActivos = true;
 
 	// Filtrado dinámico
 	$: filtradas = experiencias
 		.filter(
 			(e) =>
-				(mostrarActivos ? e.activo : true) &&
 				(e.titulo.toLowerCase().includes(search.toLowerCase()) ||
 					e.ubicacion.toLowerCase().includes(search.toLowerCase()))
 		)
@@ -27,15 +25,6 @@
 			bind:value={search}
 			class="w-full rounded-full border border-gray-300 px-4 py-2 outline-none focus:ring-2 focus:ring-green-500 md:w-1/2"
 		/>
-
-		<label class="flex items-center gap-2 text-sm text-gray-700">
-			<input
-				type="checkbox"
-				bind:checked={mostrarActivos}
-				class="rounded text-green-500 focus:ring-green-500"
-			/>
-			Solo experiencias activas
-		</label>
 	</div>
 
 	<!-- Lista de experiencias -->

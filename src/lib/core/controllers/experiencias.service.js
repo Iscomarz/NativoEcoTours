@@ -1,5 +1,24 @@
 import { supabase } from '../supabase/client';
 
+export async function getExperienciaActiva(){
+	const {data, error} = await supabase
+	.from('cexperiencia')
+	.select(`id,titulo,descripcion,fecha_inicio,fecha_fin,capacidad,activo,
+			cubicacion (id_ubicacion,nombre_ubicacion,estado_ubicacion,pais_ubicacion)`)
+	.eq('activo',true)
+	.single();
+	
+	//traer el detalle de la experiencia activa
+
+	const detalle = await getDetalleExperiencia(data.id);
+	data.detalle = detalle;
+
+	if (error) {
+		throw new Error(error.message);
+	}
+	return data;
+}
+
 export async function getExperiencias() {
 	const { data, error } = await supabase
 	.from('cexperiencia')

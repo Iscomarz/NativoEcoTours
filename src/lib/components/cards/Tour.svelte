@@ -4,11 +4,7 @@
     export let nombre_ubicacion;
     export let estado_ubicacion;
     export let pais_ubicacion;
-    export let imagenes;
-
-    onMount(() => {
-        console.log('Imagenes recibidas:', imagenes[0]);
-    });
+    export let portada;
 </script>
 
 <!-- Diseño minimalista con paleta oscura -->
@@ -19,7 +15,7 @@
         <!-- Imagen principal mucho más grande -->
         <div class="relative h-[400px] overflow-hidden">
             <img 
-                src={imagenes[0]} 
+                src={portada[0]} 
                 alt={nombre_ubicacion} 
                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />

@@ -2,14 +2,20 @@
 	import portada from '$lib/assets/backgrounds/bgBanner.jpg';
 	import ExperienciasBusqueda from '$lib/components/ExperienciasBusqueda.svelte';
 	import { onMount } from 'svelte';
+	import ToursDestacados from '$lib/components/toursDestacados.svelte';
+	import ExperienciaActiva from '$lib/components/ExperienciaActiva.svelte';
 
 	let experiencias = [];
 	export let data;
 
 	$: experiencias = data.props.experiencias;
+	$: ubicaciones = data.props.ubicaciones;
+	$: experienciaActiva = data.props.experienciaActiva;
 </script>
 
-<section class="relative h-[80vh] w-full overflow-hidden md:h-[85vh] pt-20">
+<ExperienciaActiva {experienciaActiva} />
+
+<section class="relative h-[80vh] w-full overflow-hidden md:h-[85vh]">
 	<!-- Imagen de fondo -->
 	<img src={portada} alt="Experiencias Nativo" class="h-full w-full object-cover bg-gradient-to-t from-black via-black/80 to-transparent" />
 
@@ -26,3 +32,5 @@
 </section>
 
 <ExperienciasBusqueda {experiencias} />
+
+<ToursDestacados {ubicaciones} />
