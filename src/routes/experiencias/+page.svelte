@@ -15,7 +15,14 @@
 
 <ExperienciaActiva {experienciaActiva} />
 
-<section class="relative h-[80vh] w-full overflow-hidden md:h-[85vh]">
+<div class="bg-black h-10"></div>
+
+<ToursDestacados {ubicaciones} />
+
+<!-- Sombreado de transición -->
+<div class="relative h-82 bg-gradient-to-b from-black via-black/60 to-transparent z-10"></div>
+
+<section class="relative h-[80vh] w-full overflow-hidden md:h-[65vh] -mt-82">
 	<!-- Imagen de fondo -->
 	<img src={portada} alt="Experiencias Nativo" class="h-full w-full object-cover bg-gradient-to-t from-black via-black/80 to-transparent" />
 
@@ -32,5 +39,3 @@
 </section>
 
 <ExperienciasBusqueda {experiencias} />
-
-<ToursDestacados {ubicaciones} />

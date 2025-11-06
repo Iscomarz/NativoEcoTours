@@ -132,12 +132,9 @@
 				</div>
 			{/if}
 
-			<!-- Overlay oscuro para mejor legibilidad - TEMPORALMENTE COMENTADO PARA DEBUG -->
-			<!-- <div class="absolute inset-0 bg-black bg-opacity-30"></div> -->
-
 			<!-- Información flotante -->
 			<div class="absolute top-8 left-8 z-20 max-w-lg">
-				<div class="bg-opacity-60 rounded-lg bg-black p-6">
+				<div class="bg-black/50 rounded-lg p-6">
 					<div class="space-y-4 text-white">
 						<!-- Título -->
 						<h1 class="text-4xl leading-tight font-bold drop-shadow-lg md:text-5xl">
@@ -247,6 +244,9 @@
 					</div>
 				</div>
 			{/if}
+
+			<!-- Sombreado gradiente inferior -->
+			<div class="absolute bottom-0 left-0 right-0 h-80 bg-gradient-to-t from-black/95 via-black/80 to-transparent pointer-events-none z-20"></div>
 		</div>
 	{/if}
 </div>
