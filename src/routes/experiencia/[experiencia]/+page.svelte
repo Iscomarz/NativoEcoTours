@@ -54,6 +54,14 @@
 			{getFechaBonita(experiencia.fecha_inicio, experiencia.fecha_fin)}
 		</p>
 		<button
+			on:click={() => {
+				const element = document.getElementById('habitaciones-section');
+				if (element) {
+					const yOffset = -100; // Offset de 100px arriba
+					const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+					window.scrollTo({ top: y, behavior: 'smooth' });
+				}
+			}}
 			class="mt-6 flex items-center gap-2 rounded bg-green-600 px-6 py-2 font-bold text-white transition hover:bg-green-700"
 		>
 			<span>RESERVAR</span>
@@ -110,23 +118,14 @@
 			<!-- Acciones -->
 			<div class="mt-4 flex flex-col gap-3 text-black">
 				<button
-					class="flex items-center gap-2 rounded bg-neutral-700 px-5 py-2 font-semibold text-white hover:bg-neutral-600"
-				>
-					AVÍSAME CUANDO ESTÉ DISPONIBLE
-					<svg
-						class="h-5 w-5"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						viewBox="0 0 24 24"
-						><path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M13 16h-1v-4h-1m2 0V9a4 4 0 10-8 0v4a4 4 0 008 0V9a4 4 0 10-8 0v4"
-						></path></svg
-					>
-				</button>
-				<button
+					on:click={() => {
+						const element = document.getElementById('habitaciones-section');
+						if (element) {
+							const yOffset = -100; // Offset de 100px arriba
+							const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+							window.scrollTo({ top: y, behavior: 'smooth' });
+						}
+					}}
 					class="flex items-center gap-2 rounded bg-green-600 px-5 py-2 font-semibold text-white hover:bg-green-700"
 				>
 					RESERVAR
@@ -140,21 +139,17 @@
 					>
 				</button>
 				<button
+					on:click={() => goto('/cotizacion')}
 					class="flex items-center gap-2 rounded bg-neutral-700 px-5 py-2 font-semibold text-white hover:bg-neutral-600"
 				>
-					COTIZACIÓN EN GRUPO
+					COTIZACIÓN PERSONALIZADA
 					<svg
 						class="h-5 w-5"
 						fill="none"
 						stroke="currentColor"
 						stroke-width="2"
 						viewBox="0 0 24 24"
-						><path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M17 20h5v-2a4 4 0 00-5-4 4 4 0 00-4 4v2h5zm-9 0h5v-2a4 4 0 00-5-4 4 4 0 00-4 4v2h5zm7-10a4 4 0 11-8 0 4 4 0 018 0z"
-						></path></svg
-					>
+						><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.868v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
 				</button>
 			</div>
 
@@ -177,7 +172,7 @@
 
 	<!-- Habitaciones -->
 	{#if experiencia.habitaciones && experiencia.habitaciones.length > 0}
-		<section class="px-6 py-12 md:px-20">
+		<section id="habitaciones-section" class="px-6 py-12 md:px-20">
 			<h2 class="mb-8 text-3xl font-extrabold tracking-wider text-white/90">Habitaciones Disponibles</h2>
 			<div class="flex gap-6 overflow-x-auto pb-4">
 				{#each experiencia.habitaciones as hab}

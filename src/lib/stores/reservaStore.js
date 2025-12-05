@@ -6,6 +6,7 @@ export const reservaStore = writable({
   email: null,
   telefono: null,
   idexperiencia: null,
+  nombreExperiencia: null,
   fechaReserva: null,
   fechaLiquidacion: null,
   totalImporte: null,
@@ -30,6 +31,7 @@ export function agregarExperiencia(reserva) {
     reservaStore.update(datos => ({
         ...datos,
         idexperiencia: reserva.idexperiencia,
+        nombreExperiencia: reserva.nombreExperiencia,
         fechaReserva: reserva.fechaReserva,
         fechaLiquidacion: reserva.fechaLiquidacion,
         nombre: reserva.nombre,

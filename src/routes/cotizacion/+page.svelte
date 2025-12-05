@@ -1,5 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
+
+	export let data;
+	$: ubicaciones = data.ubicaciones || [];
 	
 	let scrollY = 0;
 	
@@ -52,17 +55,126 @@
 	}
 	
 	function nextStep() {
+		// Validaciones por paso
+		if (currentStep === 1) {
+			// Validar vehículo de renta si aplica
+			if (showVehiculoRenta && formData.vehiculoRenta === null) {
+				alert('Por favor indica si estarían dispuestos a viajar en vehículo de renta.');
+				return;
+			}
+		}
+		
+		if (currentStep === 2) {
+			// Validar destino de interés
+			if (!formData.destinos) {
+				alert('Por favor selecciona un destino de interés.');
+				return;
+			}
+		}
+		
 		if (currentStep < totalSteps) currentStep++;
 	}
 	
 	function prevStep() {
 		if (currentStep > 1) currentStep--;
 	}
+
+	function cleanForm() {
+		formData = {
+			adultos: 2,
+			menores: [],
+			vehiculoRenta: null,
+			destinos: '',
+			fechaLlegada: '',
+			fechaSalida: '',	
+			hospedaje: '',
+			transporte: '',
+			experiencias: [],
+			presupuesto: '',
+			tipoViaje: '',
+			nombre: '',
+			email: '',
+			telefono: '',
+			comentarios: ''
+		};
+	}
+
+	function goToStep(step) {
+		if (step >= 1 && step <= totalSteps) {
+			currentStep = step;
+		}
+	}
 	
 	function submitForm() {
-		console.log('Formulario enviado:', formData);
-		// Aquí puedes agregar la lógica para enviar el formulario
-		alert('¡Gracias! Pronto recibirás tu cotización personalizada.');
+		// Validar campos requeridos
+		if (!formData.nombre || !formData.email || !formData.telefono) {
+			alert('Por favor completa los campos de Nombre, Email y Teléfono.');
+			return;
+		}
+		
+		// Validar formato de email básico
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(formData.email)) {
+			alert('Por favor ingresa un email válido.');
+			return;
+		}
+		
+		// Generar mensaje para WhatsApp
+		const menoresTexto = formData.menores.length > 0 
+			? formData.menores.map(m => `  - ${m.nombre} (${m.edad} años)`).join('\n')
+			: '  Ninguno';
+
+		const mensaje = `
+🌿 *NUEVA SOLICITUD DE COTIZACIÓN - NATIVO ECO TOURS* 🌿
+
+━━━━━━━━━━━━━━━━━━━━━
+👥 *GRUPO DE VIAJE*
+━━━━━━━━━━━━━━━━━━━━━
+• Adultos: ${formData.adultos}
+• Menores: ${formData.menores.length}
+${menoresTexto}
+• Tipo de viaje: ${formData.tipoViaje || 'No especificado'}
+${formData.vehiculoRenta !== null ? `• Vehículo de renta: ${formData.vehiculoRenta ? 'Sí, pueden manejar' : 'No, prefieren chofer'}` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━
+📍 *DESTINO Y FECHAS*
+━━━━━━━━━━━━━━━━━━━━━
+• Destino: ${formData.destinos || 'No especificado'}
+• Llegada: ${formData.fechaLlegada || 'Por definir'}
+• Salida: ${formData.fechaSalida || 'Por definir'}
+
+━━━━━━━━━━━━━━━━━━━━━
+🏨 *PREFERENCIAS*
+━━━━━━━━━━━━━━━━━━━━━
+• Hospedaje: ${formData.hospedaje || 'No especificado'}
+• Transporte: ${formData.transporte || 'No especificado'}
+• Experiencias: ${formData.experiencias.length > 0 ? formData.experiencias.join(', ') : 'No especificado'}
+• Presupuesto: ${formData.presupuesto || 'Por definir'}
+
+━━━━━━━━━━━━━━━━━━━━━
+👤 *DATOS DE CONTACTO*
+━━━━━━━━━━━━━━━━━━━━━
+• Nombre: ${formData.nombre}
+• Email: ${formData.email}
+• Teléfono: ${formData.telefono}
+${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentarios}` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━
+✨ _Solicitud generada desde nativoecotours.com_
+		`.trim();
+
+		// Generar URL de WhatsApp
+		const numeroWhatsApp = '5216146029050';
+		const mensajeCodificado = encodeURIComponent(mensaje);
+		const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${mensajeCodificado}`;
+		
+		// Abrir WhatsApp en nueva ventana
+		window.open(urlWhatsApp, '_blank');
+		
+		// Mostrar mensaje de confirmación
+		alert('¡Redirigiendo a WhatsApp! Envía el mensaje para completar tu solicitud de cotización.');
+		cleanForm();
+		goToStep(1);
 	}
 	
 	$: showVehiculoRenta = formData.adultos + formData.menores.length < 7;
@@ -70,7 +182,7 @@
 
 <svelte:window bind:scrollY />
 
-<div class="min-h-screen bg-gradient-to-b from-neutral-900 via-neutral-800 to-neutral-900">
+<div class="min-h-screen bg-gradient-to-b from-neutral-900 via-neutral-800 to-neutral-900 mt-20">
 	<!-- Hero Section -->
 	<section class="relative h-96 overflow-hidden">
 		<!-- Background Image con Parallax -->
@@ -106,7 +218,7 @@
 	</section>
 
 	<!-- Progress Bar -->
-	<div class="sticky top-0 z-50 bg-neutral-900/95 backdrop-blur-sm border-b border-neutral-700">
+	<div class="sticky top-24 z-40 bg-neutral-900/95 backdrop-blur-sm border-b border-neutral-700">
 		<div class="max-w-4xl mx-auto px-6 py-4">
 			<div class="flex items-center justify-between mb-2">
 				<span class="text-sm font-medium text-green-400">Paso {currentStep} de {totalSteps}</span>
@@ -280,30 +392,36 @@
 
 						<!-- Destinos -->
 						<div class="space-y-4">
-							<label class="block text-lg font-semibold text-green-400">Destino(s) de Interés</label>
-							<textarea 
+							<label class="block text-lg font-semibold text-green-400">Destino de Interés</label>
+							<select 
 								bind:value={formData.destinos}
-								placeholder="Ej: Barrancas del Cobre, Creel, Cascada de Basaseachi, etc."
-								rows="4"
-								class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors resize-none"
-							></textarea>
+								class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
+							>
+								<option value="">Selecciona un destino</option>
+								{#each ubicaciones as ubicacion}
+									<option value={ubicacion.nombre_ubicacion}>
+										{ubicacion.nombre_ubicacion}
+									</option>
+								{/each}
+							</select>
 						</div>
 
 						<!-- Fechas -->
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-							<div class="space-y-4">
-								<label class="block text-lg font-semibold text-green-400">Llegada a Chihuahua Capital</label>
-								<input 
-									type="date"
-									bind:value={formData.fechaLlegada}
-									class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
-								>
-							</div>
+							
 							<div class="space-y-4">
 								<label class="block text-lg font-semibold text-green-400">Salida de Chihuahua Capital</label>
 								<input 
 									type="date"
 									bind:value={formData.fechaSalida}
+									class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
+								>
+							</div>
+							<div class="space-y-4">
+								<label class="block text-lg font-semibold text-green-400">Llegada a Chihuahua Capital</label>
+								<input 
+									type="date"
+									bind:value={formData.fechaLlegada}
 									class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
 								>
 							</div>

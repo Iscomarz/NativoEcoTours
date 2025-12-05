@@ -27,5 +27,5 @@
 
 <!-- Contenido principal debajo del video -->
 <div class="relative z-20 flex flex-col">
-    <ToursDestacados {ubicaciones} />
+    <ToursDestacados {ubicaciones} todasLasExperiencias={true} />
 </div>

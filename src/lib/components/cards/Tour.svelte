@@ -5,6 +5,18 @@
     export let estado_ubicacion;
     export let pais_ubicacion;
     export let portada;
+    
+    // Función para formatear el nombre para la URL
+    function formatearNombreParaURL(nombre) {
+        return nombre
+            .replace(/\s+/g, '-')        // Reemplazar espacios con guiones
+            .replace(/[áàäâ]/g, 'a')     // Normalizar caracteres
+            .replace(/[éèëê]/g, 'e')
+            .replace(/[íìïî]/g, 'i')
+            .replace(/[òöô]/g, 'o')
+            .replace(/[úùüû]/g, 'u')
+            .replace(/ñ/g, 'n'); // Eliminar caracteres especiales
+    }
 </script>
 
 <!-- Diseño minimalista con paleta oscura -->
@@ -51,12 +63,15 @@
                 <div class="flex-1 h-px bg-neutral-700 group-hover:bg-green-400 transition-colors duration-500"></div>
                 
                 <!-- Botón -->
-                <button class="ml-4 group/btn flex items-center text-green-400 hover:text-green-300 font-medium text-sm transition-all duration-300">
+                <a 
+                    href="/ubicacion/{formatearNombreParaURL(nombre_ubicacion)}"
+                    class="ml-4 group/btn flex items-center text-green-400 hover:text-green-300 font-medium text-sm transition-all duration-300"
+                >
                     <span class="mr-2">Explorar</span>
                     <svg class="w-4 h-4 transform transition-transform group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                     </svg>
-                </button>
+                </a>
             </div>
         </div>
     </div>

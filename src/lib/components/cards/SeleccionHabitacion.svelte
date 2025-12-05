@@ -12,6 +12,7 @@
 	export let formulario; // función para manejar el submit
 	export let sesionActiva = false; // si hay sesión activa, no pedir datos
 	export let experiencia_id;
+	export let nombreExperiencia;
 
 	$: formulario = formulario ?? {};
 
@@ -235,6 +236,7 @@
 			//Datos experiencia
 			experiencia_id: experiencia_id ?? null,
 			fecha_reserva: new Date(),
+			nombreExperiencia: nombreExperiencia ?? '',
 
 			//datos grupo y pago
 			grupo: seleccion === 'grupo' ? 1 : 0,

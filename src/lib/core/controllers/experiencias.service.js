@@ -48,6 +48,20 @@ export async function getExperienciaByTitulo(titulo) {
 	return data;
 }
 
+export async function getExperienciaById(id) {
+	const { data, error } = await supabase
+		.from('cexperiencia')
+		.select(`id,titulo,descripcion,fecha_inicio,fecha_fin,capacidad,activo,
+			cubicacion(id_ubicacion,nombre_ubicacion,estado_ubicacion,pais_ubicacion)`)
+		.eq('id', id)
+		.single();
+
+	if (error) {
+		throw new Error(error.message);
+	}
+	return data;
+}
+
 export async function getDetalleExperiencia(idexperiencia) {
 	const { data, error } = await supabase
 		.from('dexperiencia')

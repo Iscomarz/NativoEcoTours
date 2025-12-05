@@ -5,8 +5,6 @@
   // Props
   /** @type {string[]} URLs de las imágenes */
   export let imagenes = [];
-  /** @type {string} Título opcional para la galería */
-  export let titulo = "Galería de imágenes";
   
   // Estado local
   let modalAbierto = false;
@@ -83,21 +81,7 @@
   }
 </script>
 
-<div class="w-full bg-[#181818] mt-14">
-  <div class="mb-4 flex items-center justify-between">
-    {#if titulo}
-      <h2 class="text-xl font-bold tracking-wide text-white/90">{titulo}</h2>
-    {/if}
-    
-    {#if hiddenImagesCount > 0}
-      <button
-        on:click={verTodasLasImagenes}
-        class="rounded bg-neutral-700 px-3 py-1 text-sm text-white hover:bg-neutral-600 transition-colors"
-      >
-        Ver todas ({imagenes.length})
-      </button>
-    {/if}
-  </div>
+<div class="w-full bg-[#181818] p-6">
   
   <!-- Grid de tipo "masonry" con layout fijo -->
   <div 

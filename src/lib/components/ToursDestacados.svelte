@@ -3,6 +3,7 @@
     import Tour from './cards/Tour.svelte';
     
     export let ubicaciones = [];
+    export let todasLasExperiencias = false;
     
     let carouselContainer;
     let currentIndex = 0;
@@ -40,20 +41,26 @@
     
     function slideNext() {
         const maxIndex = Math.max(0, ubicaciones.length - itemsPerView);
-        currentIndex = Math.min(currentIndex + 1, maxIndex);
-        updateCarouselPosition();
+        if (currentIndex < maxIndex) {
+            currentIndex += 1;
+            updateCarouselPosition();
+        }
     }
     
     function slidePrev() {
-        currentIndex = Math.max(currentIndex - 1, 0);
-        updateCarouselPosition();
+        if (currentIndex > 0) {
+            currentIndex -= 1;
+            updateCarouselPosition();
+        }
     }
     
     function updateCarouselPosition() {
         if (carouselContainer && isDesktop) {
             const cardWidth = 380; // Ancho de cada card
             const gap = 40; // Gap entre cards (gap-10 = 40px)
-            const translateX = currentIndex * (cardWidth + gap);
+            // Desplazamiento más suave: avanza menos distancia (75% del ancho + gap)
+            const scrollAmount = (cardWidth * 0.75) + gap; // ~325px por cada click
+            const translateX = currentIndex * scrollAmount;
             carouselContainer.style.transform = `translateX(-${translateX}px)`;
         }
     }
@@ -121,9 +128,11 @@
         {/if}
     </div>
 
-    <div class="text-center mt-8">
-        <a href="/experiencias" class="text-green-500 font-bold uppercase tracking-wide hover:underline hover:text-green-400 transition-colors duration-300">
-            Ver todas las experiencias
-        </a>
-    </div>
+    {#if todasLasExperiencias}
+        <div class="text-center mt-8">
+            <a href="/experiencias" class="text-green-500 font-bold uppercase tracking-wide hover:underline hover:text-green-400 transition-colors duration-300">
+                Ver todas las experiencias
+            </a>
+        </div>
+    {/if}
 </section>

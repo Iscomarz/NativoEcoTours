@@ -1,4 +1,6 @@
-import {getHabitacionesByExperiencia} from '$lib/core/controllers/experiencias.service.js';
+import {getHabitacionesByExperiencia, 
+        getExperienciaById,
+        getDetalleExperiencia} from '$lib/core/controllers/experiencias.service.js';
 import { error } from '@sveltejs/kit';
 
 export async function load({ params, parent }) {
@@ -29,11 +31,15 @@ export async function load({ params, parent }) {
   const nombre = match[2].replace(/-/g, ' ').trim();
 
   const habitaciones = await getHabitacionesByExperiencia(id, nombre);
+  const experiencia = await getExperienciaById(id);
+  const detalleExperiencia = await getDetalleExperiencia(id);
 
   return {
     props: {
       habitaciones,
-      sesionActiva
+      sesionActiva,
+      experiencia,
+      detalleExperiencia
     }
   };
 }

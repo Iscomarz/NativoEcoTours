@@ -36,10 +36,8 @@
 
 	// Función para navegar a la experiencia
 	function navegarAExperiencia() {
-		if (experienciaActiva?.slug || experienciaActiva?.id) {
-			const ruta = experienciaActiva.slug
-				? `/experiencia/${experienciaActiva.slug}`
-				: `/experiencia/${experienciaActiva.id}`;
+		if (experienciaActiva?.titulo) {
+			const ruta = `/experiencia/${experienciaActiva.titulo.replace(/\s+/g, '-')}`;
 			goto(ruta);
 		}
 	}
