@@ -17,8 +17,6 @@
 
 <div class="bg-black h-10"></div>
 
-<ToursDestacados {ubicaciones} />
-
 <!-- Sombreado de transición -->
 <div class="relative h-82 bg-gradient-to-b from-black via-black/60 to-transparent z-10"></div>
 
@@ -39,3 +37,38 @@
 </section>
 
 <ExperienciasBusqueda {experiencias} />
+
+<ToursDestacados {ubicaciones} />
+
+<!-- Sección: Por qué nuestras experiencias son únicas -->
+<section class="bg-neutral-900 py-12">
+	<div class="max-w-6xl mx-auto px-6">
+		<h2 class="text-center text-white font-bold text-xl tracking-wider mb-6">POR QUE NUESTRAS EXPERIENCIAS SON UNICAS</h2>
+
+		<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+			<div class="bg-neutral-900/40 p-6 rounded-lg border border-white/10">
+				<h3 class="text-sm font-bold text-white mb-2">TOUR</h3>
+				<p class="text-sm text-gray-300">Itinerario especializado para que disfrutes de cada momento</p>
+			</div>
+
+			<div class="bg-neutral-900/40 p-6 rounded-lg border border-white/10">
+				<h3 class="text-sm font-bold text-white mb-2">HOSPEDAJE Y EXPERIENCIA</h3>
+				<p class="text-sm text-gray-300">Instalaciones equipadas para cada experiencia, cabañas/hotel de 1 a 2 días con servicio de restaurante</p>
+			</div>
+
+			<div class="bg-neutral-900/40 p-6 rounded-lg border border-white/10">
+				<h3 class="text-sm font-bold text-white mb-2">TRANSPORTE</h3>
+				<p class="text-sm text-gray-300">Transporte redondo con un coordinador turístico y seguro carretera</p>
+			</div>
+
+			<div class="bg-neutral-900/40 p-6 rounded-lg border border-white/10">
+				<h3 class="text-sm font-bold text-white mb-2">SET EN VIVO</h3>
+				<p class="text-sm text-gray-300">Música en vivo de los mejores djs locales</p>
+			</div>
+		</div>
+
+		<div class="flex justify-center">
+			<a href="/cotizacion" class="inline-block bg-black text-white px-6 py-3 rounded shadow-md hover:opacity-90 tracking-wider font-semibold">Cotización personalizada</a>
+		</div>
+	</div>
+</section>

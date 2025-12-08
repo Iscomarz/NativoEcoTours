@@ -44,20 +44,18 @@
 
 	// Configurar slideshow automático
 	onMount(() => {
-		console.log('🔍 ExperienciaActiva recibida:', experienciaActiva);
-		console.log('🔍 Imágenes disponibles:', experienciaActiva?.detalle?.imagenes);
-		console.log('🔍 Cantidad de imágenes:', experienciaActiva?.detalle?.imagenes?.length);
-		console.log('🔍 Primera imagen:', experienciaActiva?.detalle?.imagenes?.[0]);
+		//console.log('🔍 ExperienciaActiva recibida:', experienciaActiva);
+		//console.log('🔍 Imágenes disponibles:', experienciaActiva?.detalle?.imagenes);
+		//console.log('🔍 Cantidad de imágenes:', experienciaActiva?.detalle?.imagenes?.length);
+		//console.log('🔍 Primera imagen:', experienciaActiva?.detalle?.imagenes?.[0]);
 
 		if (experienciaActiva?.detalle?.imagenes?.length > 1) {
-			console.log('⏰ Iniciando slideshow automático');
 			intervalId = setInterval(() => {
 				const newIndex = (currentImageIndex + 1) % experienciaActiva.detalle.imagenes.length;
-				console.log('🔄 Cambiando a imagen índice:', newIndex);
 				currentImageIndex = newIndex;
 			}, 5000);
 		} else {
-			console.log('📷 Solo una imagen disponible, no se inicia slideshow');
+			//console.log('📷 Solo una imagen disponible, no se inicia slideshow');
 		}
 	});
 

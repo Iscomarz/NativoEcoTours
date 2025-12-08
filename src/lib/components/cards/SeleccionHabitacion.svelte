@@ -3,7 +3,7 @@
 	import MReserva from '$lib/objects/MReserva';
 	import { reservaStore } from '$lib/stores/reservaStore.js';
 	import { get } from 'svelte/store';
-	import { toast } from 'sonner';
+	import { toast, Toaster } from 'svelte-sonner';
 	import {goto} from '$app/navigation';
 	import { getOcupacionesMultiplesHabitaciones, calcularEspaciosOcupados, isEspacioOcupado } from '$lib/core/controllers/habitaciones.service.js';
 
@@ -17,9 +17,9 @@
 	$: formulario = formulario ?? {};
 
 	let reserva = new MReserva();
-	let seleccion = 'grupo'; // 'grupo' | 'individual'
+	export let seleccion = 'grupo'; // 'grupo' | 'individual'
 	let grupo = true; // estado para mostrar controles
-	let cantidad = 2; // cantidad de personas en modo grupo
+	export let cantidad = 2; // cantidad de personas en modo grupo
 
 	$: grupo = seleccion === 'grupo';
 
@@ -109,7 +109,12 @@
 	}
 
 	// conteo_capacidad total seleccionado y máximo permitido según modo
+	export let selectedCount = 0;
 	$: selectedCount = selectedByRoom.reduce((acc, s) => acc + s.size, 0);
+
+	// Exportar si el formulario se puede enviar (útil para el botón externo)
+	export let canSubmit = false;
+	$: canSubmit = !((seleccion === 'individual' && selectedCount < 1) || (seleccion === 'grupo' && selectedCount < Math.min(cantidad, maxSelectable)));
 	$: maxSelectable = seleccion === 'individual' ? 1 : cantidad;
 
 	// Utilidad para recortar selección a N sin usar reactivas
@@ -203,7 +208,13 @@
 	// Personas que se cobrarán según modo
 	$: personasParaPrecio = seleccion === 'individual' ? 1 : cantidad || 0;
 
-	function mandarFormulario() {
+	// Precio unitario y total a pagar (exportados para que el padre los lea)
+	export let precioUnitario = habitaciones?.[0]?.chabitacion?.precioPersona ?? 0;
+	export let totalAPagar = 0;
+	$: precioUnitario = habitaciones?.[0]?.chabitacion?.precioPersona ?? 0;
+	$: totalAPagar = (precioUnitario || 0) * (seleccion === 'individual' ? 1 : cantidad || 0);
+
+	export function mandarFormulario() {
 		// Aquí puedes manejar el envío del formulario
 
 		if (!sesionActiva && (!formulario.nombre || !formulario.telefono || !formulario.email)) {
@@ -266,6 +277,8 @@
 		}
 		
 </script>
+
+<Toaster />
 
 <div class="mb-4 flex items-center gap-4">
 	<label class="flex items-center gap-2 text-white">
@@ -390,7 +403,7 @@
 	</div>
 </div>
 
-<button
+<!-- <button
 	type="submit"
 	on:click={() => mandarFormulario()}
 	class="mt-5 w-full rounded bg-green-600 py-3 text-lg font-semibold tracking-wider text-white transition hover:bg-green-700 disabled:opacity-60"
@@ -401,4 +414,4 @@
 	{habitaciones?.[0]?.chabitacion.precioPersona
 		? (habitaciones[0].chabitacion.precioPersona * (personasParaPrecio || 0)).toLocaleString()
 		: '0'}
-</button>
+</button> -->

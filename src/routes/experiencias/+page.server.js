@@ -21,7 +21,6 @@ export const load = async () => {
 
 	//traer experiencia activa
 	let experienciaActiva = await getExperienciaActiva();
-	console.log('Experiencia Activa:', experienciaActiva);
 
 	return {
 		props: {

@@ -2,6 +2,7 @@
     import { reservaStore } from '$lib/stores/reservaStore';
     import { onMount, onDestroy } from 'svelte';
     import { goto } from '$app/navigation';
+    import { toast, Toaster } from 'svelte-sonner';
     import StripePayment from '$lib/components/pagos/StripePayment.svelte';
 	import { createReserva, createPago, createHabitacionReserva } from '$lib/core/controllers/reservas.service.js';
 	import MReserva from '$lib/objects/MReserva';
@@ -86,7 +87,7 @@
                 goto('/');
                 
                 // También podrías mostrar un mensaje antes de redirigir
-                alert('¡Tiempo agotado! Tu reserva ha sido cancelada.');
+                toast.error('¡Tiempo agotado! Tu reserva ha sido cancelada.');
             }
         }, 1000);
     });
@@ -224,7 +225,7 @@
                 errorMessage = error.message;
             }
             
-            alert(`${errorMessage}. El pago fue exitoso, pero contacta al soporte para verificar tu reserva.`);
+            toast.error(`${errorMessage}. El pago fue exitoso, pero contacta al soporte para verificar tu reserva.`);
             // Mantener visible que el pago fue exitoso aunque haya errores en el guardado
             guardadoPago = true;
         }
@@ -234,12 +235,14 @@
         console.error('Error en el pago:', error);
         // Aquí puedes mostrar el error al usuario
         // Por ejemplo, con una notificación toast
-        alert(`Error en el pago: ${error.message}`);
+        toast.error(`Error en el pago: ${error.message}`);
     }
 
     // Función para obtener el monto total en MXN (ya viene en pesos mexicanos)
     $: totalMXN = $reservaStore?.total || 0;
 </script>
+
+<Toaster />
 
 <div class="min-h-screen bg-[#181818] py-10 px-4 sm:px-6 lg:px-8">
     <div class="max-w-4xl mx-auto">

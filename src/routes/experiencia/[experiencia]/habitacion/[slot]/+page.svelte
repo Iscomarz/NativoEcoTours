@@ -18,6 +18,14 @@
 	let lugaresDisponibles = 0;
 	let sesionActiva = false;
 
+	let selComp;
+	let canSubmit = false;
+	let totalAPagar = 0;
+
+	$: formattedTotal = (typeof totalAPagar === 'number' && !isNaN(totalAPagar))
+		? totalAPagar.toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
+		: '';
+
 	// Función para manejar el submit del formulario de selección de habitación
 	$: formulario = {
 		nombre,
@@ -63,6 +71,9 @@
 			</div>
 
 			<SeleccionHabitacion 
+				bind:this={selComp}
+				bind:canSubmit={canSubmit}
+				bind:totalAPagar={totalAPagar}
 				{habitaciones}
 				{imgHabitacion}
 				{formulario}
@@ -127,22 +138,35 @@
 					<form class="flex flex-col gap-3">
 						<input
 							class="rounded bg-neutral-700 px-3 py-2 text-white outline-none focus:ring-2 focus:ring-green-500 transition-all"
-							placeholder="Nombre"
+							placeholder="Nombre" type="text" maxlength="40"
 							bind:value={nombre}
 						/>
 						<input
 							class="rounded bg-neutral-700 px-3 py-2 text-white outline-none focus:ring-2 focus:ring-green-500 transition-all"
-							placeholder="Teléfono"
+							placeholder="Teléfono" type="number" maxlength="10"
 							bind:value={telefono}
 						/>
 						<input
 							class="rounded bg-neutral-700 px-3 py-2 text-white outline-none focus:ring-2 focus:ring-green-500 transition-all"
-							placeholder="Email"
+							placeholder="Email" type="email" maxlength="30"
 							bind:value={email}
 						/>
 					</form>
 				</div>
 			{/if}
+
+			<!-- Botón de pago global: aparece debajo de todo el contenido, útil para mobile -->
+						<div >
+							<button
+								type="button"
+								on:click={() => selComp?.mandarFormulario && selComp.mandarFormulario()}
+								class="w-full rounded bg-green-600 py-3 text-lg font-semibold tracking-wider text-white transition hover:bg-green-700 disabled:opacity-60"
+								aria-label="Pagar / Reservar"
+								disabled={!canSubmit}
+							>
+								IR A PAGAR{#if formattedTotal} : {formattedTotal}{/if}
+							</button>
+						</div>
 		</div>
 	</div>
 </div>

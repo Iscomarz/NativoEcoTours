@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { toast, Toaster } from 'svelte-sonner';
 
 	export let data;
 	$: ubicaciones = data.ubicaciones || [];
@@ -59,7 +60,7 @@
 		if (currentStep === 1) {
 			// Validar vehículo de renta si aplica
 			if (showVehiculoRenta && formData.vehiculoRenta === null) {
-				alert('Por favor indica si estarían dispuestos a viajar en vehículo de renta.');
+				toast.error('Por favor indica si estarían dispuestos a viajar en vehículo de renta.');
 				return;
 			}
 		}
@@ -67,7 +68,7 @@
 		if (currentStep === 2) {
 			// Validar destino de interés
 			if (!formData.destinos) {
-				alert('Por favor selecciona un destino de interés.');
+				toast.error('Por favor selecciona un destino de interés.');
 				return;
 			}
 		}
@@ -108,14 +109,14 @@
 	function submitForm() {
 		// Validar campos requeridos
 		if (!formData.nombre || !formData.email || !formData.telefono) {
-			alert('Por favor completa los campos de Nombre, Email y Teléfono.');
+			toast.error('Por favor completa los campos de Nombre, Email y Teléfono.');
 			return;
 		}
 		
 		// Validar formato de email básico
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		if (!emailRegex.test(formData.email)) {
-			alert('Por favor ingresa un email válido.');
+			toast.error('Por favor ingresa un email válido.');
 			return;
 		}
 		
@@ -172,7 +173,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 		window.open(urlWhatsApp, '_blank');
 		
 		// Mostrar mensaje de confirmación
-		alert('¡Redirigiendo a WhatsApp! Envía el mensaje para completar tu solicitud de cotización.');
+		toast.success('¡Redirigiendo a WhatsApp! Envía el mensaje para completar tu solicitud de cotización.');
 		cleanForm();
 		goToStep(1);
 	}
@@ -181,6 +182,8 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 </script>
 
 <svelte:window bind:scrollY />
+
+<Toaster />
 
 <div class="min-h-screen bg-gradient-to-b from-neutral-900 via-neutral-800 to-neutral-900 mt-20">
 	<!-- Hero Section -->
@@ -289,12 +292,12 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 							{/if}
 
 							<!-- Agregar menor -->
-							<div class="flex space-x-3">
+							<div class="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0">
 								<input 
 									type="text"
 									bind:value={nuevoMenor.nombre}
 									placeholder="Nombre del menor"
-									class="flex-1 bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
+									class="flex-1 min-w-0 w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
 								>
 								<input 
 									type="number"
@@ -302,12 +305,13 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 									placeholder="Edad"
 									min="0"
 									max="17"
-									class="w-24 bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
+									class="w-full sm:w-24 bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
 								>
 								<button 
 									type="button"
 									on:click={agregarMenor}
-									class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all"
+									aria-label="Agregar menor"
+									class="w-full sm:w-auto shrink-0 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all mt-2 sm:mt-0"
 								>
 									Agregar
 								</button>
@@ -546,7 +550,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 							<div class="space-y-4">
 								<label class="block text-lg font-semibold text-green-400">Nombre Completo</label>
 								<input 
-									type="text"
+									type="text" maxlength="45"
 									bind:value={formData.nombre}
 									placeholder="Tu nombre completo"
 									class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
@@ -555,7 +559,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 							<div class="space-y-4">
 								<label class="block text-lg font-semibold text-green-400">Email</label>
 								<input 
-									type="email"
+									type="email" maxlength="35"
 									bind:value={formData.email}
 									placeholder="tu@email.com"
 									class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
@@ -566,7 +570,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 						<div class="space-y-4">
 							<label class="block text-lg font-semibold text-green-400">Teléfono</label>
 							<input 
-								type="tel"
+								type="number" maxlength="10"
 								bind:value={formData.telefono}
 								placeholder="+52 614 123 4567"
 								class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
