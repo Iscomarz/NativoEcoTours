@@ -294,13 +294,13 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 							<!-- Agregar menor -->
 							<div class="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0">
 								<input 
-									type="text"
+									type="text" maxlength="45"
 									bind:value={nuevoMenor.nombre}
 									placeholder="Nombre del menor"
 									class="flex-1 min-w-0 w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
 								>
 								<input 
-									type="number"
+									type="number" maxlength="2"
 									bind:value={nuevoMenor.edad}
 									placeholder="Edad"
 									min="0"
