@@ -2,7 +2,13 @@
 export default {
   content: ['./src/**/*.{html,js,svelte,ts}'],
   theme: {
-    extend: {}
+    extend: {
+      fontFamily: {
+        'poppins': ['Poppins', 'sans-serif'],
+        'oswald': ['Oswald', 'sans-serif'],
+        'bebas': ['Bebas Neue', 'sans-serif']
+      }
+    }
   },
   plugins: []
 };

@@ -20,7 +20,7 @@
 		})
 </script>
 
-<section class="bg-black text-white px-6 py-12 md:px-20">
+<section class="text-white px-6 py-12 md:px-20">
 	<!-- Barra de búsqueda y filtro -->
 	<div class="mb-8 flex flex-col items-center justify-between gap-4 md:flex-row">
 		<input
@@ -35,14 +35,14 @@
 	<div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 		{#each filtradas as exp}
 			<a href="/experiencia/{exp.experiencia}" class="no-underline" aria-label={`Ver ${exp.titulo}`}>
-				<div class="rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-800 shadow-xl transition-transform duration-300 hover:scale-105">
+				<div class="rounded-2xl overflow-hidden bg-neutral-900/30 backdrop-blur-md border border-neutral-800 shadow-xl transition-transform duration-300 hover:scale-105">
 					{#if exp.portada && exp.portada[0]}
 						<div class="h-40 overflow-hidden bg-black">
 							<img src={exp.portada[0]} alt={exp.titulo} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
 						</div>
 					{/if}
 
-					<div class="p-4">
+					<div class="p-4 backdrop-blur-sm">
 						<h3 class="text-lg font-semibold text-white line-clamp-1">{exp.titulo}</h3>
 						<p class="mt-1 text-sm text-neutral-400">{exp.cubicacion.nombre_ubicacion}{exp.cubicacion.estado_ubicacion ? `, ${exp.cubicacion.estado_ubicacion}` : ''}</p>
 						<p class="mt-2 text-sm text-neutral-300 line-clamp-3">{exp.descripcion}</p>

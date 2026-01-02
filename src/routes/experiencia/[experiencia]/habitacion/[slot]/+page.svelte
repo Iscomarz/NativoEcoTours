@@ -44,8 +44,8 @@
 	});
 </script>
 
-<div class="titulo flex flex-row items-end justify-start pt-26 text-center bg-[#181818] text-white">
-	<h1 class="text-3xl pl-6">Eliguie en que habitacion te quieres quedar...</h1>
+<div class="titulo flex flex-row items-end justify-start pt-30 text-center bg-[#181818] text-white">
+	<h1 class="text-3xl pl-6">La habitacion perfecta para ti</h1>
 </div>
 
 <GaleriaHabitacion {imagenes} />
@@ -143,7 +143,7 @@
 						/>
 						<input
 							class="rounded bg-neutral-700 px-3 py-2 text-white outline-none focus:ring-2 focus:ring-green-500 transition-all"
-							placeholder="Teléfono" type="number" maxlength="10"
+							placeholder="Teléfono" type="tel" inputmode="numeric" maxlength="10"
 							bind:value={telefono}
 						/>
 						<input

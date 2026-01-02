@@ -9,9 +9,15 @@
     let currentIndex = 0;
     let showNavigationButtons = false;
     let isDesktop = false;
+    let isTransitioning = false;
     
     // Calcular cuántas cards se ven por pantalla
     let itemsPerView = 1;
+    
+    // Duplicar las cards para efecto infinito
+    $: extendedUbicaciones = ubicaciones.length > 0 
+        ? [...ubicaciones, ...ubicaciones] 
+        : [];
     
     onMount(() => {
         checkScreenSize();
@@ -29,8 +35,8 @@
                 else if (window.innerWidth >= 1280) itemsPerView = 3; // xl  
                 else if (window.innerWidth >= 1024) itemsPerView = 2; // lg
                 
-                // Mostrar botones solo si hay más tours que los que caben
-                showNavigationButtons = ubicaciones.length > itemsPerView;
+                // Mostrar botones solo si hay tours
+                showNavigationButtons = ubicaciones.length > 0;
             } else {
                 // En móvil siempre slide
                 itemsPerView = 1;
@@ -40,27 +46,82 @@
     }
     
     function slideNext() {
-        const maxIndex = Math.max(0, ubicaciones.length - itemsPerView);
-        if (currentIndex < maxIndex) {
-            currentIndex += 1;
-            updateCarouselPosition();
+        if (isTransitioning || ubicaciones.length === 0) return;
+        
+        isTransitioning = true;
+        currentIndex += 1;
+        
+        // Si llegamos al final del primer conjunto, preparar el salto
+        if (currentIndex >= ubicaciones.length) {
+            updateCarouselPosition(true);
+            
+            setTimeout(() => {
+                carouselContainer.style.transition = 'none';
+                currentIndex = 0;
+                updateCarouselPosition(false);
+                
+                // Pequeño delay para reactivar la transición
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        carouselContainer.style.transition = 'transform 500ms ease-in-out';
+                        isTransitioning = false;
+                    });
+                });
+            }, 500);
+        } else {
+            updateCarouselPosition(true);
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 500);
         }
     }
     
     function slidePrev() {
-        if (currentIndex > 0) {
+        if (isTransitioning || ubicaciones.length === 0) return;
+        
+        isTransitioning = true;
+        
+        // Si estamos al inicio, saltar al final del primer conjunto primero
+        if (currentIndex === 0) {
+            carouselContainer.style.transition = 'none';
+            currentIndex = ubicaciones.length;
+            updateCarouselPosition(false);
+            
+            // Esperar un frame y luego hacer la animación hacia atrás
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    carouselContainer.style.transition = 'transform 500ms ease-in-out';
+                    currentIndex -= 1;
+                    updateCarouselPosition(true);
+                    
+                    setTimeout(() => {
+                        isTransitioning = false;
+                    }, 500);
+                });
+            });
+        } else {
             currentIndex -= 1;
-            updateCarouselPosition();
+            updateCarouselPosition(true);
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 500);
         }
     }
     
-    function updateCarouselPosition() {
+    function updateCarouselPosition(withTransition = true) {
         if (carouselContainer && isDesktop) {
             const cardWidth = 380; // Ancho de cada card
             const gap = 40; // Gap entre cards (gap-10 = 40px)
-            // Desplazamiento más suave: avanza menos distancia (75% del ancho + gap)
-            const scrollAmount = (cardWidth * 0.75) + gap; // ~325px por cada click
+            const scrollAmount = cardWidth + gap; // Una card completa por cada avance
             const translateX = currentIndex * scrollAmount;
+            
+            // Controlar la transición
+            if (!withTransition) {
+                carouselContainer.style.transition = 'none';
+            } else {
+                carouselContainer.style.transition = 'transform 500ms ease-in-out';
+            }
+            
             carouselContainer.style.transform = `translateX(-${translateX}px)`;
         }
     }
@@ -71,13 +132,13 @@
     }
 </script>
 
-<section class="tours-destacados py-10 bg-black text-white">
-    <h2 class="text-center text-3xl font-bold mb-8 tracking-wide uppercase">Tours Destacados</h2>
+<section class="tours-destacados py-10  text-white">
+    <h2 class="text-center text-3xl font-bold mb-8 tracking-wide uppercase">Destinos destacados</h2>
 
     <!-- Container del carrusel -->
     <div class="relative px-6">
         <!-- Botón anterior (solo escritorio) -->
-        {#if showNavigationButtons && currentIndex > 0}
+        {#if showNavigationButtons}
             <button 
                 on:click={slidePrev}
                 class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-black/50 backdrop-blur-sm border border-green-400 rounded-full flex items-center justify-center text-green-400 hover:bg-black/70 hover:border-green-300 hover:text-green-300 transition-all duration-300 hover:scale-105"
@@ -89,7 +150,7 @@
         {/if}
 
         <!-- Botón siguiente (solo escritorio) -->
-        {#if showNavigationButtons && currentIndex < ubicaciones.length - itemsPerView}
+        {#if showNavigationButtons}
             <button 
                 on:click={slideNext}
                 class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-black/50 backdrop-blur-sm border border-green-400 rounded-full flex items-center justify-center text-green-400 hover:bg-black/70 hover:border-green-300 hover:text-green-300 transition-all duration-300 hover:scale-105"
@@ -104,28 +165,16 @@
         <div class="overflow-hidden">
             <div 
                 bind:this={carouselContainer}
-                class="flex gap-10 transition-transform duration-500 ease-in-out {isDesktop ? '' : 'overflow-x-auto snap-x snap-mandatory px-6'}"
+                class="flex gap-10 {isDesktop ? '' : 'overflow-x-auto snap-x snap-mandatory px-6'}"
                 style={isDesktop ? '' : 'padding-left: calc((100vw - 380px) / 2); padding-right: calc((100vw - 380px) / 2);'}
             >
-                {#each ubicaciones as tour}
+                {#each extendedUbicaciones as tour, index}
                     <div class="flex-shrink-0 {isDesktop ? '' : 'snap-center'}">
                         <Tour {...tour} />
                     </div>
                 {/each}
             </div>
         </div>
-
-        <!-- Indicadores de posición (solo escritorio con navegación) -->
-        {#if showNavigationButtons}
-            <div class="flex justify-center mt-6 space-x-2">
-                {#each Array(Math.ceil(ubicaciones.length / itemsPerView)) as _, index}
-                    <button
-                        on:click={() => { currentIndex = index * itemsPerView; updateCarouselPosition(); }}
-                        class="w-2 h-2 rounded-full transition-all duration-300 {currentIndex === index * itemsPerView ? 'bg-green-400' : 'bg-gray-600 hover:bg-gray-500'}"
-                    ></button>
-                {/each}
-            </div>
-        {/if}
     </div>
 
     {#if todasLasExperiencias}

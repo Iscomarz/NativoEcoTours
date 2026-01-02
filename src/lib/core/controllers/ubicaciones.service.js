@@ -17,8 +17,8 @@ export async function getUbicacionesDestacadas(){
     const {data, error} = await supabase.
     from('cubicacion')
     .select('*')
-    .eq('activo', true)
-    .limit(4);
+    .eq('activo', true);
+    //.limit(4);
     //.in('id_ubicacion', [1,2,8]);
 
     if(error){

@@ -22,7 +22,7 @@
 <!-- Diseño minimalista con paleta oscura -->
 <div class="group relative w-[380px] min-w-[380px] h-[520px] snap-center flex-shrink-0 cursor-pointer">
     <!-- Card principal con colores oscuros -->
-    <div class="relative w-full h-full bg-neutral-900 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500">
+    <div class="relative w-full h-full bg-neutral-900/50 backdrop-blur-md rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500">
         
         <!-- Imagen principal mucho más grande -->
         <div class="relative h-[400px] overflow-hidden">
@@ -39,10 +39,10 @@
             <div class="absolute top-4 right-4 w-2 h-2 bg-green-400 rounded-full opacity-60 group-hover:opacity-100 group-hover:shadow-lg group-hover:shadow-green-400/50 transition-all duration-300"></div>
         </div>
 
-        <!-- Contenido compacto -->
-        <div class="absolute bottom-0 left-0 right-0 p-6">
+        <!-- Contenido compacto con blur -->
+        <div class="absolute bottom-0 left-0 right-0 p-6 backdrop-blur-sm bg-neutral-900/30">
             <!-- Información principal -->
-            <div class="mb-4">
+            <div class="mb-4 ">
                 <h3 class="text-2xl font-bold text-white mb-2 leading-tight group-hover:text-green-100 transition-colors duration-300">
                     {nombre_ubicacion}
                 </h3>
@@ -58,7 +58,7 @@
             </div>
 
             <!-- Botón minimalista con tema oscuro -->
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between backdrop-blur-sm">
                 <!-- Línea decorativa verde -->
                 <div class="flex-1 h-px bg-neutral-700 group-hover:bg-green-400 transition-colors duration-500"></div>
                 

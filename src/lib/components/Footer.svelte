@@ -3,9 +3,16 @@
 	import LogoInstagram from '$lib/assets/logos/logoInsta.png';
 	import LogoFacebook from '$lib/assets/logos/logoFace.png';
 	import LogoYoutube from '$lib/assets/logos/logoYoutube.png';
+	import VinayakBackground from '$lib/assets/backgrounds/vinayak-jayaram.jpg';
+	import TarcilaBackground from '$lib/assets/backgrounds/tarcila.jpg';
+	import { page } from '$app/stores';
 </script>
 
-<footer class="bg-black text-white py-8 px-4">
+<footer 
+	class="text-white py-8 px-4"
+	class:bg-black={$page.url.pathname !== '/'}
+	style={$page.url.pathname === '/' || $page.url.pathname === '/experiencias' ? `background-image: url(${TarcilaBackground}); background-size: cover; background-position: center; background-attachment: fixed;` : ''}
+>
 	<div class="flex flex-col items-center">
 		<img src={LogoNativo} alt="Logo NativoEcoApp" class="mb-3 h-40" />
 		<p class="text-gray-400 mb-4">TODOS LOS DERECHOS RESERVADOS</p>

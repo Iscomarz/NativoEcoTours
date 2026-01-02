@@ -129,17 +129,17 @@
 			{/if}
 
 			<!-- Información flotante -->
-			<div class="absolute top-8 left-8 z-20 max-w-lg">
-				<div class="bg-black/50 rounded-lg p-6">
-					<div class="space-y-4 text-white">
+			<div class="absolute bottom-54 right-350 z-30 max-w-4xl">
+				<div class="rounded-lg p-6">
+					<div class="space-y-1 text-white">
 						<!-- Título -->
-						<h1 class="text-4xl leading-tight font-bold drop-shadow-lg md:text-5xl">
+						<h1 class="text-6xl leading-tight font-bold drop-shadow-lg md:text-7xl whitespace-nowrap">
 							{experienciaActiva.titulo}
 						</h1>
 
 						<!-- Descripción -->
 						{#if experienciaActiva.descripcion}
-							<p class="text-lg leading-relaxed opacity-90 drop-shadow-md md:text-xl">
+							<p class="font-semibold text-3xl leading-relaxed text-green-400 drop-shadow-md md:text-2xl">
 								{experienciaActiva.descripcion}
 							</p>
 						{/if}
@@ -173,7 +173,7 @@
 
 						<!-- Fechas -->
 						{#if experienciaActiva.fecha_inicio && experienciaActiva.fecha_fin}
-							<div class="mt-6 inline-block">
+							<div class="inline-block">
 								<div
 									class="bg-opacity-40 border-opacity-30 rounded-lg border border-white bg-black px-4 py-2 backdrop-blur-sm"
 								>
@@ -204,7 +204,7 @@
 			</div>
 
 			<!-- Indicador de click -->
-			<div class="absolute right-8 bottom-8 z-10">
+			<div class="absolute left-8 bottom-8 z-10">
 				<div class="text-white opacity-75 transition-opacity duration-300 group-hover:opacity-100">
 					<div class="flex items-center space-x-2 text-sm">
 						<span>Explorar experiencia</span>
@@ -228,7 +228,7 @@
 
 			<!-- Indicadores de slideshow (opcional) -->
 			{#if experienciaActiva.detalle?.imagenes?.length > 1}
-				<div class="absolute bottom-8 left-8 z-10">
+				<div class="absolute top-8 left-8 z-10">
 					<div class="flex space-x-2">
 						{#each experienciaActiva.detalle.imagenes as _, index}
 							<div
@@ -242,7 +242,7 @@
 			{/if}
 
 			<!-- Sombreado gradiente inferior -->
-			<div class="absolute bottom-0 left-0 right-0 h-80 bg-gradient-to-t from-black/95 via-black/80 to-transparent pointer-events-none z-20"></div>
+			<div class="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black via-black/90 to-transparent pointer-events-none z-10"></div>
 		</div>
 	{/if}
 </div>
