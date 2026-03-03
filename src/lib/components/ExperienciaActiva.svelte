@@ -66,11 +66,11 @@
 	});
 </script>
 
-<div class="pt-20">
+<div class="pt-20 flex justify-center bg-transparent">
 	<!-- Componente clickeable de experiencia activa -->
 	{#if experienciaActiva}
 		<div
-			class="group relative h-screen w-full cursor-pointer overflow-hidden"
+			class="group relative h-screen w-full max-w-[95%] cursor-pointer overflow-hidden rounded-3xl"
 			on:click={navegarAExperiencia}
 			on:keydown={(e) => e.key === 'Enter' && navegarAExperiencia()}
 			role="button"
@@ -129,17 +129,17 @@
 			{/if}
 
 			<!-- Información flotante -->
-			<div class="absolute bottom-54 right-350 z-30 max-w-4xl">
-				<div class="rounded-lg p-6">
+			<div class="absolute bottom-12 left-4 right-4 sm:left-8 sm:right-8 md:left-12 md:right-auto md:max-w-2xl lg:max-w-3xl xl:max-w-4xl z-30">
+				<div class="rounded-lg p-4 sm:p-6">
 					<div class="space-y-1 text-white">
 						<!-- Título -->
-						<h1 class="text-6xl leading-tight font-bold drop-shadow-lg md:text-7xl whitespace-nowrap">
+						<h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight font-bold drop-shadow-lg break-words">
 							{experienciaActiva.titulo}
 						</h1>
 
 						<!-- Descripción -->
 						{#if experienciaActiva.descripcion}
-							<p class="font-semibold text-3xl leading-relaxed text-green-400 drop-shadow-md md:text-2xl">
+							<p class="font-semibold text-lg sm:text-xl md:text-2xl lg:text-3xl leading-relaxed text-green-400 drop-shadow-md break-words">
 								{experienciaActiva.descripcion}
 							</p>
 						{/if}

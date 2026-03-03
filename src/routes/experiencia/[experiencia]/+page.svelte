@@ -3,8 +3,10 @@
 	import portada from '$lib/assets/backgrounds/bgBanner.jpg';
 	import bgHojas from '$lib/assets/backgrounds/bgHojas.jpg';
     import bgHojasSombreado from '$lib/assets/backgrounds/bgHojasSombreado.jpg';
+	import { onMount } from 'svelte';
 
 	import { goto } from '$app/navigation';
+	import { on } from 'svelte/events';
 
 	let experiencia = {};
 	let ruta = '';
@@ -12,6 +14,10 @@
 
 	$: experiencia = data.experiencia;
 	$: ruta = data.ruta;
+
+	onMount(() => {
+		console.log('Experiencia cargada:', experiencia);
+	});
 
 	// Función para formatear la fecha tipo "Del 1 al 3 de Noviembre 2024"
 	function getFechaBonita(inicio, fin) {

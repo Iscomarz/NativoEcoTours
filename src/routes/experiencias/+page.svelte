@@ -14,38 +14,34 @@
 	$: experienciaActiva = data.props.experienciaActiva;
 </script>
 
-<ExperienciaActiva {experienciaActiva} />
-
-<div class="bg-black h-10"></div>
-
-<!-- Sombreado de transición -->
-<div class="relative h-82 bg-gradient-to-b from-black via-black/60 to-transparent z-10"></div>
-
-<!-- Sección de portada -->
-<section 
-	class="relative h-[80vh] w-full overflow-hidden md:h-[40vh] -mt-82"
-	style="background-image: url({TarcilaBackground}); background-size: cover; background-position: center; background-attachment: fixed;"
->
-	<!-- Overlay -->
-	<!-- <div class="absolute inset-0 bg-black/40"></div> -->
-
-	<!-- Texto flotante -->
-	<div class="absolute inset-0 flex items-center justify-end px-6 text-right md:px-20 z-10">
-		<div class="text-white">
-			<p class="text-sm tracking-wide uppercase md:text-base">Conoce nuestras</p>
-			<h1 class="text-3xl font-extrabold tracking-wider md:text-5xl">Experiencias Nativo</h1>
-		</div>
-	</div>
-</section>
-
-<!-- Sección con background compartido -->
+<!-- Sección con background tarcila que incluye todo -->
 <div 
-	class="relative"
+	class="relative mt-10"
 	style="background-image: url({TarcilaBackground}); background-size: cover; background-position: center; background-attachment: fixed;"
 >
-	<!-- Overlay oscuro -->
-	<!-- <div class="absolute inset-0 bg-black/70"></div> -->
-	
+	<ExperienciaActiva {experienciaActiva} />
+
+	<div class="bg-black h-10"></div>
+
+	<!-- Sombreado de transición -->
+	<div class="relative h-82 bg-gradient-to-b from-black via-black/60 to-transparent z-10"></div>
+
+	<!-- Sección de portada -->
+	<section 
+		class="relative h-[80vh] w-full overflow-hidden md:h-[40vh] -mt-82"
+	>
+		<!-- Overlay -->
+		<!-- <div class="absolute inset-0 bg-black/40"></div> -->
+
+		<!-- Texto flotante -->
+		<div class="absolute inset-0 flex items-center justify-end px-6 text-right md:px-20 z-10">
+			<div class="text-white">
+				<p class="text-sm tracking-wide uppercase md:text-base">Conoce nuestras</p>
+				<h1 class="text-3xl font-extrabold tracking-wider md:text-5xl">Experiencias Nativo</h1>
+			</div>
+		</div>
+	</section>
+
 	<!-- Contenido -->
 	<div class="relative z-10">
 		<ExperienciasBusqueda {experiencias} />
