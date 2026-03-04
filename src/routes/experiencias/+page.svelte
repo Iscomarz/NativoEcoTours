@@ -5,6 +5,7 @@
 	import { onMount } from 'svelte';
 	import ToursDestacados from '$lib/components/toursDestacados.svelte';
 	import ExperienciaActiva from '$lib/components/ExperienciaActiva.svelte';
+	import ButtonCotizacion from '$lib/components/ButtonCotizacion.svelte';
 
 	let experiencias = [];
 	export let data;
@@ -74,8 +75,8 @@
 					</div>
 				</div>
 
-				<div class="flex justify-center">
-					<a href="/cotizacion" class="inline-block bg-black text-white px-6 py-3 rounded shadow-md hover:opacity-90 tracking-wider font-semibold">Cotización personalizada</a>
+				<div class="flex justify-center pb-8">
+					<ButtonCotizacion />
 				</div>
 			</div>
 		</section>

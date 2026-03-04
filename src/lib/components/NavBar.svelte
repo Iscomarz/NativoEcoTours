@@ -76,22 +76,24 @@
 </style>
 
 <nav
-	class="fixed top-0 left-0 z-50 flex w-full items-center justify-between px-24 py-5 text-black transition-colors duration-300"
-	class:bg-[#111111]={$page.url.pathname !== '/'}
-	class:bg-transparent={$page.url.pathname === '/'}
+	class={`fixed top-0 left-0 z-50 flex w-full items-center justify-between px-6 md:px-12 xl:px-16 py-3 md:py-4 text-black transition-all duration-300 ${
+		$page.url.pathname === '/' 
+			? 'bg-transparent' 
+			: scrollY === 0 ? 'bg-black' : 'bg-black/30 backdrop-blur-md'
+	}`}
 >
 	{#if $page.url.pathname === '/'}
-		<div class="h-16 text-xl font-bold">
+		<div class="h-10 md:h-12 font-bold">
 			<a href="/"><img src={LogoMano} alt="Logo NativoEcoApp" class="h-full" /></a>
 		</div>
 	{:else}
-		<div class="h-16 text-xl font-bold">
+		<div class="h-10 md:h-12 font-bold">
 			<a href="/"><img src={LogoManoBlanco} alt="Logo NativoEcoApp" class="h-full" /></a>
 		</div>
 	{/if}
 
 	<!-- Menú para desktop (oculto en móvil) -->
-	<ul class="hidden items-center gap-8 md:flex">
+	<ul class="hidden items-center gap-8 md:flex text-sm tracking-widest font-light">
 		{#if session}
 			<p 
 				class:text-white={$page.url.pathname !== '/'}
@@ -103,32 +105,44 @@
 		<li>
 			<a
 				href="/experiencias"
-				class="nav-link transition-colors"
+				class="nav-link relative transition-colors"
 				class:text-white={$page.url.pathname !== '/'}
+				class:!text-green-400={$page.url.pathname.includes('/experiencias')}
 				style={$page.url.pathname === '/' ? `color: ${textColor}` : ''}
 			>
 				EXPERIENCIAS
+				{#if $page.url.pathname.includes('/experiencias')}
+					<span class="absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-green-400"></span>
+				{/if}
 			</a>
 		</li>
 		<li>
 			<a 
 				href="/about" 
-				class="nav-link transition-colors" 
+				class="nav-link relative transition-colors" 
 				class:text-white={$page.url.pathname !== '/'}
+				class:!text-green-400={$page.url.pathname.includes('/about')}
 				style={$page.url.pathname === '/' ? `color: ${textColor}` : ''}
 			>
 				NOSOTROS
+				{#if $page.url.pathname.includes('/about')}
+					<span class="absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-green-400"></span>
+				{/if}
 			</a>
 		</li>
 
 		<li>
 			<a
 				href="/cotizacion"
-				class="nav-link transition-colors"
+				class="nav-link relative transition-colors"
 				class:text-white={$page.url.pathname !== '/'}
+				class:!text-green-400={$page.url.pathname.includes('/cotizacion')}
 				style={$page.url.pathname === '/' ? `color: ${textColor}` : ''}
 			>
 				COTIZACIONES
+				{#if $page.url.pathname.includes('/cotizacion')}
+					<span class="absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-green-400"></span>
+				{/if}
 			</a>
 		</li>
 
@@ -136,7 +150,7 @@
 			<li>
 				<a 
 					href="/login" 
-					class="login-btn flex items-center gap-2 rounded-full border-2 px-4 py-2"
+					class="login-btn flex items-center gap-2 rounded-full border px-4 py-1.5"
 					class:login-home={$page.url.pathname === '/' && scrollY < 50}
 					class:login-transition={$page.url.pathname === '/' && scrollY >= 50}
 					class:login-other={$page.url.pathname !== '/'}
@@ -161,7 +175,7 @@
 				<button
 					type="submit"
 					formaction="/login?/logout"
-					class="ml-4 cursor-pointer hover:text-green-400"
+					class="ml-2 cursor-pointer hover:text-green-400"
 					class:text-white={$page.url.pathname !== '/'}
 				>
 					LOGOUT
@@ -210,7 +224,7 @@
 		class="fixed top-0 left-0 z-45 h-full w-[70%] bg-[#111111] px-6 pt-24 shadow-xl md:hidden"
 		transition:fly={{ x: -300, duration: 300, opacity: 1 }}
 	>
-		<ul class="flex flex-col gap-8">
+		<ul class="flex flex-col gap-8 tracking-widest text-sm">
 			{#if session}
 				<p class="text-white">Bienvenido, {session.user.email}</p>
 			{/if}
@@ -218,30 +232,42 @@
 			<li>
 				<a
 					href="/experiencias"
-					class="block py-2 text-lg text-white hover:text-green-400"
+					class="relative block w-fit py-2 text-white hover:text-green-400"
+					class:!text-green-400={$page.url.pathname.includes('/experiencias')}
 					on:click={() => (menuAbierto = false)}
 				>
 					EXPERIENCIAS
+					{#if $page.url.pathname.includes('/experiencias')}
+						<span class="absolute -right-4 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-green-400"></span>
+					{/if}
 				</a>
 			</li>
 
 			<li>
 				<a
 					href="/cotizacion"
-					class="block py-2 text-lg text-white hover:text-green-400"
+					class="relative block w-fit py-2 text-white hover:text-green-400"
+					class:!text-green-400={$page.url.pathname.includes('/cotizacion')}
 					on:click={() => (menuAbierto = false)}
 				>
 					COTIZACIONES
+					{#if $page.url.pathname.includes('/cotizacion')}
+						<span class="absolute -right-4 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-green-400"></span>
+					{/if}
 				</a>
 			</li>
 
 			<li>
 				<a
 					href="/about"
-					class="block py-2 text-lg text-white hover:text-green-400"
+					class="relative block w-fit py-2 text-white hover:text-green-400"
+					class:!text-green-400={$page.url.pathname.includes('/about')}
 					on:click={() => (menuAbierto = false)}
 				>
 					NOSOTROS
+					{#if $page.url.pathname.includes('/about')}
+						<span class="absolute -right-4 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-green-400"></span>
+					{/if}
 				</a>
 			</li>
 
@@ -249,7 +275,7 @@
 				<li>
 					<a
 						href="/login"
-						class="block py-2 text-lg text-white hover:text-green-400"
+						class="block py-2 text-white hover:text-green-400"
 						on:click={() => (menuAbierto = false)}
 					>
 						LOGIN
@@ -264,7 +290,7 @@
 						<button
 							type="submit"
 							formaction="/login?/logout"
-							class="py-2 text-lg text-white hover:text-green-400"
+							class="py-2 text-white hover:text-green-400"
 							on:click={() => (menuAbierto = false)}
 						>
 							LOGOUT

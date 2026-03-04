@@ -6,6 +6,7 @@
     import home2 from '$lib/assets/backgrounds/home2.png';
     import VinayakBackground from '$lib/assets/backgrounds/vinayak-jayaram.jpg';
     import TarcilaBackground from '$lib/assets/backgrounds/tarcila.jpg';
+    import ButtonCotizacion from '$lib/components/ButtonCotizacion.svelte';
 
     export let data;
     let ubicaciones = data.props.ubicaciones;
@@ -69,8 +70,8 @@
         <!-- Sección de contenido 1 -->
         <section class="py-16 px-6 md:px-12 lg:px-20 max-w-7xl mx-auto">
             <div class="bg-black/30 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-2xl border border-white/10">
-                <h2 class="text-white text-2xl md:text-3xl lg:text-4xl font-bold mb-8 leading-relaxed">
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">NATIVO ECOTOURS</span> somos creadores de experiencias únicas en los lugares más extraordinarios de Chihuahua
+                <h2 class="text-white text-lg md:text-xl font-extralight tracking-wide mb-8 leading-relaxed">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 font-light tracking-widest">NATIVO ECOTOURS</span> somos creadores de experiencias únicas en los lugares más extraordinarios de Chihuahua
                 </h2>
                 <div class="relative overflow-hidden rounded-xl shadow-2xl group">
                     <img 
@@ -86,7 +87,7 @@
         <!-- Sección de contenido 2 -->
         <section class="py-16 px-6 md:px-12 lg:px-20 max-w-7xl mx-auto">
             <div class="bg-black/30 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-2xl border border-white/10">
-                <h2 class="text-white text-2xl md:text-3xl lg:text-4xl font-bold mb-8 leading-relaxed">
+                <h2 class="text-white text-lg md:text-xl font-extralight tracking-wide mb-8 leading-relaxed">
                     Atrévete a conectar con la naturaleza y a desconectarte de la rutina cotidiana, conoce los paraísos que Chihuahua tiene para ofrecer y experimenta nuevas amistades.
                 </h2>
                 <div class="relative overflow-hidden rounded-xl shadow-2xl group mb-8">
@@ -97,18 +98,9 @@
                     />
                     <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
-                
-                <!-- Botón CTA mejorado -->
-                <div class="flex justify-center md:justify-start">
-                    <a 
-                        href="/cotizacion" 
-                        class="inline-flex items-center gap-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                    >
-                        <span>Cotización personalizada</span>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                    </a>
+                <!-- Botón CTA  -->
+                <div class="flex justify-center">
+                    <ButtonCotizacion />
                 </div>
             </div>
         </section>

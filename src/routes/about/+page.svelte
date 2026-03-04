@@ -1,5 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
+	import TarcilaBackground from '$lib/assets/backgrounds/tarcila.jpg';
+	import ButtonCotizacion from '$lib/components/ButtonCotizacion.svelte';
 	
 	let scrollY = 0;
 	
@@ -12,15 +14,20 @@
 
 <svelte:window bind:scrollY />
 
-<div class="min-h-screen bg-gradient-to-b from-neutral-900 via-neutral-800 to-neutral-900">
+<div 
+	class="relative min-h-screen bg-black"
+	style="background-image: url({TarcilaBackground}); background-size: cover; background-position: center; background-attachment: fixed;"
+>
+	<!-- Overlay oscuro base -->
+	<div class="absolute inset-0 bg-black/60 pointer-events-none"></div>
 	<!-- Hero Section con Parallax -->
 	<section class="relative h-screen overflow-hidden">
 		<!-- Background Image con Parallax -->
 		<div 
 			class="absolute inset-0 bg-cover bg-center bg-no-repeat transform scale-110 transition-transform duration-1000"
-			style="background-image: url('/path/to/hero-nature-image.jpg'); transform: translateY({scrollY * 0.5}px) scale(1.1);"
+			style="background-image: url({TarcilaBackground}); transform: translateY({scrollY * 0.5}px) scale(1.1);"
 		>
-			<div class="absolute inset-0 bg-black/60"></div>
+			<div class="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80"></div>
 		</div>
 		
 		<!-- Content Hero -->
@@ -63,7 +70,7 @@
 		
 		<div class="max-w-6xl mx-auto relative z-10">
 			<!-- Content Card -->
-			<div class="bg-gradient-to-br from-neutral-800/50 to-neutral-900/50 backdrop-blur-lg rounded-3xl p-12 md:p-16 shadow-2xl border border-neutral-700/50">
+			<div class="bg-black/40 backdrop-blur-md rounded-3xl p-12 md:p-16 shadow-2xl border border-white/10">
 				<!-- Text Content -->
 				<div class="text-center space-y-8 mb-16">
 					<p class="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-gray-200 font-light">
@@ -154,7 +161,7 @@
 	</section>
 	
 	<!-- Call to Action Section -->
-	<section class="py-24 px-6 bg-gradient-to-r from-green-900/50 to-emerald-900/50">
+	<section class="relative py-24 px-6 bg-black/40 border-t border-white/10 backdrop-blur-sm">
 		<div class="max-w-4xl mx-auto text-center space-y-8">
 			<h2 class="text-4xl md:text-5xl font-bold text-white">
 				Descubre tu próxima 
@@ -167,16 +174,8 @@
 				Únete a nosotros en un viaje transformador donde cada experiencia es una oportunidad de crecimiento personal.
 			</p>
 			
-			<div class="pt-8">
-				<a 
-					href="/experiencias" 
-					class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-full hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-2xl"
-				>
-					Explorar Experiencias
-					<svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-					</svg>
-				</a>
+			<div class="pt-8 flex justify-center">
+				<ButtonCotizacion />
 			</div>
 		</div>
 	</section>

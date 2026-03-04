@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { toast, Toaster } from 'svelte-sonner';
+	import TarcilaBackground from '$lib/assets/backgrounds/tarcila.jpg';
 
 	export let data;
 	$: ubicaciones = data.ubicaciones || [];
@@ -185,15 +186,21 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 
 <Toaster />
 
-<div class="min-h-screen bg-gradient-to-b from-neutral-900 via-neutral-800 to-neutral-900 mt-20">
+<div 
+	class="relative min-h-screen bg-black mt-20"
+	style="background-image: url({TarcilaBackground}); background-size: cover; background-position: center; background-attachment: fixed;"
+>
+	<!-- Overlay oscuro base -->
+	<div class="absolute inset-0 bg-black/60 pointer-events-none"></div>
+
 	<!-- Hero Section -->
 	<section class="relative h-96 overflow-hidden">
 		<!-- Background Image con Parallax -->
 		<div 
 			class="absolute inset-0 bg-cover bg-center bg-no-repeat transform scale-110"
-			style="background-image: url('/path/to/cotizacion-hero.jpg'); transform: translateY({scrollY * 0.3}px) scale(1.1);"
+			style="background-image: url({TarcilaBackground}); transform: translateY({scrollY * 0.3}px) scale(1.1);"
 		>
-			<div class="absolute inset-0 bg-black/70"></div>
+			<div class="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80"></div>
 		</div>
 		
 		<!-- Hero Content -->
@@ -221,13 +228,13 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 	</section>
 
 	<!-- Progress Bar -->
-	<div class="sticky top-24 z-40 bg-neutral-900/95 backdrop-blur-sm border-b border-neutral-700">
+	<div class="sticky top-16 md:top-20 z-40 bg-black/60 backdrop-blur-md border-b border-white/10">
 		<div class="max-w-4xl mx-auto px-6 py-4">
 			<div class="flex items-center justify-between mb-2">
 				<span class="text-sm font-medium text-green-400">Paso {currentStep} de {totalSteps}</span>
 				<span class="text-sm text-gray-400">{Math.round((currentStep / totalSteps) * 100)}% completado</span>
 			</div>
-			<div class="w-full bg-neutral-700 rounded-full h-2">
+			<div class="w-full bg-black/50 rounded-full h-2 border border-white/10">
 				<div 
 					class="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-500"
 					style="width: {(currentStep / totalSteps) * 100}%"
@@ -237,9 +244,9 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 	</div>
 
 	<!-- Form Content -->
-	<section class="py-12 px-6">
+	<section class="relative z-10 py-12 px-6">
 		<div class="max-w-4xl mx-auto">
-			<div class="bg-gradient-to-br from-neutral-800/50 to-neutral-900/50 backdrop-blur-lg rounded-3xl p-8 md:p-12 shadow-2xl border border-neutral-700/50">
+			<div class="bg-black/40 backdrop-blur-md rounded-3xl p-8 md:p-12 shadow-2xl border border-white/10">
 				
 				<!-- Step 1: Grupo de Viaje -->
 				{#if currentStep === 1}
@@ -256,13 +263,13 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 								<button 
 									type="button"
 									on:click={() => formData.adultos = Math.max(1, formData.adultos - 1)}
-									class="w-12 h-12 bg-neutral-700 hover:bg-neutral-600 text-white rounded-full flex items-center justify-center transition-colors"
+									class="w-12 h-12 bg-black/50 hover:bg-black border border-white/10 text-white rounded-full flex items-center justify-center transition-colors shadow-lg shadow-black/20"
 								>-</button>
 								<span class="text-2xl font-bold text-white w-16 text-center">{formData.adultos}</span>
 								<button 
 									type="button"
 									on:click={() => formData.adultos = Math.min(20, formData.adultos + 1)}
-									class="w-12 h-12 bg-neutral-700 hover:bg-neutral-600 text-white rounded-full flex items-center justify-center transition-colors"
+									class="w-12 h-12 bg-black/50 hover:bg-black border border-white/10 text-white rounded-full flex items-center justify-center transition-colors shadow-lg shadow-black/20"
 								>+</button>
 							</div>
 						</div>
@@ -297,7 +304,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 									type="text" maxlength="45"
 									bind:value={nuevoMenor.nombre}
 									placeholder="Nombre del menor"
-									class="flex-1 min-w-0 w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
+									class="flex-1 min-w-0 w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
 								>
 								<input 
 									type="number" maxlength="2"
@@ -305,7 +312,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 									placeholder="Edad"
 									min="0"
 									max="17"
-									class="w-full sm:w-24 bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
+									class="w-full sm:w-24 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
 								>
 								<button 
 									type="button"
@@ -359,9 +366,9 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 											value={tipo}
 											class="sr-only"
 										>
-										<div class="p-4 border-2 rounded-lg transition-all {formData.tipoViaje === tipo ? 'border-green-500 bg-green-500/10' : 'border-neutral-600 hover:border-green-400'}">
+										<div class="p-4 border border-white/10 rounded-lg transition-all shadow-md {formData.tipoViaje === tipo ? 'border-green-500 bg-green-500/10' : 'bg-black/50 hover:border-green-400'}">
 											<div class="text-center">
-												<div class="w-12 h-12 mx-auto mb-3 bg-gradient-to-br {formData.tipoViaje === tipo ? 'from-green-400 to-emerald-600' : 'from-neutral-600 to-neutral-700'} rounded-full flex items-center justify-center">
+												<div class="w-12 h-12 mx-auto mb-3 bg-gradient-to-br {formData.tipoViaje === tipo ? 'from-green-400 to-emerald-600' : 'from-black/40 to-black/60'} rounded-full flex items-center justify-center border border-white/5">
 													{#if tipo === 'Familiar'}
 														<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 															<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -399,7 +406,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 							<label class="block text-lg font-semibold text-green-400">Destino de Interés</label>
 							<select 
 								bind:value={formData.destinos}
-								class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
+								class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
 							>
 								<option value="">Selecciona un destino</option>
 								{#each ubicaciones as ubicacion}
@@ -418,7 +425,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 								<input 
 									type="date"
 									bind:value={formData.fechaSalida}
-									class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
+									class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
 								>
 							</div>
 							<div class="space-y-4">
@@ -426,7 +433,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 								<input 
 									type="date"
 									bind:value={formData.fechaLlegada}
-									class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
+									class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
 								>
 							</div>
 						</div>
@@ -477,7 +484,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 							<label class="block text-lg font-semibold text-green-400">Transporte</label>
 							<select 
 								bind:value={formData.transporte}
-								class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
+								class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
 							>
 								<option value="">Selecciona una opción</option>
 								<option value="privado">Transporte privado con chofer</option>
@@ -524,7 +531,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 							<label class="block text-lg font-semibold text-green-400">Presupuesto Aproximado (MXN por persona)</label>
 							<select 
 								bind:value={formData.presupuesto}
-								class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
+								class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
 							>
 								<option value="">Selecciona un rango</option>
 								<option value="5000-10000">$5,000 - $10,000</option>
@@ -553,7 +560,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 									type="text" maxlength="45"
 									bind:value={formData.nombre}
 									placeholder="Tu nombre completo"
-									class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
+									class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
 								>
 							</div>
 							<div class="space-y-4">
@@ -562,7 +569,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 									type="email" maxlength="35"
 									bind:value={formData.email}
 									placeholder="tu@email.com"
-									class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
+									class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
 								>
 							</div>
 						</div>
@@ -573,7 +580,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 								type="number" maxlength="10"
 								bind:value={formData.telefono}
 								placeholder="+52 614 123 4567"
-								class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
+								class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
 							>
 						</div>
 
@@ -583,7 +590,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 								bind:value={formData.comentarios}
 								placeholder="Cualquier información adicional que consideres importante..."
 								rows="4"
-								class="w-full bg-neutral-700 border border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors resize-none"
+								class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors resize-none shadow-inner"
 							></textarea>
 						</div>
 
@@ -612,7 +619,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 						<button 
 							type="button"
 							on:click={prevStep}
-							class="flex items-center px-6 py-3 bg-neutral-700 hover:bg-neutral-600 text-white rounded-lg transition-colors"
+							class="flex items-center px-6 py-3 bg-black border border-white/10 hover:bg-black/50 text-white rounded-lg transition-colors shadow-lg"
 						>
 							<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
