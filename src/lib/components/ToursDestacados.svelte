@@ -132,8 +132,9 @@
     }
 </script>
 
-<section class="tours-destacados py-10  text-white">
-    <h2 class="text-center text-3xl font-bold mb-8 tracking-wide uppercase">Destinos destacados</h2>
+<section class="tours-destacados py-10 text-white">
+    <!-- Título de sección ya se muestra desde la home con la etiqueta "Próximas experiencias" -->
+    <!-- Removido el h2 duplicado  -->
 
     <!-- Container del carrusel -->
     <div class="relative px-6">
@@ -179,8 +180,8 @@
 
     {#if todasLasExperiencias}
         <div class="text-center mt-8">
-            <a href="/experiencias" class="text-green-500 font-bold uppercase tracking-wide hover:underline hover:text-green-400 transition-colors duration-300">
-                Ver todas las experiencias
+            <a href="/experiencias" class="text-white/40 font-extralight text-xs uppercase tracking-[0.4em] hover:text-white/70 transition-colors duration-300">
+                Ver todas las experiencias →
             </a>
         </div>
     {/if}

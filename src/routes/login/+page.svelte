@@ -23,7 +23,8 @@
 		<!-- Logo -->
 		<div class="mb-6 text-center">
 			<a href="/"><img src={logoNativo} alt="Nativo" class="mx-auto h-16" /></a>
-			<h2 class="mt-4 text-lg font-semibold tracking-widest">BIENVENIDO</h2>
+		<p class="text-white/40 text-xs tracking-[0.4em] uppercase mb-1">BIENVENIDO</p>
+			<p class="text-white/20 text-xs font-extralight tracking-wider">Accede a tu cuenta Nativo</p>
 		</div>
 
 		<!-- Form -->
@@ -70,7 +71,7 @@
 			<button
                 formaction="?/login"
 				type="submit"
-				class="w-full rounded-md bg-green-600 py-3 font-medium text-white transition hover:bg-green-800"
+				class="w-full bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 py-3 font-extralight text-white tracking-[0.3em] uppercase text-xs transition-all duration-300"
 			>
 				Iniciar Sesión
 			</button>
@@ -79,10 +80,9 @@
 		<!-- Google button -->
 		<GoogleButton />
 
-        <!-- Register link -->
-        <p class="mt-4 text-center text-sm">
+            <p class="mt-6 text-center text-xs font-extralight tracking-wide text-white/30">
             ¿No tienes una cuenta?
-            <a href="/registro" class="font-medium text-green-500 hover:underline">Regístrate</a>
+            <a href="/registro" class="text-white/60 hover:text-white transition-colors">Regístrate</a>
         </p>
 		<!-- Social icons -->
 		<div class="mt-6 flex justify-center gap-16">

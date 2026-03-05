@@ -281,60 +281,34 @@
 <Toaster />
 
 <div class="mb-4 flex items-center gap-4">
-	<label class="flex items-center gap-2 text-white">
-		<input
-			type="radio"
-			name="tipo"
-			value="individual"
-			class="accent-white"
-			checked={seleccion === 'individual'}
-			on:change={() => setSeleccion('individual')}
-		/>
+	<label class="flex items-center gap-2 text-white/50 text-xs font-extralight tracking-widest uppercase">
+		<input type="radio" name="tipo" value="individual" class="accent-white"
+			checked={seleccion === 'individual'} on:change={() => setSeleccion('individual')} />
 		Individual
 	</label>
-	<label class="flex items-center gap-2 text-white">
-		<input
-			type="radio"
-			name="tipo"
-			value="grupo"
-			class="accent-green-600"
-			checked={seleccion === 'grupo'}
-			on:change={() => setSeleccion('grupo')}
-		/>
+	<label class="flex items-center gap-2 text-xs font-extralight tracking-widest uppercase">
+		<input type="radio" name="tipo" value="grupo" class="accent-green-400"
+			checked={seleccion === 'grupo'} on:change={() => setSeleccion('grupo')} />
 		<span class="text-green-400">Grupo</span>
 	</label>
 
 	{#if grupo}
-		<div class="ml-5 flex items-center">
-			<button
-				class="rounded-l bg-neutral-700 px-2 text-white disabled:opacity-50"
-				on:click={decrementar}
-				disabled={cantidad <= 2}
-				type="button"
-			>
-				-
-			</button>
-			<span class="bg-neutral-800 px-4 py-1 text-white">{cantidad}</span>
-			<button
-				class="rounded-r bg-neutral-700 px-2 text-white disabled:opacity-50"
-				on:click={incrementar}
-				disabled={cantidad >= totalDisponible}
-				type="button"
-			>
-				+
-			</button>
-			<span class="ml-3 text-xs text-white/60">
-				Capacidad real total: {totalDisponible}
-			</span>
+		<div class="ml-5 flex items-center gap-1">
+			<button class="bg-white/5 border border-white/10 hover:bg-white/10 px-3 py-1 text-white/60 text-xs disabled:opacity-30 transition-all"
+				on:click={decrementar} disabled={cantidad <= 2} type="button">−</button>
+			<span class="bg-white/5 border border-white/10 px-4 py-1 text-white text-xs font-extralight tracking-widest">{cantidad}</span>
+			<button class="bg-white/5 border border-white/10 hover:bg-white/10 px-3 py-1 text-white/60 text-xs disabled:opacity-30 transition-all"
+				on:click={incrementar} disabled={cantidad >= totalDisponible} type="button">+</button>
+			<span class="ml-3 text-xs text-white/30 font-extralight tracking-wide">Disponibles: {totalDisponible}</span>
 		</div>
 	{/if}
 </div>
 
 <div class="mb-3">
-	<h3 class="mb-1 text-sm font-bold text-white">
+	<h3 class="mb-2 text-xs font-light text-white/50 tracking-[0.35em] uppercase">
 		HABITACIONES {habitaciones?.[0]?.capacidad ?? 0} PERSONAS
 		{#if loadingOcupaciones}
-			<span class="ml-2 text-xs text-yellow-400">Cargando ocupaciones...</span>
+			<span class="ml-2 text-xs text-white/30">Cargando...</span>
 		{/if}
 	</h3>
 
@@ -346,8 +320,8 @@
 					alt="Foto habitación"
 					class="h-32 w-full rounded-md object-cover"
 				/>
-				<div class="bottom-1 left-2 rounded bg-black/60 px-1 text-xs text-white/80">
-					<p>Habitacion {rIdx + 1}</p>
+				<div class="bottom-1 left-2 px-1 text-xs text-white/30 font-extralight tracking-wide">
+					<p>Hab. {rIdx + 1}</p>
 				</div>
 
 				<!-- Slots -->

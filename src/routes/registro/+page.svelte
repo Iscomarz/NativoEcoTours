@@ -10,85 +10,54 @@
 		class="hidden bg-cover bg-center md:flex md:w-1/2"
 		style="background-image: url({bgRegistro});"
 	>
-		<div class="flex h-full w-full items-center justify-center bg-black/40">
-			<h2 class="text-3xl font-bold text-white">EMPIEZA UNA NUEVA AVENTURA...</h2>
+		<div class="flex h-full w-full items-center justify-center bg-black/50 px-12">
+			<div>
+				<p class="text-white/30 text-xs tracking-[0.4em] uppercase mb-3">Nativo Eco Tours</p>
+				<h2 class="text-2xl font-extralight text-white tracking-widest leading-relaxed">Empieza una<br/><span class="text-white/50">nueva aventura...</span></h2>
+			</div>
 		</div>
 	</div>
 
 	<!-- Formulario lado derecho -->
 	<div class="flex w-full items-center justify-center bg-black px-8 py-12 md:w-1/2">
 		<div class="w-full max-w-md">
-			<h1 class="mb-2 text-2xl font-bold text-white">CREA TU CUENTA NATIVO</h1>
-			<p class="mb-6 text-sm text-gray-400">
+			<p class="text-white/30 text-xs tracking-[0.4em] uppercase mb-1">CREA TU CUENTA</p>
+			<h1 class="mb-2 text-xl font-extralight text-white tracking-widest">NATIVO</h1>
+			<p class="mb-6 text-xs text-white/30 font-extralight tracking-wide">
 				Ya tienes una cuenta?
 				<a href="/login" class="font-medium text-green-500 hover:underline">Login</a>
 			</p>
 
 			<form method="POST" class="space-y-4 text-white">
 				<div class="grid grid-cols-2 gap-4">
-					<input
-						type="text"
-						id="nombre"
-						name="nombre"
-						placeholder="Nombre"
-						class="w-full rounded-md border border-gray-700 bg-gray-800 p-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
-						required
-					/>
+					<input type="text" id="nombre" name="nombre" placeholder="Nombre"
+						class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/20 font-extralight tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
+						required />
 
-					<input
-						type="text"
-						id="apellido"
-						name="apellido"
-						placeholder="Apellido"
-						class="w-full rounded-md border border-gray-700 bg-gray-800 p-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
-						required
-					/>
+					<input type="text" id="apellido" name="apellido" placeholder="Apellido"
+						class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/20 font-extralight tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
+						required />
 				</div>
 
 				<div class="grid grid-cols-2 gap-4">
-					<input
-						type="text"
-						id="pais"
-						name="pais"
-						placeholder="País / Estado"
-						class="w-full rounded-md border border-gray-700 bg-gray-800 p-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
-						required
-					/>
-
-					<input
-						type="text"
-						id="telefono"
-						name="telefono"
-						placeholder="Teléfono"
-						class="w-full rounded-md border border-gray-700 bg-gray-800 p-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
-						required
-					/>
+					<input type="text" id="pais" name="pais" placeholder="País / Estado"
+						class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/20 font-extralight tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
+						required />
+					<input type="text" id="telefono" name="telefono" placeholder="Teléfono"
+						class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/20 font-extralight tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
+						required />
 				</div>
 
-				<input
-					type="email"
-					id="correo"
-					name="correo"
-					placeholder="Email"
-					class="w-full rounded-md border border-gray-700 bg-gray-800 p-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
-					required
-				/>
+				<input type="email" id="correo" name="correo" placeholder="Email"
+					class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/20 font-extralight tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
+					required />
 
-				<input
-					type="password"
-					id="password"
-					name="password"
-					placeholder="Contraseña"
-					class="w-full rounded-md border border-gray-700 bg-gray-800 p-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
-					required
-				/>
+				<input type="password" id="password" name="password" placeholder="Contraseña"
+					class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/20 font-extralight tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
+					required />
 
-				<!-- Botón Crear Cuenta -->
-				<button
-					type="submit"
-					formaction="login?/register"
-					class="w-full rounded-md bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-800 focus:ring-2 focus:ring-green-400 focus:outline-none"
-				>
+				<button type="submit" formaction="login?/register"
+					class="w-full bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 py-3 font-extralight text-white tracking-[0.3em] uppercase text-xs transition-all duration-300">
 					Crear Cuenta
 				</button>
 

@@ -15,7 +15,7 @@
 >
 	<div class="flex flex-col items-center">
 		<img src={LogoNativo} alt="Logo NativoEcoApp" class="mb-3 h-40" />
-		<p class="text-gray-400 mb-4">TODOS LOS DERECHOS RESERVADOS</p>
+		<p class="text-white/20 text-xs font-extralight tracking-[0.3em] uppercase mb-4">TODOS LOS DERECHOS RESERVADOS</p>
 		<div class="flex gap-8 mb-6">
 			<a href="https://www.instagram.com/nativo_xx/" target="_blank" rel="noopener noreferrer">
 				<img src={LogoInstagram} alt="Instagram" class="h-7 w-7 hover:scale-110 transition" />
@@ -33,27 +33,25 @@
 
 	<div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start mb-4 w-2/3 mx-auto">
 		<div class="flex flex-col gap-2 text-left">
-			<a href="/experiencias" class="hover:text-green-400">Experiencias</a>
-			<a href="/about" class="hover:text-green-400">Nosotros</a>
-			<a href="/cotizaciones" class="hover:text-green-400">Cotizaciones</a>
-			<a href="/faq" class="hover:text-green-400">FAQ</a>
+			<a href="/experiencias" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Experiencias</a>
+			<a href="/about" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Nosotros</a>
+			<a href="/cotizaciones" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Cotizaciones</a>
+			<a href="/faq" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">FAQ</a>
 		</div>
 		<div class="flex flex-col gap-2 text-left">
-			<a href="/aviso-legal" class="hover:text-green-400">Aviso legal</a>
-			<a href="/politica-privacidad" class="hover:text-green-400">Política de Privacidad</a>
-			<a href="/politica-cookies" class="hover:text-green-400">Política de Cookies</a>
+			<a href="/aviso-legal" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Aviso legal</a>
+			<a href="/politica-privacidad" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Política de Privacidad</a>
+			<a href="/politica-cookies" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Política de Cookies</a>
 		</div>
 		<div class="flex flex-col gap-2">
-			<span class="mb-1">Recibir avisos para las próximas experiencias</span>
+			<span class="text-white/20 text-xs font-extralight tracking-widest mb-1">Recibir avisos para las próximas experiencias</span>
 			<form class="flex flex-col gap-2">
 				<input
 					type="email"
 					placeholder="Correo electrónico"
-					class="bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+					class="bg-white/5 text-white border border-white/10 px-3 py-2 text-xs font-extralight placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-white/20 transition-all"
 				/>
-				<button type="submit" class="bg-green-500 hover:bg-green-600 rounded px-3 py-2 text-white">
-					Subscribirse
-				</button>
+				<button type="submit" class="bg-white/5 border border-white/20 hover:bg-white/10 px-3 py-2 text-white font-extralight text-xs tracking-[0.3em] uppercase transition-all duration-300">Subscribirse</button>
 			</form>
 		</div>
 	</div>

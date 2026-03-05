@@ -1,7 +1,7 @@
 <script>
 	import LogoMano from '$lib/assets/logos/logoManoNativo.png';
 	import LogoManoBlanco from '$lib/assets/logos/logoManoBlanco.png';
-	import User from '$lib/assets/icons/user.png';
+	import Campfire from '$lib/assets/icons/campfire-thin.svg';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { fly } from 'svelte/transition';
@@ -47,7 +47,8 @@
 <style>
 	.login-btn {
 		transition: all 0.3s ease;
-		border-color: rgba(0, 0, 0, 0.308) !important;
+		padding: 0.375rem 1rem;
+		margin: -0.375rem -1rem;
 	}
 	
 	.login-btn:hover {
@@ -150,20 +151,18 @@
 			<li>
 				<a 
 					href="/login" 
-					class="login-btn flex items-center gap-2 rounded-full border px-4 py-1.5"
+					class="login-btn flex items-center gap-1"
 					class:login-home={$page.url.pathname === '/' && scrollY < 50}
 					class:login-transition={$page.url.pathname === '/' && scrollY >= 50}
 					class:login-other={$page.url.pathname !== '/'}
-					class:border-black={$page.url.pathname === '/' && scrollY === 0}
-					class:border-white={$page.url.pathname !== '/'}
 					class:text-white={$page.url.pathname !== '/'}
-					style={$page.url.pathname === '/' ? `color: ${textColor}; border-color: ${borderColor}` : ''}
+					style={$page.url.pathname === '/' ? `color: ${textColor};` : ''}
 				>
 					LOGIN
 					<img 
-						src={User} 
-						alt="User Icon" 
-						class="h-4 w-4 transition-all duration-300" 
+						src={Campfire} 
+						alt="Campfire Icon" 
+						class="h-5 w-5 transition-all duration-300" 
 						style="filter: {iconFilter}"
 					/>
 				</a>
@@ -279,7 +278,7 @@
 						on:click={() => (menuAbierto = false)}
 					>
 						LOGIN
-						<img src={User} alt="User Icon" class="ml-1 inline-block h-4 w-4" />
+						<img src={Campfire} alt="Campfire Icon" class="ml-1 inline-block h-5 w-5" />
 					</a>
 				</li>
 			{/if}

@@ -28,12 +28,12 @@
 		<div
 			class="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black via-transparent to-transparent p-4 text-white"
 		>
-			<h3 class="text-2xl font-bold drop-shadow-lg">{nombre}</h3>
-			<p class="text-sm text-gray-200">Habitacion para {capacidad} personas</p>
-			<p class="mb-3 text-xs text-gray-300">{precioPersona}</p>
+			<h3 class="text-base font-light tracking-wide drop-shadow">{nombre}</h3>
+			<p class="text-xs text-white/40 font-extralight tracking-widest uppercase">Para {capacidad} personas</p>
+			<p class="mb-3 text-xs text-white/30 font-extralight">{precioPersona}</p>
 
 			<button
-				class="w-fit rounded-md bg-green-600 px-4 py-2 text-sm font-bold text-white uppercase shadow-md hover:bg-green-700"
+				class="w-fit bg-white/5 border border-white/20 hover:bg-white/10 px-4 py-2 text-xs font-extralight text-white tracking-[0.3em] uppercase transition-all duration-300"
 			>
 				RESERVAR
 			</button>

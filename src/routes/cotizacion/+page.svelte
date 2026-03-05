@@ -5,13 +5,15 @@
 
 	export let data;
 	$: ubicaciones = data.ubicaciones || [];
-	
+
 	let scrollY = 0;
-	
+
 	// Form data
 	let formData = {
 		adultos: 2,
-		menores: [],
+		llevaMenores: false,
+		cantidadMenores: 0,
+		edadesMenores: [],
 		vehiculoRenta: null,
 		destinos: '',
 		fechaLlegada: '',
@@ -26,28 +28,16 @@
 		telefono: '',
 		comentarios: ''
 	};
-	
-	let nuevoMenor = { edad: '', nombre: '' };
+
 	let currentStep = 1;
 	const totalSteps = 4;
-	
+
 	onMount(() => {
 		const handleScroll = () => scrollY = window.scrollY;
 		window.addEventListener('scroll', handleScroll);
 		return () => window.removeEventListener('scroll', handleScroll);
 	});
-	
-	function agregarMenor() {
-		if (nuevoMenor.edad && nuevoMenor.nombre) {
-			formData.menores = [...formData.menores, { ...nuevoMenor }];
-			nuevoMenor = { edad: '', nombre: '' };
-		}
-	}
-	
-	function removerMenor(index) {
-		formData.menores = formData.menores.filter((_, i) => i !== index);
-	}
-	
+
 	function toggleExperiencia(experiencia) {
 		if (formData.experiencias.includes(experiencia)) {
 			formData.experiencias = formData.experiencias.filter(exp => exp !== experiencia);
@@ -55,28 +45,31 @@
 			formData.experiencias = [...formData.experiencias, experiencia];
 		}
 	}
-	
+
+	// Sincroniza el arreglo de edades cuando cambia la cantidad
+	function updateEdadesMenores() {
+		const n = parseInt(formData.cantidadMenores) || 0;
+		const arr = [...formData.edadesMenores];
+		while (arr.length < n) arr.push('');
+		formData.edadesMenores = arr.slice(0, n);
+	}
+
 	function nextStep() {
-		// Validaciones por paso
 		if (currentStep === 1) {
-			// Validar vehículo de renta si aplica
 			if (showVehiculoRenta && formData.vehiculoRenta === null) {
 				toast.error('Por favor indica si estarían dispuestos a viajar en vehículo de renta.');
 				return;
 			}
 		}
-		
 		if (currentStep === 2) {
-			// Validar destino de interés
 			if (!formData.destinos) {
 				toast.error('Por favor selecciona un destino de interés.');
 				return;
 			}
 		}
-		
 		if (currentStep < totalSteps) currentStep++;
 	}
-	
+
 	function prevStep() {
 		if (currentStep > 1) currentStep--;
 	}
@@ -84,11 +77,13 @@
 	function cleanForm() {
 		formData = {
 			adultos: 2,
-			menores: [],
+			llevaMenores: false,
+			cantidadMenores: 0,
+			edadesMenores: [],
 			vehiculoRenta: null,
 			destinos: '',
 			fechaLlegada: '',
-			fechaSalida: '',	
+			fechaSalida: '',
 			hospedaje: '',
 			transporte: '',
 			experiencias: [],
@@ -102,28 +97,22 @@
 	}
 
 	function goToStep(step) {
-		if (step >= 1 && step <= totalSteps) {
-			currentStep = step;
-		}
+		if (step >= 1 && step <= totalSteps) currentStep = step;
 	}
-	
+
 	function submitForm() {
-		// Validar campos requeridos
 		if (!formData.nombre || !formData.email || !formData.telefono) {
 			toast.error('Por favor completa los campos de Nombre, Email y Teléfono.');
 			return;
 		}
-		
-		// Validar formato de email básico
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		if (!emailRegex.test(formData.email)) {
 			toast.error('Por favor ingresa un email válido.');
 			return;
 		}
-		
-		// Generar mensaje para WhatsApp
-		const menoresTexto = formData.menores.length > 0 
-			? formData.menores.map(m => `  - ${m.nombre} (${m.edad} años)`).join('\n')
+
+		const menoresTexto = formData.llevaMenores && formData.cantidadMenores > 0
+			? `  • Cantidad: ${formData.cantidadMenores}\n  • Edades: ${formData.edadesMenores.filter(Boolean).join(', ') || 'No especificadas'}`
 			: '  Ninguno';
 
 		const mensaje = `
@@ -133,7 +122,7 @@
 👥 *GRUPO DE VIAJE*
 ━━━━━━━━━━━━━━━━━━━━━
 • Adultos: ${formData.adultos}
-• Menores: ${formData.menores.length}
+• Menores: ${formData.llevaMenores ? formData.cantidadMenores : 0}
 ${menoresTexto}
 • Tipo de viaje: ${formData.tipoViaje || 'No especificado'}
 ${formData.vehiculoRenta !== null ? `• Vehículo de renta: ${formData.vehiculoRenta ? 'Sí, pueden manejar' : 'No, prefieren chofer'}` : ''}
@@ -142,8 +131,8 @@ ${formData.vehiculoRenta !== null ? `• Vehículo de renta: ${formData.vehiculo
 📍 *DESTINO Y FECHAS*
 ━━━━━━━━━━━━━━━━━━━━━
 • Destino: ${formData.destinos || 'No especificado'}
-• Llegada: ${formData.fechaLlegada || 'Por definir'}
 • Salida: ${formData.fechaSalida || 'Por definir'}
+• Regreso: ${formData.fechaLlegada || 'Por definir'}
 
 ━━━━━━━━━━━━━━━━━━━━━
 🏨 *PREFERENCIAS*
@@ -165,464 +154,407 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 ✨ _Solicitud generada desde nativoecotours.com_
 		`.trim();
 
-		// Generar URL de WhatsApp
 		const numeroWhatsApp = '5216146029050';
 		const mensajeCodificado = encodeURIComponent(mensaje);
 		const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${mensajeCodificado}`;
-		
-		// Abrir WhatsApp en nueva ventana
 		window.open(urlWhatsApp, '_blank');
-		
-		// Mostrar mensaje de confirmación
 		toast.success('¡Redirigiendo a WhatsApp! Envía el mensaje para completar tu solicitud de cotización.');
 		cleanForm();
 		goToStep(1);
 	}
-	
-	$: showVehiculoRenta = formData.adultos + formData.menores.length < 7;
+
+	$: showVehiculoRenta = (formData.adultos + (formData.llevaMenores ? parseInt(formData.cantidadMenores) || 0 : 0)) < 7;
+	$: totalPersonas = formData.adultos + (formData.llevaMenores ? parseInt(formData.cantidadMenores) || 0 : 0);
+
+	const stepLabels = ['Grupo', 'Destino', 'Preferencias', 'Contacto'];
 </script>
 
 <svelte:window bind:scrollY />
-
 <Toaster />
 
-<div 
-	class="relative min-h-screen bg-black mt-20"
-	style="background-image: url({TarcilaBackground}); background-size: cover; background-position: center; background-attachment: fixed;"
->
-	<!-- Overlay oscuro base -->
-	<div class="absolute inset-0 bg-black/60 pointer-events-none"></div>
+<div class="relative min-h-screen bg-black mt-20">
 
-	<!-- Hero Section -->
-	<section class="relative h-96 overflow-hidden">
-		<!-- Background Image con Parallax -->
-		<div 
-			class="absolute inset-0 bg-cover bg-center bg-no-repeat transform scale-110"
-			style="background-image: url({TarcilaBackground}); transform: translateY({scrollY * 0.3}px) scale(1.1);"
+	<!-- Hero minimalista -->
+	<section class="relative overflow-hidden" style="height: 320px;">
+		<div
+			class="absolute inset-0 bg-cover bg-center"
+			style="background-image: url({TarcilaBackground}); transform: translateY({scrollY * 0.25}px) scale(1.1);"
 		>
-			<div class="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80"></div>
+			<div class="absolute inset-0 bg-black/70"></div>
 		</div>
-		
-		<!-- Hero Content -->
-		<div class="relative z-10 flex items-center justify-center h-full text-center px-6">
-			<div class="max-w-4xl mx-auto space-y-6">
-				<div class="w-16 h-16 mx-auto bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center shadow-2xl">
-					<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-					</svg>
-				</div>
-				
-				<h1 class="text-5xl md:text-6xl font-bold text-white leading-tight">
-					<span class="bg-gradient-to-r from-green-400 via-emerald-500 to-teal-600 bg-clip-text text-transparent">
-						Cotización
-					</span>
-					<br>
-					<span class="text-white text-3xl md:text-4xl font-normal">Personalizada</span>
-				</h1>
-				
-				<p class="text-xl text-gray-200 max-w-2xl mx-auto">
-					Cuéntanos sobre tu viaje ideal y crearemos una experiencia única para ti
-				</p>
-			</div>
+		<div class="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
+			<p class="text-xs text-white/30 font-extralight tracking-[0.5em] uppercase mb-3">Nativo Eco Tours</p>
+			<h1 class="text-3xl md:text-4xl font-extralight tracking-[0.2em] text-white mb-3">Cotización Personalizada</h1>
+			<div class="w-12 h-px bg-white/20 mx-auto mb-3"></div>
+			<p class="text-xs text-white/30 font-extralight tracking-wide max-w-sm">Cuéntanos sobre tu viaje ideal y crearemos una experiencia única para ti</p>
 		</div>
 	</section>
 
-	<!-- Progress Bar -->
-	<div class="sticky top-16 md:top-20 z-40 bg-black/60 backdrop-blur-md border-b border-white/10">
-		<div class="max-w-4xl mx-auto px-6 py-4">
-			<div class="flex items-center justify-between mb-2">
-				<span class="text-sm font-medium text-green-400">Paso {currentStep} de {totalSteps}</span>
-				<span class="text-sm text-gray-400">{Math.round((currentStep / totalSteps) * 100)}% completado</span>
+	<!-- Barra de progreso minimalista -->
+	<div class="sticky top-16 md:top-20 z-40 bg-black/80 backdrop-blur-md border-b border-white/10">
+		<div class="max-w-3xl mx-auto px-6 py-4">
+			<div class="flex items-center justify-between mb-3">
+				<span class="text-xs text-white/30 font-extralight tracking-[0.3em] uppercase">Paso {currentStep} — {stepLabels[currentStep - 1]}</span>
+				<span class="text-xs text-white/20 font-extralight tracking-widest">{Math.round((currentStep / totalSteps) * 100)}%</span>
 			</div>
-			<div class="w-full bg-black/50 rounded-full h-2 border border-white/10">
-				<div 
-					class="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-500"
-					style="width: {(currentStep / totalSteps) * 100}%"
-				></div>
+			<!-- Indicadores de paso -->
+			<div class="flex items-center gap-2">
+				{#each Array(totalSteps) as _, i}
+					<div class="flex-1 h-px transition-all duration-500 {i < currentStep ? 'bg-white/60' : 'bg-white/10'}"></div>
+				{/each}
+			</div>
+			<div class="flex justify-between mt-2">
+				{#each stepLabels as label, i}
+					<span class="text-[10px] font-extralight tracking-widest uppercase transition-colors duration-300 {i + 1 === currentStep ? 'text-white/60' : i + 1 < currentStep ? 'text-white/30' : 'text-white/15'}">{label}</span>
+				{/each}
 			</div>
 		</div>
 	</div>
 
-	<!-- Form Content -->
-	<section class="relative z-10 py-12 px-6">
-		<div class="max-w-4xl mx-auto">
-			<div class="bg-black/40 backdrop-blur-md rounded-3xl p-8 md:p-12 shadow-2xl border border-white/10">
-				
-				<!-- Step 1: Grupo de Viaje -->
+	<!-- Formulario -->
+	<section class="relative z-10 py-16 px-6">
+		<div class="max-w-3xl mx-auto">
+			<div class="bg-white/[0.03] border border-white/10 p-8 md:p-12">
+
+				<!-- PASO 1: Grupo -->
 				{#if currentStep === 1}
-					<div class="space-y-8">
-						<div class="text-center mb-8">
-							<h2 class="text-3xl font-bold text-white mb-4">Cuéntanos sobre tu grupo</h2>
-							<p class="text-gray-300">Información básica sobre los viajeros</p>
+					<div class="space-y-10">
+						<div>
+							<p class="text-xs text-white/30 font-extralight tracking-[0.4em] uppercase mb-1">Paso 1</p>
+							<h2 class="text-xl font-extralight tracking-widest text-white">Tu grupo de viaje</h2>
+							<div class="w-8 h-px bg-white/20 mt-3"></div>
 						</div>
 
-						<!-- Número de Adultos -->
+						<!-- Adultos -->
 						<div class="space-y-4">
-							<label class="block text-lg font-semibold text-green-400">Número de Adultos</label>
-							<div class="flex items-center space-x-4">
-								<button 
+							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Número de adultos</label>
+							<div class="flex items-center gap-6">
+								<button
 									type="button"
 									on:click={() => formData.adultos = Math.max(1, formData.adultos - 1)}
-									class="w-12 h-12 bg-black/50 hover:bg-black border border-white/10 text-white rounded-full flex items-center justify-center transition-colors shadow-lg shadow-black/20"
-								>-</button>
-								<span class="text-2xl font-bold text-white w-16 text-center">{formData.adultos}</span>
-								<button 
+									class="w-10 h-10 border border-white/10 bg-white/5 hover:bg-white/10 text-white/60 transition-all flex items-center justify-center text-lg font-extralight"
+									aria-label="Reducir adultos"
+								>−</button>
+								<span class="text-3xl font-extralight text-white w-12 text-center tabular-nums">{formData.adultos}</span>
+								<button
 									type="button"
 									on:click={() => formData.adultos = Math.min(20, formData.adultos + 1)}
-									class="w-12 h-12 bg-black/50 hover:bg-black border border-white/10 text-white rounded-full flex items-center justify-center transition-colors shadow-lg shadow-black/20"
+									class="w-10 h-10 border border-white/10 bg-white/5 hover:bg-white/10 text-white/60 transition-all flex items-center justify-center text-lg font-extralight"
+									aria-label="Aumentar adultos"
 								>+</button>
 							</div>
 						</div>
 
-						<!-- Menores -->
+						<!-- Menores (check toggle) -->
 						<div class="space-y-4">
-							<label class="block text-lg font-semibold text-green-400">Menores de Edad</label>
-							
-							<!-- Lista de menores -->
-							{#if formData.menores.length > 0}
-								<div class="space-y-2 mb-4">
-									{#each formData.menores as menor, index}
-										<div class="flex items-center justify-between bg-neutral-700/50 p-3 rounded-lg">
-											<span class="text-white">{menor.nombre} - {menor.edad} años</span>
-											<button 
+							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Menores de edad</label>
+							<button
+								type="button"
+								on:click={() => { formData.llevaMenores = !formData.llevaMenores; if (!formData.llevaMenores) { formData.cantidadMenores = 0; formData.edadesMenores = []; } }}
+								class="flex items-center gap-3 group"
+								aria-pressed={formData.llevaMenores}
+							>
+								<div class="w-10 h-5 relative rounded-full transition-colors duration-300 {formData.llevaMenores ? 'bg-white/30' : 'bg-white/10'}">
+									<div class="absolute top-0.5 transition-all duration-300 w-4 h-4 bg-white rounded-full shadow-sm {formData.llevaMenores ? 'left-5' : 'left-0.5'}"></div>
+								</div>
+								<span class="text-xs font-extralight tracking-widest text-white/50 group-hover:text-white/70 transition-colors">
+									{formData.llevaMenores ? 'Sí, viajan menores' : 'No viajan menores'}
+								</span>
+							</button>
+
+							{#if formData.llevaMenores}
+								<div class="ml-0 mt-4 space-y-5 border-l border-white/10 pl-6">
+									<div class="space-y-2">
+										<label class="block text-xs text-white/30 font-extralight tracking-[0.3em] uppercase">Cantidad de menores</label>
+										<div class="flex items-center gap-6">
+											<button
 												type="button"
-												on:click={() => removerMenor(index)}
-												class="text-red-400 hover:text-red-300 transition-colors"
-											>
-												<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-												</svg>
-											</button>
+												on:click={() => { formData.cantidadMenores = Math.max(0, (parseInt(formData.cantidadMenores) || 0) - 1); updateEdadesMenores(); }}
+												class="w-10 h-10 border border-white/10 bg-white/5 hover:bg-white/10 text-white/60 transition-all flex items-center justify-center text-lg font-extralight"
+												aria-label="Reducir menores"
+											>−</button>
+											<span class="text-3xl font-extralight text-white w-12 text-center tabular-nums">{formData.cantidadMenores}</span>
+											<button
+												type="button"
+												on:click={() => { formData.cantidadMenores = Math.min(15, (parseInt(formData.cantidadMenores) || 0) + 1); updateEdadesMenores(); }}
+												class="w-10 h-10 border border-white/10 bg-white/5 hover:bg-white/10 text-white/60 transition-all flex items-center justify-center text-lg font-extralight"
+												aria-label="Aumentar menores"
+											>+</button>
 										</div>
-									{/each}
+									</div>
+
+									{#if formData.edadesMenores.length > 0}
+										<div class="space-y-2">
+											<p class="text-xs text-white/30 font-extralight tracking-[0.3em] uppercase">Edades</p>
+											<div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+												{#each formData.edadesMenores as _, i}
+													<div class="flex flex-col gap-1">
+														<span class="text-[10px] text-white/20 font-extralight tracking-widest">Menor {i + 1}</span>
+														<input
+															type="number"
+															bind:value={formData.edadesMenores[i]}
+															placeholder="Edad"
+															min="0"
+															max="17"
+															class="bg-transparent border border-white/10 px-3 py-2 text-white text-sm font-extralight text-center focus:border-white/30 focus:outline-none transition-colors w-full"
+														>
+													</div>
+												{/each}
+											</div>
+										</div>
+									{/if}
 								</div>
 							{/if}
-
-							<!-- Agregar menor -->
-							<div class="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0">
-								<input 
-									type="text" maxlength="45"
-									bind:value={nuevoMenor.nombre}
-									placeholder="Nombre del menor"
-									class="flex-1 min-w-0 w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
-								>
-								<input 
-									type="number" maxlength="2"
-									bind:value={nuevoMenor.edad}
-									placeholder="Edad"
-									min="0"
-									max="17"
-									class="w-full sm:w-24 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
-								>
-								<button 
-									type="button"
-									on:click={agregarMenor}
-									aria-label="Agregar menor"
-									class="w-full sm:w-auto shrink-0 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all mt-2 sm:mt-0"
-								>
-									Agregar
-								</button>
-							</div>
 						</div>
 
-						<!-- Vehículo de Renta (condicional) -->
+						<!-- Vehículo de renta (condicional) -->
 						{#if showVehiculoRenta}
-							<div class="space-y-4 p-6 bg-gradient-to-r from-blue-900/20 to-cyan-900/20 rounded-lg border border-blue-700/30">
-								<label class="block text-lg font-semibold text-blue-400">
-									¿Estarían dispuestos a viajar en vehículo de renta que ustedes mismos manejen?
-								</label>
-								<div class="flex space-x-4">
-									<label class="flex items-center space-x-3 cursor-pointer">
-										<input 
-											type="radio" 
-											bind:group={formData.vehiculoRenta} 
-											value={true}
-											class="w-5 h-5 text-green-500"
+							<div class="space-y-4">
+								<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Vehículo de renta</label>
+								<p class="text-xs text-white/25 font-extralight leading-relaxed -mt-2">¿Estarían dispuestos a viajar en vehículo de renta que ustedes mismos manejen?</p>
+								<div class="flex gap-4">
+									{#each [{ value: true, label: 'Sí, podemos manejar' }, { value: false, label: 'No, preferimos chofer' }] as opt}
+										<button
+											type="button"
+											on:click={() => formData.vehiculoRenta = opt.value}
+											class="flex-1 py-3 px-4 border text-xs font-extralight tracking-widest transition-all {formData.vehiculoRenta === opt.value ? 'border-white/40 bg-white/10 text-white/70' : 'border-white/10 bg-white/[0.02] text-white/30 hover:border-white/20'}"
 										>
-										<span class="text-white">Sí, podemos manejar</span>
-									</label>
-									<label class="flex items-center space-x-3 cursor-pointer">
-										<input 
-											type="radio" 
-											bind:group={formData.vehiculoRenta} 
-											value={false}
-											class="w-5 h-5 text-green-500"
-										>
-										<span class="text-white">No, preferimos chofer</span>
-									</label>
+											{opt.label}
+										</button>
+									{/each}
 								</div>
 							</div>
 						{/if}
 
-						<!-- Tipo de Viaje -->
+						<!-- Tipo de viaje -->
 						<div class="space-y-4">
-							<label class="block text-lg font-semibold text-green-400">Tipo de Viaje</label>
-							<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Tipo de viaje</label>
+							<div class="grid grid-cols-3 gap-3">
 								{#each ['Familiar', 'Amigos', 'Corporativo'] as tipo}
-									<label class="relative cursor-pointer">
-										<input 
-											type="radio" 
-											bind:group={formData.tipoViaje} 
-											value={tipo}
-											class="sr-only"
-										>
-										<div class="p-4 border border-white/10 rounded-lg transition-all shadow-md {formData.tipoViaje === tipo ? 'border-green-500 bg-green-500/10' : 'bg-black/50 hover:border-green-400'}">
-											<div class="text-center">
-												<div class="w-12 h-12 mx-auto mb-3 bg-gradient-to-br {formData.tipoViaje === tipo ? 'from-green-400 to-emerald-600' : 'from-black/40 to-black/60'} rounded-full flex items-center justify-center border border-white/5">
-													{#if tipo === 'Familiar'}
-														<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-															<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-														</svg>
-													{:else if tipo === 'Amigos'}
-														<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-															<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m0 0a6.01 6.01 0 005.83 4.747M13 14a3 3 0 11-6 0 3 3 0 016 0z"></path>
-														</svg>
-													{:else}
-														<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-															<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-														</svg>
-													{/if}
-												</div>
-												<span class="font-medium {formData.tipoViaje === tipo ? 'text-green-400' : 'text-white'}">{tipo}</span>
-											</div>
-										</div>
-									</label>
+									<button
+										type="button"
+										on:click={() => formData.tipoViaje = tipo}
+										class="py-4 border text-xs font-extralight tracking-[0.2em] uppercase transition-all {formData.tipoViaje === tipo ? 'border-white/40 bg-white/10 text-white/70' : 'border-white/10 bg-white/[0.02] text-white/25 hover:border-white/20 hover:text-white/40'}"
+									>
+										{tipo}
+									</button>
 								{/each}
 							</div>
 						</div>
 					</div>
 				{/if}
 
-				<!-- Step 2: Destino y Fechas -->
+				<!-- PASO 2: Destino y Fechas -->
 				{#if currentStep === 2}
-					<div class="space-y-8">
-						<div class="text-center mb-8">
-							<h2 class="text-3xl font-bold text-white mb-4">Destino y fechas</h2>
-							<p class="text-gray-300">¿Cuándo y dónde te gustaría viajar?</p>
+					<div class="space-y-10">
+						<div>
+							<p class="text-xs text-white/30 font-extralight tracking-[0.4em] uppercase mb-1">Paso 2</p>
+							<h2 class="text-xl font-extralight tracking-widest text-white">Destino y fechas</h2>
+							<div class="w-8 h-px bg-white/20 mt-3"></div>
 						</div>
 
-						<!-- Destinos -->
-						<div class="space-y-4">
-							<label class="block text-lg font-semibold text-green-400">Destino de Interés</label>
-							<select 
+						<div class="space-y-3">
+							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Destino de interés</label>
+							<select
 								bind:value={formData.destinos}
-								class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
+								class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm focus:border-white/30 focus:outline-none transition-colors appearance-none"
 							>
-								<option value="">Selecciona un destino</option>
+								<option value="" class="bg-black">Selecciona un destino</option>
 								{#each ubicaciones as ubicacion}
-									<option value={ubicacion.nombre_ubicacion}>
-										{ubicacion.nombre_ubicacion}
-									</option>
+									<option value={ubicacion.nombre_ubicacion} class="bg-black">{ubicacion.nombre_ubicacion}</option>
 								{/each}
 							</select>
 						</div>
 
-						<!-- Fechas -->
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-							
-							<div class="space-y-4">
-								<label class="block text-lg font-semibold text-green-400">Salida de Chihuahua Capital</label>
-								<input 
+							<div class="space-y-3">
+								<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Salida de Chihuahua</label>
+								<input
 									type="date"
 									bind:value={formData.fechaSalida}
-									class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
+									class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm focus:border-white/30 focus:outline-none transition-colors"
 								>
 							</div>
-							<div class="space-y-4">
-								<label class="block text-lg font-semibold text-green-400">Llegada a Chihuahua Capital</label>
-								<input 
+							<div class="space-y-3">
+								<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Regreso a Chihuahua</label>
+								<input
 									type="date"
 									bind:value={formData.fechaLlegada}
-									class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
+									class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm focus:border-white/30 focus:outline-none transition-colors"
 								>
 							</div>
 						</div>
 					</div>
 				{/if}
 
-				<!-- Step 3: Preferencias -->
+				<!-- PASO 3: Preferencias -->
 				{#if currentStep === 3}
-					<div class="space-y-8">
-						<div class="text-center mb-8">
-							<h2 class="text-3xl font-bold text-white mb-4">Tus preferencias</h2>
-							<p class="text-gray-300">Personaliza tu experiencia</p>
+					<div class="space-y-10">
+						<div>
+							<p class="text-xs text-white/30 font-extralight tracking-[0.4em] uppercase mb-1">Paso 3</p>
+							<h2 class="text-xl font-extralight tracking-widest text-white">Preferencias</h2>
+							<div class="w-8 h-px bg-white/20 mt-3"></div>
 						</div>
 
 						<!-- Hospedaje -->
 						<div class="space-y-4">
-							<label class="block text-lg font-semibold text-green-400">Hospedaje Preferido</label>
-							<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-								{#each [
-									{ value: 'hotel', name: 'Hotel', icon: 'M19 7h3v12h-3M8 21l-2-6h12l-2 6M16 3v4M8 3v4m0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M8 7h8' },
-									{ value: 'cabaña', name: 'Cabaña', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-									{ value: 'indistinto', name: 'Indistinto', icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' }
-								] as hospedaje}
-									<label class="relative cursor-pointer">
-										<input 
-											type="radio" 
-											bind:group={formData.hospedaje} 
-											value={hospedaje.value}
-											class="sr-only"
-										>
-										<div class="p-4 border-2 rounded-lg transition-all {formData.hospedaje === hospedaje.value ? 'border-green-500 bg-green-500/10' : 'border-neutral-600 hover:border-green-400'}">
-											<div class="text-center">
-												<div class="w-12 h-12 mx-auto mb-3 bg-gradient-to-br {formData.hospedaje === hospedaje.value ? 'from-green-400 to-emerald-600' : 'from-neutral-600 to-neutral-700'} rounded-full flex items-center justify-center">
-													<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={hospedaje.icon}></path>
-													</svg>
-												</div>
-												<span class="font-medium {formData.hospedaje === hospedaje.value ? 'text-green-400' : 'text-white'}">{hospedaje.name}</span>
-											</div>
-										</div>
-									</label>
+							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Hospedaje</label>
+							<div class="grid grid-cols-3 gap-3">
+								{#each [{ value: 'hotel', label: 'Hotel' }, { value: 'cabaña', label: 'Cabaña' }, { value: 'indistinto', label: 'Indistinto' }] as h}
+									<button
+										type="button"
+										on:click={() => formData.hospedaje = h.value}
+										class="py-4 border text-xs font-extralight tracking-[0.2em] uppercase transition-all {formData.hospedaje === h.value ? 'border-white/40 bg-white/10 text-white/70' : 'border-white/10 bg-white/[0.02] text-white/25 hover:border-white/20 hover:text-white/40'}"
+									>
+										{h.label}
+									</button>
 								{/each}
 							</div>
 						</div>
 
 						<!-- Transporte -->
-						<div class="space-y-4">
-							<label class="block text-lg font-semibold text-green-400">Transporte</label>
-							<select 
+						<div class="space-y-3">
+							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Transporte</label>
+							<select
 								bind:value={formData.transporte}
-								class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
+								class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm focus:border-white/30 focus:outline-none transition-colors appearance-none"
 							>
-								<option value="">Selecciona una opción</option>
-								<option value="privado">Transporte privado con chofer</option>
-								<option value="compartido">Transporte compartido</option>
-								<option value="aeropuerto">Solo traslado desde aeropuerto</option>
-								<option value="sin-transporte">No requiero transporte</option>
+								<option value="" class="bg-black">Selecciona una opción</option>
+								<option value="privado" class="bg-black">Transporte privado con chofer</option>
+								<option value="compartido" class="bg-black">Transporte compartido</option>
+								<option value="aeropuerto" class="bg-black">Solo traslado desde aeropuerto</option>
+								<option value="sin-transporte" class="bg-black">No requiero transporte</option>
 							</select>
 						</div>
 
 						<!-- Experiencias -->
 						<div class="space-y-4">
-							<label class="block text-lg font-semibold text-green-400">Tipo de Experiencias que Buscan</label>
-							<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-								{#each [
-									{ value: 'aventura', name: 'Aventura', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
-									{ value: 'naturaleza', name: 'Naturaleza', icon: 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z' },
-									{ value: 'cultura', name: 'Cultura', icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
-									{ value: 'relax', name: 'Relax', icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' }
-								] as experiencia}
-									<label class="relative cursor-pointer">
-										<input 
-											type="checkbox" 
-											checked={formData.experiencias.includes(experiencia.value)}
-											on:change={() => toggleExperiencia(experiencia.value)}
-											class="sr-only"
-										>
-										<div class="p-4 border-2 rounded-lg transition-all {formData.experiencias.includes(experiencia.value) ? 'border-green-500 bg-green-500/10' : 'border-neutral-600 hover:border-green-400'}">
-											<div class="text-center">
-												<div class="w-10 h-10 mx-auto mb-2 bg-gradient-to-br {formData.experiencias.includes(experiencia.value) ? 'from-green-400 to-emerald-600' : 'from-neutral-600 to-neutral-700'} rounded-full flex items-center justify-center">
-													<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={experiencia.icon}></path>
-													</svg>
-												</div>
-												<span class="text-sm font-medium {formData.experiencias.includes(experiencia.value) ? 'text-green-400' : 'text-white'}">{experiencia.name}</span>
-											</div>
-										</div>
-									</label>
+							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Tipo de experiencias</label>
+							<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+								{#each [{ value: 'aventura', label: 'Aventura' }, { value: 'naturaleza', label: 'Naturaleza' }, { value: 'cultura', label: 'Cultura' }, { value: 'relax', label: 'Relax' }] as exp}
+									<button
+										type="button"
+										on:click={() => toggleExperiencia(exp.value)}
+										class="py-4 border text-xs font-extralight tracking-[0.2em] uppercase transition-all {formData.experiencias.includes(exp.value) ? 'border-white/40 bg-white/10 text-white/70' : 'border-white/10 bg-white/[0.02] text-white/25 hover:border-white/20 hover:text-white/40'}"
+									>
+										{exp.label}
+									</button>
 								{/each}
 							</div>
 						</div>
 
 						<!-- Presupuesto -->
-						<div class="space-y-4">
-							<label class="block text-lg font-semibold text-green-400">Presupuesto Aproximado (MXN por persona)</label>
-							<select 
+						<div class="space-y-3">
+							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Presupuesto aproximado (MXN por persona)</label>
+							<select
 								bind:value={formData.presupuesto}
-								class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
+								class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm focus:border-white/30 focus:outline-none transition-colors appearance-none"
 							>
-								<option value="">Selecciona un rango</option>
-								<option value="5000-10000">$5,000 - $10,000</option>
-								<option value="10000-15000">$10,000 - $15,000</option>
-								<option value="15000-20000">$15,000 - $20,000</option>
-								<option value="20000-30000">$20,000 - $30,000</option>
-								<option value="30000+">$30,000+</option>
-								<option value="flexible">Flexible / Por definir</option>
+								<option value="" class="bg-black">Selecciona un rango</option>
+								<option value="5000-10000" class="bg-black">$5,000 — $10,000</option>
+								<option value="10000-15000" class="bg-black">$10,000 — $15,000</option>
+								<option value="15000-20000" class="bg-black">$15,000 — $20,000</option>
+								<option value="20000-30000" class="bg-black">$20,000 — $30,000</option>
+								<option value="30000+" class="bg-black">$30,000+</option>
+								<option value="flexible" class="bg-black">Flexible / Por definir</option>
 							</select>
 						</div>
 					</div>
 				{/if}
 
-				<!-- Step 4: Contacto -->
+				<!-- PASO 4: Contacto -->
 				{#if currentStep === 4}
-					<div class="space-y-8">
-						<div class="text-center mb-8">
-							<h2 class="text-3xl font-bold text-white mb-4">Información de contacto</h2>
-							<p class="text-gray-300">Para enviarte tu cotización personalizada</p>
+					<div class="space-y-10">
+						<div>
+							<p class="text-xs text-white/30 font-extralight tracking-[0.4em] uppercase mb-1">Paso 4</p>
+							<h2 class="text-xl font-extralight tracking-widest text-white">Información de contacto</h2>
+							<div class="w-8 h-px bg-white/20 mt-3"></div>
 						</div>
 
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-							<div class="space-y-4">
-								<label class="block text-lg font-semibold text-green-400">Nombre Completo</label>
-								<input 
-									type="text" maxlength="45"
-									bind:value={formData.nombre}
-									placeholder="Tu nombre completo"
-									class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
+						<div class="space-y-6">
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+								<div class="space-y-2">
+									<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Nombre completo</label>
+									<input
+										type="text"
+										maxlength="45"
+										bind:value={formData.nombre}
+										placeholder="Tu nombre"
+										class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm placeholder-white/15 focus:border-white/30 focus:outline-none transition-colors"
+									>
+								</div>
+								<div class="space-y-2">
+									<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Email</label>
+									<input
+										type="email"
+										maxlength="35"
+										bind:value={formData.email}
+										placeholder="tu@email.com"
+										class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm placeholder-white/15 focus:border-white/30 focus:outline-none transition-colors"
+									>
+								</div>
+							</div>
+
+							<div class="space-y-2">
+								<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Teléfono</label>
+								<input
+									type="tel"
+									bind:value={formData.telefono}
+									placeholder="+52 614 000 0000"
+									class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm placeholder-white/15 focus:border-white/30 focus:outline-none transition-colors"
 								>
 							</div>
-							<div class="space-y-4">
-								<label class="block text-lg font-semibold text-green-400">Email</label>
-								<input 
-									type="email" maxlength="35"
-									bind:value={formData.email}
-									placeholder="tu@email.com"
-									class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
-								>
+
+							<div class="space-y-2">
+								<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Comentarios adicionales</label>
+								<textarea
+									bind:value={formData.comentarios}
+									placeholder="Información adicional que consideres importante..."
+									rows="3"
+									class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm placeholder-white/15 focus:border-white/30 focus:outline-none transition-colors resize-none"
+								></textarea>
 							</div>
-						</div>
-
-						<div class="space-y-4">
-							<label class="block text-lg font-semibold text-green-400">Teléfono</label>
-							<input 
-								type="number" maxlength="10"
-								bind:value={formData.telefono}
-								placeholder="+52 614 123 4567"
-								class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors shadow-inner"
-							>
-						</div>
-
-						<div class="space-y-4">
-							<label class="block text-lg font-semibold text-green-400">Comentarios Adicionales</label>
-							<textarea 
-								bind:value={formData.comentarios}
-								placeholder="Cualquier información adicional que consideres importante..."
-								rows="4"
-								class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors resize-none shadow-inner"
-							></textarea>
 						</div>
 
 						<!-- Resumen -->
-						<div class="mt-8 p-6 bg-gradient-to-r from-green-900/20 to-emerald-900/20 rounded-lg border border-green-700/30">
-							<h3 class="text-xl font-semibold text-green-400 mb-4">Resumen de tu solicitud</h3>
-							<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-								<div class="space-y-2">
-									<p class="text-gray-300"><span class="text-white font-medium">Viajeros:</span> {formData.adultos} adultos + {formData.menores.length} menores</p>
-									<p class="text-gray-300"><span class="text-white font-medium">Tipo:</span> {formData.tipoViaje || 'No especificado'}</p>
-									<p class="text-gray-300"><span class="text-white font-medium">Fechas:</span> {formData.fechaLlegada || 'N/A'} - {formData.fechaSalida || 'N/A'}</p>
+						<div class="border border-white/10 p-6 space-y-3">
+							<p class="text-xs text-white/30 font-extralight tracking-[0.4em] uppercase mb-4">Resumen de solicitud</p>
+							<div class="grid grid-cols-2 gap-x-8 gap-y-2">
+								<div class="flex justify-between col-span-2 sm:col-span-1">
+									<span class="text-xs text-white/25 font-extralight">Viajeros</span>
+									<span class="text-xs text-white/50 font-extralight">{formData.adultos} adultos{formData.llevaMenores && formData.cantidadMenores > 0 ? ` + ${formData.cantidadMenores} menores` : ''}</span>
 								</div>
-								<div class="space-y-2">
-									<p class="text-gray-300"><span class="text-white font-medium">Hospedaje:</span> {formData.hospedaje || 'No especificado'}</p>
-									<p class="text-gray-300"><span class="text-white font-medium">Transporte:</span> {formData.transporte || 'No especificado'}</p>
-									<p class="text-gray-300"><span class="text-white font-medium">Presupuesto:</span> {formData.presupuesto || 'No especificado'}</p>
+								<div class="flex justify-between col-span-2 sm:col-span-1">
+									<span class="text-xs text-white/25 font-extralight">Tipo</span>
+									<span class="text-xs text-white/50 font-extralight">{formData.tipoViaje || '—'}</span>
+								</div>
+								<div class="flex justify-between col-span-2 sm:col-span-1">
+									<span class="text-xs text-white/25 font-extralight">Destino</span>
+									<span class="text-xs text-white/50 font-extralight">{formData.destinos || '—'}</span>
+								</div>
+								<div class="flex justify-between col-span-2 sm:col-span-1">
+									<span class="text-xs text-white/25 font-extralight">Hospedaje</span>
+									<span class="text-xs text-white/50 font-extralight">{formData.hospedaje || '—'}</span>
+								</div>
+								<div class="flex justify-between col-span-2 sm:col-span-1">
+									<span class="text-xs text-white/25 font-extralight">Presupuesto</span>
+									<span class="text-xs text-white/50 font-extralight">{formData.presupuesto || '—'}</span>
 								</div>
 							</div>
 						</div>
 					</div>
 				{/if}
 
-				<!-- Navigation Buttons -->
-				<div class="flex justify-between items-center mt-12 pt-8 border-t border-neutral-700">
+				<!-- Botones de navegación -->
+				<div class="flex justify-between items-center mt-12 pt-8 border-t border-white/10">
 					{#if currentStep > 1}
-						<button 
+						<button
 							type="button"
 							on:click={prevStep}
-							class="flex items-center px-6 py-3 bg-black border border-white/10 hover:bg-black/50 text-white rounded-lg transition-colors shadow-lg"
+							class="flex items-center gap-2 px-5 py-3 border border-white/10 bg-white/[0.02] hover:bg-white/5 text-white/40 hover:text-white/60 text-xs font-extralight tracking-[0.3em] uppercase transition-all"
 						>
-							<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+							<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"></path>
 							</svg>
 							Anterior
 						</button>
@@ -631,41 +563,43 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 					{/if}
 
 					{#if currentStep < totalSteps}
-						<button 
+						<button
 							type="button"
 							on:click={nextStep}
-							class="flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all"
+							class="flex items-center gap-2 px-6 py-3 border border-white/20 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white/80 text-xs font-extralight tracking-[0.3em] uppercase transition-all"
 						>
 							Siguiente
-							<svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+							<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"></path>
 							</svg>
 						</button>
 					{:else}
-						<button 
-							type="button"
-							on:click={submitForm}
-							class="flex items-center px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all transform hover:scale-105 shadow-xl"
-						>
-							<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-							</svg>
-							Solicitar Cotización
-						</button>
+						<div class="flex items-center gap-4">
+							<button
+								type="button"
+								on:click={() => { cleanForm(); goToStep(1); }}
+								class="flex items-center gap-2 px-5 py-3 border border-white/10 bg-transparent hover:bg-white/5 text-white/30 hover:text-white/50 text-xs font-extralight tracking-[0.3em] uppercase transition-all"
+							>
+								<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+								</svg>
+								Reiniciar
+							</button>
+							<button
+								type="button"
+								on:click={submitForm}
+								class="flex items-center gap-2 px-8 py-3 border border-white/30 bg-white/10 hover:bg-white/15 text-white/70 hover:text-white/90 text-xs font-extralight tracking-[0.3em] uppercase transition-all"
+							>
+								<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+								</svg>
+								Solicitar cotización
+							</button>
+						</div>
 					{/if}
 				</div>
+
 			</div>
 		</div>
 	</section>
 </div>
-
-<style>
-	/* Custom radio and checkbox styling */
-	input[type="radio"]:checked + div {
-		transform: scale(1.02);
-	}
-	
-	input[type="checkbox"]:checked + div {
-		transform: scale(1.02);
-	}
-</style>

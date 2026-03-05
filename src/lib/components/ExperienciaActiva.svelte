@@ -66,16 +66,17 @@
 	});
 </script>
 
-<div class="pt-20 flex justify-center bg-transparent">
+<div class="bg-black">
 	<!-- Componente clickeable de experiencia activa -->
 	{#if experienciaActiva}
 		<div
-			class="group relative h-screen w-full max-w-[95%] cursor-pointer overflow-hidden rounded-3xl"
+			class="group relative h-screen w-full cursor-pointer overflow-hidden"
 			on:click={navegarAExperiencia}
 			on:keydown={(e) => e.key === 'Enter' && navegarAExperiencia()}
 			role="button"
 			tabindex="0"
 		>
+
 			<!-- Slideshow de imágenes -->
 			{#if experienciaActiva.detalle?.imagenes?.length > 0}
 				<div class="absolute inset-0 bg-gray-200">
@@ -132,14 +133,22 @@
 			<div class="absolute bottom-12 left-4 right-4 sm:left-8 sm:right-8 md:left-12 md:right-auto md:max-w-2xl lg:max-w-3xl xl:max-w-4xl z-30">
 				<div class="rounded-lg p-4 sm:p-6">
 					<div class="space-y-1 text-white">
+						<!-- Badge diferenciador -->
+						<div class="flex items-center gap-2 mb-2">
+							<span class="relative flex h-2 w-2">
+								<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+								<span class="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
+							</span>
+							<span class="text-green-400 text-xs font-extralight tracking-[0.35em] uppercase">Próxima experiencia</span>
+						</div>
 						<!-- Título -->
-						<h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight font-bold drop-shadow-lg break-words">
+						<h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight font-extralight tracking-widest drop-shadow-lg break-words">
 							{experienciaActiva.titulo}
 						</h1>
 
 						<!-- Descripción -->
 						{#if experienciaActiva.descripcion}
-							<p class="font-semibold text-lg sm:text-xl md:text-2xl lg:text-3xl leading-relaxed text-green-400 drop-shadow-md break-words">
+							<p class="font-extralight text-sm sm:text-base leading-relaxed text-white/60 drop-shadow-md break-words tracking-wide">
 								{experienciaActiva.descripcion}
 							</p>
 						{/if}
@@ -167,36 +176,21 @@
 										d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
 									/>
 								</svg>
-								<span class="opacity-90">{experienciaActiva.cubicacion.nombre_ubicacion}</span>
+								<span class="text-xs font-extralight tracking-[0.3em] uppercase opacity-70">{experienciaActiva.cubicacion.nombre_ubicacion}</span>
 							</div>
 						{/if}
 
 						<!-- Fechas -->
 						{#if experienciaActiva.fecha_inicio && experienciaActiva.fecha_fin}
 							<div class="inline-block">
-								<div
-									class="bg-opacity-40 border-opacity-30 rounded-lg border border-white bg-black px-4 py-2 backdrop-blur-sm"
-								>
-									<div class="flex items-center space-x-2 text-white">
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											class="h-5 w-5"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-											/>
+									<div class="flex items-center space-x-2 text-white/70">
+										<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 										</svg>
-										<span class="text-lg font-semibold">
+										<span class="text-xs font-extralight tracking-widest">
 											{formatearFechas(experienciaActiva.fecha_inicio, experienciaActiva.fecha_fin)}
 										</span>
 									</div>
-								</div>
 							</div>
 						{/if}
 					</div>
@@ -241,8 +235,14 @@
 				</div>
 			{/if}
 
-			<!-- Sombreado gradiente inferior -->
-			<div class="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black via-black/90 to-transparent pointer-events-none z-10"></div>
+			<!-- Gradiente inferior sutil solo en el borde -->
+			<div class="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-black to-transparent pointer-events-none z-10"></div>
+			<!-- Gradiente izquierdo -->
+			<div class="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-black to-transparent pointer-events-none z-10"></div>
+			<!-- Gradiente derecho -->
+			<div class="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-black to-transparent pointer-events-none z-10"></div>
+			<!-- Gradiente superior -->
+			<div class="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black to-transparent pointer-events-none z-20"></div>
 		</div>
 	{/if}
 </div>

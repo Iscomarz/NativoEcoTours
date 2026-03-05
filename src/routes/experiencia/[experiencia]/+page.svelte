@@ -54,10 +54,10 @@
 	<div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
     <div class="absolute inset-0 bg-black/40"></div>
 	<div class="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
-		<h1 class="text-3xl font-extrabold tracking-wider text-white drop-shadow-lg md:text-5xl">
+		<h1 class="text-2xl font-extralight tracking-widest text-white drop-shadow-lg md:text-3xl">
 			{experiencia.titulo}
 		</h1>
-		<p class="mt-3 text-lg text-white drop-shadow md:text-xl">
+		<p class="mt-3 text-xs text-white/50 font-extralight tracking-[0.3em] uppercase drop-shadow md:text-sm">
 			{getFechaBonita(experiencia.fecha_inicio, experiencia.fecha_fin)}
 		</p>
 		<button
@@ -69,7 +69,7 @@
 					window.scrollTo({ top: y, behavior: 'smooth' });
 				}
 			}}
-			class="mt-6 flex items-center gap-2 rounded bg-green-600 px-6 py-2 font-bold text-white transition hover:bg-green-700"
+			class="mt-6 inline-flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 text-white font-extralight tracking-[0.3em] py-3 px-8 transition-all duration-300 uppercase text-xs"
 		>
 			<span>RESERVAR</span>
 			<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
@@ -133,7 +133,7 @@
 							window.scrollTo({ top: y, behavior: 'smooth' });
 						}
 					}}
-					class="flex items-center gap-2 rounded bg-green-600 px-5 py-2 font-semibold text-white hover:bg-green-700"
+					class="flex items-center gap-2 bg-white/5 border border-white/20 hover:bg-white/10 px-5 py-3 font-extralight tracking-widest text-white text-xs uppercase transition-all duration-300"
 				>
 					RESERVAR
 					<svg
@@ -149,16 +149,16 @@
 			</div>
 
 			<div>
-				<h2 class="mb-2 text-xl font-bold tracking-wide text-white/90">HOTEL SEDE</h2>
-				<p class="leading-relaxed whitespace-pre-line text-gray-200">{experiencia.detalle.sede}</p>
+				<h2 class="mb-2 text-xs font-light tracking-widest text-white/50 uppercase">HOTEL SEDE</h2>
+				<p class="leading-loose whitespace-pre-line text-white/50 text-xs font-extralight tracking-wide">{experiencia.detalle.sede}</p>
 
-				<h2 class="mb-2 text-xl font-bold tracking-wide text-white/90">ACTIVIDADES</h2>
-				<p class="leading-relaxed whitespace-pre-line text-gray-200">
+				<h2 class="mb-2 mt-6 text-xs font-light tracking-widest text-white/50 uppercase">ACTIVIDADES</h2>
+				<p class="leading-loose whitespace-pre-line text-white/50 text-xs font-extralight tracking-wide">
 					{experiencia.detalle.actividades}
 				</p>
 
-				<h2 class="mb-2 text-xl font-bold tracking-wide text-white/90">INCLUYE</h2>
-				<p class="leading-relaxed whitespace-pre-line text-gray-200">
+				<h2 class="mb-2 mt-6 text-xs font-light tracking-widest text-white/50 uppercase">INCLUYE</h2>
+				<p class="leading-loose whitespace-pre-line text-white/50 text-xs font-extralight tracking-wide">
 					{experiencia.detalle.queincluye}
 				</p>
 			</div>
@@ -168,7 +168,7 @@
 	<!-- Habitaciones -->
 	{#if experiencia.habitaciones && experiencia.habitaciones.length > 0}
 		<section id="habitaciones-section" class="px-6 py-12 md:px-20">
-			<h2 class="mb-8 text-3xl font-extrabold tracking-wider text-white/90">Habitaciones Disponibles</h2>
+			<h2 class="mb-8 text-lg font-extralight tracking-widest text-white/60 uppercase">Habitaciones Disponibles</h2>
 			<div class="flex gap-6 overflow-x-auto pb-4">
 				{#each experiencia.habitaciones as hab}
 					<HabitacionCard

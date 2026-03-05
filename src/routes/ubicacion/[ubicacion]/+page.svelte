@@ -100,7 +100,7 @@
 
 				<!-- Nombre de la ubicación y logo con space-between -->
 				<div class="flex items-end justify-between gap-4 mb-4">
-					<h1 class="text-4xl leading-tight font-bold tracking-tight md:text-6xl lg:text-7xl">
+					<h1 class="text-3xl leading-tight font-extralight tracking-widest md:text-5xl lg:text-6xl">
 						{ubicacion.nombre_ubicacion}
 					</h1>
 					<img 
@@ -110,8 +110,8 @@
 					/>
 				</div>
 
-				<!-- Línea decorativa -->
-				<div class="h-1 w-32 rounded-full bg-green-400"></div>
+				<!-- Línea decorativa delgada -->
+				<div class="h-px w-24 bg-white/20"></div>
 			</div>
 		</div>
 	</div>
@@ -128,7 +128,7 @@
 
 						<!-- Contenido -->
 						<div class="flex-1">
-							<p class="mb-8 text-lg leading-relaxed whitespace-pre-line text-gray-300 md:text-xl">
+							<p class="mb-8 text-sm leading-loose font-extralight tracking-wide whitespace-pre-line text-white/60 md:text-base">
 								{detalle.descripcion_larga}
 							</p>
 						</div>
@@ -157,7 +157,7 @@
 					<div class="flex gap-6">
 						<!-- Contenido -->
 						<div class="flex-1">
-							<p class="text-lg leading-relaxed whitespace-pre-line text-gray-300 md:text-xl">
+							<p class="text-sm leading-loose font-extralight tracking-wide whitespace-pre-line text-white/60 md:text-base">
 								{detalle.historia}
 							</p>
 						</div>
@@ -171,39 +171,16 @@
             <div class="w-full flex items-center justify-center mb-12 gap-2.5">
                 <!-- Botón de disponibilidad -->
                  <button
-					class="flex items-center gap-2 rounded bg-neutral-700 px-5 py-2 font-semibold text-white hover:bg-neutral-600"
+					class="inline-flex items-center justify-center gap-3 bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 text-white font-extralight tracking-[0.3em] py-3 px-8 transition-all duration-300 uppercase text-xs"
 				>
 					AVÍSAME CUANDO ESTÉ DISPONIBLE
-                    <svg
-                        class="h-5 w-5"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        viewBox="0 0 24 24"
-                        ><path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M12 4v16m8-8H4"
-                        ></path></svg>
 				</button>
 
                 <!-- Botón de disponibilidad -->
                  <button
-					class="flex items-center gap-2 rounded bg-neutral-700 px-5 py-2 font-semibold text-white hover:bg-neutral-600"
+					class="inline-flex items-center justify-center gap-3 bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 text-white font-extralight tracking-[0.3em] py-3 px-8 transition-all duration-300 uppercase text-xs"
 				>
 					RESERVAR AHORA
-                    <svg
-                        class="h-5 w-5"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        viewBox="0 0 24 24"
-                        ><path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M12 4v16m8-8H4"
-                        ></path></svg>
-					
 				</button>
             </div>
             
@@ -265,22 +242,9 @@
 			<div class="mt-16 flex justify-center">
 				<a
 					href="/experiencias"
-					class="group flex items-center rounded-full border-2 border-green-400 bg-neutral-900 px-8 py-4 font-bold tracking-wider text-green-400 uppercase transition-all duration-300 hover:bg-neutral-800 hover:shadow-lg hover:shadow-green-400/20"
+					class="inline-flex items-center gap-3 text-white/30 font-extralight text-xs tracking-[0.4em] uppercase hover:text-white/60 transition-colors duration-300"
 				>
-					<svg
-						class="mr-3 h-5 w-5 transform transition-transform group-hover:-translate-x-1"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M15 19l-7-7 7-7"
-						/>
-					</svg>
-					Ver todas las experiencias
+					← Ver todas las experiencias
 				</a>
 			</div>
 		</div>
@@ -314,7 +278,7 @@
 
 		<!-- Contador de imágenes -->
 		<div
-			class="absolute top-4 left-1/2 -translate-x-1/2 rounded-full border border-green-400 bg-black/50 px-4 py-2 text-sm font-medium text-green-400 backdrop-blur-sm"
+			class="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 px-4 py-2 text-xs font-extralight text-white/50 tracking-widest backdrop-blur-sm"
 		>
 			{indiceImagenActual + 1} / {detalle.imagenes?.length || 0}
 		</div>

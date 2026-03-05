@@ -43,7 +43,7 @@
         <div class="absolute bottom-0 left-0 right-0 p-6 backdrop-blur-sm bg-neutral-900/30">
             <!-- Información principal -->
             <div class="mb-4 ">
-                <h3 class="text-2xl font-bold text-white mb-2 leading-tight group-hover:text-green-100 transition-colors duration-300">
+                <h3 class="text-lg font-light text-white mb-2 leading-tight tracking-wide group-hover:text-green-100 transition-colors duration-300">
                     {nombre_ubicacion}
                 </h3>
                 
@@ -53,7 +53,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
-                    <span class="text-sm font-medium">{estado_ubicacion}</span>
+                    <span class="text-xs font-extralight tracking-widest uppercase">{estado_ubicacion}</span>
                 </div>
             </div>
 
@@ -65,7 +65,7 @@
                 <!-- Botón -->
                 <a 
                     href="/ubicacion/{formatearNombreParaURL(nombre_ubicacion)}"
-                    class="ml-4 group/btn flex items-center text-green-400 hover:text-green-300 font-medium text-sm transition-all duration-300"
+                    class="ml-4 group/btn flex items-center text-white/50 hover:text-white font-extralight text-xs tracking-widest uppercase transition-all duration-300"
                 >
                     <span class="mr-2">Explorar</span>
                     <svg class="w-4 h-4 transform transition-transform group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

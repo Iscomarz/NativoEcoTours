@@ -15,33 +15,18 @@
 	$: experienciaActiva = data.props.experienciaActiva;
 </script>
 
-<!-- Sección con background tarcila que incluye todo -->
-<div 
-	class="relative mt-10"
+<!-- Sección con fondo negro para la experiencia activa -->
+<div class="bg-black">
+	<ExperienciaActiva {experienciaActiva} />
+</div>
+
+<!-- Contenido inferior con background tarcila -->
+<div
+	class="relative"
 	style="background-image: url({TarcilaBackground}); background-size: cover; background-position: center; background-attachment: fixed;"
 >
-	<ExperienciaActiva {experienciaActiva} />
-
-	<div class="bg-black h-10"></div>
-
-	<!-- Sombreado de transición -->
-	<div class="relative h-82 bg-gradient-to-b from-black via-black/60 to-transparent z-10"></div>
-
-	<!-- Sección de portada -->
-	<section 
-		class="relative h-[80vh] w-full overflow-hidden md:h-[40vh] -mt-82"
-	>
-		<!-- Overlay -->
-		<!-- <div class="absolute inset-0 bg-black/40"></div> -->
-
-		<!-- Texto flotante -->
-		<div class="absolute inset-0 flex items-center justify-end px-6 text-right md:px-20 z-10">
-			<div class="text-white">
-				<p class="text-sm tracking-wide uppercase md:text-base">Conoce nuestras</p>
-				<h1 class="text-3xl font-extrabold tracking-wider md:text-5xl">Experiencias Nativo</h1>
-			</div>
-		</div>
-	</section>
+	<!-- Degradado desde negro arriba para continuidad -->
+	<div class="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black to-transparent z-10 pointer-events-none"></div>
 
 	<!-- Contenido -->
 	<div class="relative z-10">
@@ -51,27 +36,27 @@
 		<!-- Sección: Por qué nuestras experiencias son únicas -->
 		<section class="py-12">
 			<div class="max-w-7xl mx-auto px-6">
-				<h2 class="text-center text-white font-bold text-xl tracking-wider mb-6">POR QUE NUESTRAS EXPERIENCIAS SON UNICAS</h2>
+				<h2 class="text-center text-white font-extralight text-xs tracking-[0.4em] uppercase mb-8">POR QUE NUESTRAS EXPERIENCIAS SON UNICAS</h2>
 
 				<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-					<div class="bg-neutral-900/40 backdrop-blur-md p-6 rounded-lg border border-white/10">
-						<h3 class="text-sm font-bold text-white mb-2">TOUR</h3>
-						<p class="text-sm text-gray-300">Itinerario especializado para que disfrutes de cada momento</p>
+					<div class="bg-neutral-900/40 backdrop-blur-md p-6 border border-white/10">
+						<h3 class="text-xs font-light text-white/80 mb-2 tracking-widest uppercase">TOUR</h3>
+						<p class="text-xs text-white/40 font-extralight leading-relaxed">Itinerario especializado para que disfrutes de cada momento</p>
 					</div>
 
-					<div class="bg-neutral-900/40 backdrop-blur-md p-6 rounded-lg border border-white/10">
-						<h3 class="text-sm font-bold text-white mb-2">HOSPEDAJE Y EXPERIENCIA</h3>
-						<p class="text-sm text-gray-300">Instalaciones equipadas para cada experiencia, cabañas/hotel de 1 a 2 días con servicio de restaurante</p>
+					<div class="bg-neutral-900/40 backdrop-blur-md p-6 border border-white/10">
+						<h3 class="text-xs font-light text-white/80 mb-2 tracking-widest uppercase">HOSPEDAJE Y EXPERIENCIA</h3>
+						<p class="text-xs text-white/40 font-extralight leading-relaxed">Instalaciones equipadas para cada experiencia, cabañas/hotel de 1 a 2 días con servicio de restaurante</p>
 					</div>
 
-					<div class="bg-neutral-900/40 backdrop-blur-md p-6 rounded-lg border border-white/10">
-						<h3 class="text-sm font-bold text-white mb-2">TRANSPORTE</h3>
-						<p class="text-sm text-gray-300">Transporte redondo con un coordinador turístico y seguro carretera</p>
+					<div class="bg-neutral-900/40 backdrop-blur-md p-6 border border-white/10">
+						<h3 class="text-xs font-light text-white/80 mb-2 tracking-widest uppercase">TRANSPORTE</h3>
+						<p class="text-xs text-white/40 font-extralight leading-relaxed">Transporte redondo con un coordinador turístico y seguro carretera</p>
 					</div>
 
-					<div class="bg-neutral-900/40 backdrop-blur-md p-6 rounded-lg border border-white/10">
-						<h3 class="text-sm font-bold text-white mb-2">SET EN VIVO</h3>
-						<p class="text-sm text-gray-300">Música en vivo de los mejores djs locales</p>
+					<div class="bg-neutral-900/40 backdrop-blur-md p-6 border border-white/10">
+						<h3 class="text-xs font-light text-white/80 mb-2 tracking-widest uppercase">SET EN VIVO</h3>
+						<p class="text-xs text-white/40 font-extralight leading-relaxed">Música en vivo de los mejores djs locales</p>
 					</div>
 				</div>
 

@@ -27,7 +27,7 @@
 			type="text"
 			placeholder="Buscar experiencia..."
 			bind:value={search}
-			class="w-full rounded-full border border-neutral-700 bg-neutral-900 px-4 py-2 text-white outline-none focus:ring-2 focus:ring-green-500 md:w-1/2"
+			class="w-full bg-white/5 border border-white/10 px-4 py-2 text-xs text-white placeholder-white/20 font-extralight tracking-wide outline-none focus:ring-1 focus:ring-white/20 transition-all md:w-1/2"
 		/>
 	</div>
 
@@ -43,9 +43,9 @@
 					{/if}
 
 					<div class="p-4 backdrop-blur-sm">
-						<h3 class="text-lg font-semibold text-white line-clamp-1">{exp.titulo}</h3>
-						<p class="mt-1 text-sm text-neutral-400">{exp.cubicacion.nombre_ubicacion}{exp.cubicacion.estado_ubicacion ? `, ${exp.cubicacion.estado_ubicacion}` : ''}</p>
-						<p class="mt-2 text-sm text-neutral-300 line-clamp-3">{exp.descripcion}</p>
+						<h3 class="text-sm font-light text-white tracking-wide line-clamp-1">{exp.titulo}</h3>
+						<p class="mt-1 text-xs text-white/30 font-extralight tracking-widest uppercase">{exp.cubicacion.nombre_ubicacion}{exp.cubicacion.estado_ubicacion ? `, ${exp.cubicacion.estado_ubicacion}` : ''}</p>
+						<p class="mt-2 text-xs text-white/40 font-extralight line-clamp-3 leading-relaxed">{exp.descripcion}</p>
 
 						<div class="mt-3 flex items-center justify-between text-xs text-neutral-500">
 							<div>

@@ -33,23 +33,22 @@
 		<!-- Content Hero -->
 		<div class="relative z-10 flex items-center justify-center h-full text-center px-6">
 			<div class="max-w-4xl mx-auto space-y-8 animate-fade-in">
-				<!-- Logo o Icono Central -->
-				<div class="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center shadow-2xl">
-					<svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+				<!-- Icono más discreto -->
+				<div class="w-10 h-10 mx-auto mb-8 border border-white/20 flex items-center justify-center">
+					<svg class="w-5 h-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
 					</svg>
 				</div>
 				
-				<h1 class="text-6xl md:text-8xl font-bold text-white leading-tight">
-					<span class="bg-gradient-to-r from-green-400 via-emerald-500 to-teal-600 bg-clip-text text-transparent">
-						¿Quiénes
-					</span>
+				<p class="text-white/40 text-xs tracking-[0.4em] uppercase mb-4">Nativo Eco Tours</p>
+				<h1 class="text-3xl md:text-5xl font-extralight text-white leading-tight tracking-widest">
+					¿Quiénes
 					<br>
-					<span class="text-white">somos?</span>
+					<span class="text-white/60">somos?</span>
 				</h1>
 				
-				<!-- Decorative Line -->
-				<div class="w-32 h-1 bg-gradient-to-r from-green-400 to-emerald-600 mx-auto rounded-full"></div>
+				<!-- Línea decorativa delgada -->
+				<div class="w-16 h-px bg-white/20 mx-auto mt-8"></div>
 			</div>
 		</div>
 		
@@ -73,7 +72,7 @@
 			<div class="bg-black/40 backdrop-blur-md rounded-3xl p-12 md:p-16 shadow-2xl border border-white/10">
 				<!-- Text Content -->
 				<div class="text-center space-y-8 mb-16">
-					<p class="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-gray-200 font-light">
+					<p class="text-base md:text-lg leading-loose text-white/50 font-extralight tracking-wide">
 						Creamos experiencias que <span class="font-semibold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">despiertan</span>: viajes donde la naturaleza y las prácticas de bienestar se convierten en medios de <span class="font-semibold bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">conexión interior</span> en los lugares más extraordinarios de <span class="font-semibold text-green-400">Chihuahua</span>.
 					</p>
 				</div>
