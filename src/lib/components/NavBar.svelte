@@ -11,7 +11,7 @@
 	export let user_profile = null;
 
 
-	// Estado para controlar si el menú móvil está abierto
+	// Estado para controlar si el menú móvil está abiertooo
 	let menuAbierto = false;
 
 	// Estado para controlar el scroll
