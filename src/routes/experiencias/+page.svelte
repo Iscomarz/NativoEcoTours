@@ -3,7 +3,7 @@
 	import TarcilaBackground from '$lib/assets/backgrounds/tarcila.jpg';
 	import ExperienciasBusqueda from '$lib/components/ExperienciasBusqueda.svelte';
 	import { onMount } from 'svelte';
-	import ToursDestacados from '$lib/components/toursDestacados.svelte';
+	import ToursDestacados from '$lib/components/ToursDestacados.svelte';
 	import ExperienciaActiva from '$lib/components/ExperienciaActiva.svelte';
 	import ButtonCotizacion from '$lib/components/ButtonCotizacion.svelte';
 
