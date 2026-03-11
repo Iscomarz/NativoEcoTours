@@ -1,5 +1,5 @@
 <script>
-    import ToursDestacados from '$lib/components/toursDestacados.svelte';
+    import ToursDestacados from '$lib/components/ToursDestacados.svelte';
     import videoSrc from '$lib/assets/videos/22.mp4';
     import logoNativo from '$lib/assets/logos/logoNativoNegro.png';
     import home1 from '$lib/assets/backgrounds/home1.png';
