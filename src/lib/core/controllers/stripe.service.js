@@ -1,8 +1,19 @@
 import Stripe from 'stripe';
-import { STRIPE_SECRET_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
-// Inicializar Stripe con la clave secreta
-const stripe = new Stripe(STRIPE_SECRET_KEY);
+// El objeto stripe se inicializará bajo demanda para asegurar que las variables de entorno estén disponibles
+let stripeInstance = null;
+
+function getStripe() {
+	if (!stripeInstance) {
+		const key = env.STRIPE_SECRET_KEY;
+		if (!key) {
+			console.error('❌ Error: STRIPE_SECRET_KEY no está definida en las variables de entorno.');
+		}
+		stripeInstance = new Stripe(key || '');
+	}
+	return stripeInstance;
+}
 
 /**
  * Crear un Payment Intent para un pago libre
@@ -13,7 +24,7 @@ const stripe = new Stripe(STRIPE_SECRET_KEY);
  */
 export async function createPaymentIntent(amount, currency = 'mxn', metadata = {}) {
 	try {
-		const paymentIntent = await stripe.paymentIntents.create({
+		const paymentIntent = await getStripe().paymentIntents.create({
 			amount: Math.round(amount * 100), // Convertir a centavos
 			currency,
 			automatic_payment_methods: {
@@ -46,7 +57,7 @@ export async function createPaymentIntent(amount, currency = 'mxn', metadata = {
  */
 export async function confirmPaymentIntent(paymentIntentId) {
 	try {
-		const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+		const paymentIntent = await getStripe().paymentIntents.retrieve(paymentIntentId);
 		
 		return {
 			success: true,
@@ -71,7 +82,7 @@ export async function confirmPaymentIntent(paymentIntentId) {
  */
 export async function getPaymentInfo(paymentIntentId) {
 	try {
-		const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+		const paymentIntent = await getStripe().paymentIntents.retrieve(paymentIntentId);
 		
 		return {
 			success: true,
@@ -109,7 +120,7 @@ export async function createRefund(paymentIntentId, amount = null) {
 			refundData.amount = Math.round(amount * 100); // Convertir a centavos
 		}
 
-		const refund = await stripe.refunds.create(refundData);
+		const refund = await getStripe().refunds.create(refundData);
 		
 		return {
 			success: true,
@@ -137,10 +148,10 @@ export async function createRefund(paymentIntentId, amount = null) {
  */
 export function validateWebhook(payload, signature) {
 	try {
-		const event = stripe.webhooks.constructEvent(
+		const event = getStripe().webhooks.constructEvent(
 			payload,
 			signature,
-			process.env.STRIPE_WEBHOOK_SECRET
+			env.STRIPE_WEBHOOK_SECRET
 		);
 		
 		return {
@@ -156,4 +167,4 @@ export function validateWebhook(payload, signature) {
 	}
 }
 
-export default stripe;
+export default getStripe;
