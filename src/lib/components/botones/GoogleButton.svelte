@@ -1,5 +1,21 @@
 <script>
+    import { supabase } from '$lib/core/supabase/client.js';
     import logoGoogle from '$lib/assets/logos/logoGoogle.png';
+
+    export let text = "Continuar con Google";
+
+    async function loginWithGoogle() {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback`
+            }
+        });
+
+        if (error) {
+            console.error('Error al iniciar sesión con Google:', error.message);
+        }
+    }
 </script>
 
 <div class="flex flex-col items-center">
@@ -15,7 +31,7 @@
             </div>
             <!-- Texto centrado verticalmente y ocupa el resto -->
             <div class="flex-1 flex items-center justify-center text-xs font-extralight tracking-[0.3em] uppercase text-white/50 py-3">
-                Continuar con Google
+                {text}
             </div>
         </div>
     </button>

@@ -132,7 +132,7 @@
     }
 </script>
 
-<section class="tours-destacados py-10 text-white">
+<section class="tours-destacados py-10 bg-black text-white">
     <!-- Título de sección ya se muestra desde la home con la etiqueta "Próximas experiencias" -->
     <!-- Removido el h2 duplicado  -->
 
@@ -142,10 +142,11 @@
         {#if showNavigationButtons}
             <button 
                 on:click={slidePrev}
-                class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-black/50 backdrop-blur-sm border border-green-400 rounded-full flex items-center justify-center text-green-400 hover:bg-black/70 hover:border-green-300 hover:text-green-300 transition-all duration-300 hover:scale-105"
+                aria-label="Anterior"
+                class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/60 border border-white/15 flex items-center justify-center text-white/40 hover:text-white/70 hover:border-white/30 transition-all duration-300"
             >
-                <svg class="w-6 h-6 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                <svg class="w-4 h-4 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"/>
                 </svg>
             </button>
         {/if}
@@ -154,10 +155,11 @@
         {#if showNavigationButtons}
             <button 
                 on:click={slideNext}
-                class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-black/50 backdrop-blur-sm border border-green-400 rounded-full flex items-center justify-center text-green-400 hover:bg-black/70 hover:border-green-300 hover:text-green-300 transition-all duration-300 hover:scale-105"
+                aria-label="Siguiente"
+                class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/60 border border-white/15 flex items-center justify-center text-white/40 hover:text-white/70 hover:border-white/30 transition-all duration-300"
             >
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"/>
                 </svg>
             </button>
         {/if}

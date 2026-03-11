@@ -183,10 +183,10 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 			<div class="absolute inset-0 bg-black/70"></div>
 		</div>
 		<div class="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
-			<p class="text-xs text-white/30 font-extralight tracking-[0.5em] uppercase mb-3">Nativo Eco Tours</p>
+			<p class="text-xs text-green-400/60 font-extralight tracking-[0.5em] uppercase mb-3">Nativo Eco Tours</p>
 			<h1 class="text-3xl md:text-4xl font-extralight tracking-[0.2em] text-white mb-3">Cotización Personalizada</h1>
 			<div class="w-12 h-px bg-white/20 mx-auto mb-3"></div>
-			<p class="text-xs text-white/30 font-extralight tracking-wide max-w-sm">Cuéntanos sobre tu viaje ideal y crearemos una experiencia única para ti</p>
+			<p class="text-xs text-white/50 font-light tracking-wide max-w-sm">Cuéntanos sobre tu viaje ideal y crearemos una experiencia única para ti</p>
 		</div>
 	</section>
 
@@ -194,18 +194,18 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 	<div class="sticky top-16 md:top-20 z-40 bg-black/80 backdrop-blur-md border-b border-white/10">
 		<div class="max-w-3xl mx-auto px-6 py-4">
 			<div class="flex items-center justify-between mb-3">
-				<span class="text-xs text-white/30 font-extralight tracking-[0.3em] uppercase">Paso {currentStep} — {stepLabels[currentStep - 1]}</span>
-				<span class="text-xs text-white/20 font-extralight tracking-widest">{Math.round((currentStep / totalSteps) * 100)}%</span>
+				<span class="text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Paso {currentStep} — {stepLabels[currentStep - 1]}</span>
+				<span class="text-xs text-white/50 font-light tracking-widest">{Math.round((currentStep / totalSteps) * 100)}%</span>
 			</div>
 			<!-- Indicadores de paso -->
 			<div class="flex items-center gap-2">
 				{#each Array(totalSteps) as _, i}
-					<div class="flex-1 h-px transition-all duration-500 {i < currentStep ? 'bg-white/60' : 'bg-white/10'}"></div>
+					<div class="flex-1 h-px transition-all duration-500 {i < currentStep ? 'bg-green-400/50' : 'bg-white/10'}"></div>
 				{/each}
 			</div>
 			<div class="flex justify-between mt-2">
 				{#each stepLabels as label, i}
-					<span class="text-[10px] font-extralight tracking-widest uppercase transition-colors duration-300 {i + 1 === currentStep ? 'text-white/60' : i + 1 < currentStep ? 'text-white/30' : 'text-white/15'}">{label}</span>
+					<span class="text-[10px] font-medium tracking-widest uppercase transition-colors duration-300 {i + 1 === currentStep ? 'text-green-400/90' : i + 1 < currentStep ? 'text-white/60' : 'text-white/25'}">{label}</span>
 				{/each}
 			</div>
 		</div>
@@ -220,14 +220,14 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 				{#if currentStep === 1}
 					<div class="space-y-10">
 						<div>
-							<p class="text-xs text-white/30 font-extralight tracking-[0.4em] uppercase mb-1">Paso 1</p>
+							<p class="text-xs text-green-400/80 font-medium tracking-[0.4em] uppercase mb-1">Paso {currentStep}</p>
 							<h2 class="text-xl font-extralight tracking-widest text-white">Tu grupo de viaje</h2>
 							<div class="w-8 h-px bg-white/20 mt-3"></div>
 						</div>
 
 						<!-- Adultos -->
 						<div class="space-y-4">
-							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Número de adultos</label>
+							<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Número de adultos</label>
 							<div class="flex items-center gap-6">
 								<button
 									type="button"
@@ -247,7 +247,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 
 						<!-- Menores (check toggle) -->
 						<div class="space-y-4">
-							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Menores de edad</label>
+							<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Menores de edad</label>
 							<button
 								type="button"
 								on:click={() => { formData.llevaMenores = !formData.llevaMenores; if (!formData.llevaMenores) { formData.cantidadMenores = 0; formData.edadesMenores = []; } }}
@@ -257,7 +257,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 								<div class="w-10 h-5 relative rounded-full transition-colors duration-300 {formData.llevaMenores ? 'bg-white/30' : 'bg-white/10'}">
 									<div class="absolute top-0.5 transition-all duration-300 w-4 h-4 bg-white rounded-full shadow-sm {formData.llevaMenores ? 'left-5' : 'left-0.5'}"></div>
 								</div>
-								<span class="text-xs font-extralight tracking-widest text-white/50 group-hover:text-white/70 transition-colors">
+								<span class="text-xs font-light tracking-widest text-white/70 group-hover:text-white/90 transition-colors">
 									{formData.llevaMenores ? 'Sí, viajan menores' : 'No viajan menores'}
 								</span>
 							</button>
@@ -310,14 +310,14 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 						<!-- Vehículo de renta (condicional) -->
 						{#if showVehiculoRenta}
 							<div class="space-y-4">
-								<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Vehículo de renta</label>
-								<p class="text-xs text-white/25 font-extralight leading-relaxed -mt-2">¿Estarían dispuestos a viajar en vehículo de renta que ustedes mismos manejen?</p>
+								<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Vehículo de renta</label>
+								<p class="text-xs text-white/50 font-light leading-relaxed -mt-2">¿Estarían dispuestos a viajar en vehículo de renta que ustedes mismos manejen?</p>
 								<div class="flex gap-4">
 									{#each [{ value: true, label: 'Sí, podemos manejar' }, { value: false, label: 'No, preferimos chofer' }] as opt}
 										<button
 											type="button"
 											on:click={() => formData.vehiculoRenta = opt.value}
-											class="flex-1 py-3 px-4 border text-xs font-extralight tracking-widest transition-all {formData.vehiculoRenta === opt.value ? 'border-white/40 bg-white/10 text-white/70' : 'border-white/10 bg-white/[0.02] text-white/30 hover:border-white/20'}"
+											class="flex-1 py-3 px-4 border text-xs font-light tracking-widest transition-all {formData.vehiculoRenta === opt.value ? 'border-white/50 bg-white/10 text-white/90' : 'border-white/10 bg-white/[0.02] text-white/50 hover:border-white/20'}"
 										>
 											{opt.label}
 										</button>
@@ -328,13 +328,13 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 
 						<!-- Tipo de viaje -->
 						<div class="space-y-4">
-							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Tipo de viaje</label>
+							<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Tipo de viaje</label>
 							<div class="grid grid-cols-3 gap-3">
 								{#each ['Familiar', 'Amigos', 'Corporativo'] as tipo}
 									<button
 										type="button"
 										on:click={() => formData.tipoViaje = tipo}
-										class="py-4 border text-xs font-extralight tracking-[0.2em] uppercase transition-all {formData.tipoViaje === tipo ? 'border-white/40 bg-white/10 text-white/70' : 'border-white/10 bg-white/[0.02] text-white/25 hover:border-white/20 hover:text-white/40'}"
+										class="py-4 border text-xs font-light tracking-[0.2em] uppercase transition-all {formData.tipoViaje === tipo ? 'border-white/50 bg-white/10 text-white/90' : 'border-white/10 bg-white/[0.02] text-white/40 hover:border-white/20 hover:text-white/60'}"
 									>
 										{tipo}
 									</button>
@@ -348,16 +348,16 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 				{#if currentStep === 2}
 					<div class="space-y-10">
 						<div>
-							<p class="text-xs text-white/30 font-extralight tracking-[0.4em] uppercase mb-1">Paso 2</p>
+							<p class="text-xs text-green-400/80 font-medium tracking-[0.4em] uppercase mb-1">Paso {currentStep}</p>
 							<h2 class="text-xl font-extralight tracking-widest text-white">Destino y fechas</h2>
 							<div class="w-8 h-px bg-white/20 mt-3"></div>
 						</div>
 
 						<div class="space-y-3">
-							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Destino de interés</label>
+							<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Destino de interés</label>
 							<select
 								bind:value={formData.destinos}
-								class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm focus:border-white/30 focus:outline-none transition-colors appearance-none"
+								class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/80 font-light text-sm focus:border-white/40 focus:outline-none transition-colors appearance-none"
 							>
 								<option value="" class="bg-black">Selecciona un destino</option>
 								{#each ubicaciones as ubicacion}
@@ -368,19 +368,19 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 							<div class="space-y-3">
-								<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Salida de Chihuahua</label>
+								<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Salida de Chihuahua</label>
 								<input
 									type="date"
 									bind:value={formData.fechaSalida}
-									class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm focus:border-white/30 focus:outline-none transition-colors"
+								class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/80 font-light text-sm focus:border-white/40 focus:outline-none transition-colors"
 								>
 							</div>
 							<div class="space-y-3">
-								<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Regreso a Chihuahua</label>
+								<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Regreso a Chihuahua</label>
 								<input
 									type="date"
 									bind:value={formData.fechaLlegada}
-									class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm focus:border-white/30 focus:outline-none transition-colors"
+								class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/80 font-light text-sm focus:border-white/40 focus:outline-none transition-colors"
 								>
 							</div>
 						</div>
@@ -391,20 +391,20 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 				{#if currentStep === 3}
 					<div class="space-y-10">
 						<div>
-							<p class="text-xs text-white/30 font-extralight tracking-[0.4em] uppercase mb-1">Paso 3</p>
+							<p class="text-xs text-green-400/80 font-medium tracking-[0.4em] uppercase mb-1">Paso {currentStep}</p>
 							<h2 class="text-xl font-extralight tracking-widest text-white">Preferencias</h2>
 							<div class="w-8 h-px bg-white/20 mt-3"></div>
 						</div>
 
 						<!-- Hospedaje -->
 						<div class="space-y-4">
-							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Hospedaje</label>
+							<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Hospedaje</label>
 							<div class="grid grid-cols-3 gap-3">
 								{#each [{ value: 'hotel', label: 'Hotel' }, { value: 'cabaña', label: 'Cabaña' }, { value: 'indistinto', label: 'Indistinto' }] as h}
 									<button
 										type="button"
 										on:click={() => formData.hospedaje = h.value}
-										class="py-4 border text-xs font-extralight tracking-[0.2em] uppercase transition-all {formData.hospedaje === h.value ? 'border-white/40 bg-white/10 text-white/70' : 'border-white/10 bg-white/[0.02] text-white/25 hover:border-white/20 hover:text-white/40'}"
+										class="py-4 border text-xs font-light tracking-[0.2em] uppercase transition-all {formData.hospedaje === h.value ? 'border-white/50 bg-white/10 text-white/90' : 'border-white/10 bg-white/[0.02] text-white/40 hover:border-white/20 hover:text-white/60'}"
 									>
 										{h.label}
 									</button>
@@ -414,10 +414,10 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 
 						<!-- Transporte -->
 						<div class="space-y-3">
-							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Transporte</label>
+							<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Transporte</label>
 							<select
 								bind:value={formData.transporte}
-								class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm focus:border-white/30 focus:outline-none transition-colors appearance-none"
+								class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/80 font-light text-sm focus:border-white/40 focus:outline-none transition-colors appearance-none"
 							>
 								<option value="" class="bg-black">Selecciona una opción</option>
 								<option value="privado" class="bg-black">Transporte privado con chofer</option>
@@ -429,13 +429,13 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 
 						<!-- Experiencias -->
 						<div class="space-y-4">
-							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Tipo de experiencias</label>
+							<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Tipo de experiencias</label>
 							<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
 								{#each [{ value: 'aventura', label: 'Aventura' }, { value: 'naturaleza', label: 'Naturaleza' }, { value: 'cultura', label: 'Cultura' }, { value: 'relax', label: 'Relax' }] as exp}
 									<button
 										type="button"
 										on:click={() => toggleExperiencia(exp.value)}
-										class="py-4 border text-xs font-extralight tracking-[0.2em] uppercase transition-all {formData.experiencias.includes(exp.value) ? 'border-white/40 bg-white/10 text-white/70' : 'border-white/10 bg-white/[0.02] text-white/25 hover:border-white/20 hover:text-white/40'}"
+										class="py-4 border text-xs font-light tracking-[0.2em] uppercase transition-all {formData.experiencias.includes(exp.value) ? 'border-white/50 bg-white/10 text-white/90' : 'border-white/10 bg-white/[0.02] text-white/40 hover:border-white/20 hover:text-white/60'}"
 									>
 										{exp.label}
 									</button>
@@ -445,10 +445,10 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 
 						<!-- Presupuesto -->
 						<div class="space-y-3">
-							<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Presupuesto aproximado (MXN por persona)</label>
+							<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Presupuesto aproximado (MXN por persona)</label>
 							<select
 								bind:value={formData.presupuesto}
-								class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm focus:border-white/30 focus:outline-none transition-colors appearance-none"
+								class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/80 font-light text-sm focus:border-white/40 focus:outline-none transition-colors appearance-none"
 							>
 								<option value="" class="bg-black">Selecciona un rango</option>
 								<option value="5000-10000" class="bg-black">$5,000 — $10,000</option>
@@ -466,7 +466,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 				{#if currentStep === 4}
 					<div class="space-y-10">
 						<div>
-							<p class="text-xs text-white/30 font-extralight tracking-[0.4em] uppercase mb-1">Paso 4</p>
+							<p class="text-xs text-green-400/80 font-medium tracking-[0.4em] uppercase mb-1">Paso {currentStep}</p>
 							<h2 class="text-xl font-extralight tracking-widest text-white">Información de contacto</h2>
 							<div class="w-8 h-px bg-white/20 mt-3"></div>
 						</div>
@@ -474,29 +474,29 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 						<div class="space-y-6">
 							<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 								<div class="space-y-2">
-									<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Nombre completo</label>
+									<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Nombre completo</label>
 									<input
 										type="text"
 										maxlength="45"
 										bind:value={formData.nombre}
 										placeholder="Tu nombre"
-										class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm placeholder-white/15 focus:border-white/30 focus:outline-none transition-colors"
+										class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/80 font-light text-sm placeholder-white/40 focus:border-white/40 focus:outline-none transition-colors"
 									>
 								</div>
 								<div class="space-y-2">
-									<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Email</label>
+									<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Email</label>
 									<input
 										type="email"
 										maxlength="35"
 										bind:value={formData.email}
 										placeholder="tu@email.com"
-										class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm placeholder-white/15 focus:border-white/30 focus:outline-none transition-colors"
+										class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/80 font-light text-sm placeholder-white/40 focus:border-white/40 focus:outline-none transition-colors"
 									>
 								</div>
 							</div>
 
 							<div class="space-y-2">
-								<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Teléfono</label>
+								<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Teléfono</label>
 								<input
 									type="tel"
 									bind:value={formData.telefono}
@@ -506,39 +506,39 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 							</div>
 
 							<div class="space-y-2">
-								<label class="block text-xs text-white/40 font-extralight tracking-[0.3em] uppercase">Comentarios adicionales</label>
+								<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Comentarios adicionales</label>
 								<textarea
 									bind:value={formData.comentarios}
 									placeholder="Información adicional que consideres importante..."
 									rows="3"
-									class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/70 font-extralight text-sm placeholder-white/15 focus:border-white/30 focus:outline-none transition-colors resize-none"
+									class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/80 font-light text-sm placeholder-white/40 focus:border-white/40 focus:outline-none transition-colors resize-none"
 								></textarea>
 							</div>
 						</div>
 
 						<!-- Resumen -->
 						<div class="border border-white/10 p-6 space-y-3">
-							<p class="text-xs text-white/30 font-extralight tracking-[0.4em] uppercase mb-4">Resumen de solicitud</p>
+							<p class="text-xs text-green-400/70 font-medium tracking-[0.4em] uppercase mb-4">Resumen de solicitud</p>
 							<div class="grid grid-cols-2 gap-x-8 gap-y-2">
 								<div class="flex justify-between col-span-2 sm:col-span-1">
-									<span class="text-xs text-white/25 font-extralight">Viajeros</span>
-									<span class="text-xs text-white/50 font-extralight">{formData.adultos} adultos{formData.llevaMenores && formData.cantidadMenores > 0 ? ` + ${formData.cantidadMenores} menores` : ''}</span>
+									<span class="text-xs text-white/50 font-light">Viajeros</span>
+									<span class="text-xs text-white/80 font-medium">{formData.adultos} adultos{formData.llevaMenores && formData.cantidadMenores > 0 ? ` + ${formData.cantidadMenores} menores` : ''}</span>
 								</div>
 								<div class="flex justify-between col-span-2 sm:col-span-1">
-									<span class="text-xs text-white/25 font-extralight">Tipo</span>
-									<span class="text-xs text-white/50 font-extralight">{formData.tipoViaje || '—'}</span>
+									<span class="text-xs text-white/50 font-light">Tipo</span>
+									<span class="text-xs text-white/80 font-medium">{formData.tipoViaje || '—'}</span>
 								</div>
 								<div class="flex justify-between col-span-2 sm:col-span-1">
-									<span class="text-xs text-white/25 font-extralight">Destino</span>
-									<span class="text-xs text-white/50 font-extralight">{formData.destinos || '—'}</span>
+									<span class="text-xs text-white/50 font-light">Destino</span>
+									<span class="text-xs text-white/80 font-medium">{formData.destinos || '—'}</span>
 								</div>
 								<div class="flex justify-between col-span-2 sm:col-span-1">
-									<span class="text-xs text-white/25 font-extralight">Hospedaje</span>
-									<span class="text-xs text-white/50 font-extralight">{formData.hospedaje || '—'}</span>
+									<span class="text-xs text-white/50 font-light">Hospedaje</span>
+									<span class="text-xs text-white/80 font-medium">{formData.hospedaje || '—'}</span>
 								</div>
 								<div class="flex justify-between col-span-2 sm:col-span-1">
-									<span class="text-xs text-white/25 font-extralight">Presupuesto</span>
-									<span class="text-xs text-white/50 font-extralight">{formData.presupuesto || '—'}</span>
+									<span class="text-xs text-white/50 font-light">Presupuesto</span>
+									<span class="text-xs text-white/80 font-medium">{formData.presupuesto || '—'}</span>
 								</div>
 							</div>
 						</div>
@@ -551,7 +551,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 						<button
 							type="button"
 							on:click={prevStep}
-							class="flex items-center gap-2 px-5 py-3 border border-white/10 bg-white/[0.02] hover:bg-white/5 text-white/40 hover:text-white/60 text-xs font-extralight tracking-[0.3em] uppercase transition-all"
+							class="flex items-center gap-2 px-5 py-3 border border-white/20 bg-white/[0.02] hover:bg-white/5 text-white/60 hover:text-white/80 text-xs font-light tracking-[0.3em] uppercase transition-all"
 						>
 							<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"></path>
@@ -566,7 +566,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 						<button
 							type="button"
 							on:click={nextStep}
-							class="flex items-center gap-2 px-6 py-3 border border-white/20 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white/80 text-xs font-extralight tracking-[0.3em] uppercase transition-all"
+							class="flex items-center gap-2 px-6 py-3 border border-white/30 bg-white/10 hover:bg-white/15 text-white/80 hover:text-white/100 text-xs font-medium tracking-[0.3em] uppercase transition-all"
 						>
 							Siguiente
 							<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -578,7 +578,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 							<button
 								type="button"
 								on:click={() => { cleanForm(); goToStep(1); }}
-								class="flex items-center gap-2 px-5 py-3 border border-white/10 bg-transparent hover:bg-white/5 text-white/30 hover:text-white/50 text-xs font-extralight tracking-[0.3em] uppercase transition-all"
+								class="flex items-center gap-2 px-5 py-3 border border-white/10 bg-transparent hover:bg-white/5 text-white/50 hover:text-white/70 text-xs font-light tracking-[0.3em] uppercase transition-all"
 							>
 								<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -588,7 +588,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 							<button
 								type="button"
 								on:click={submitForm}
-								class="flex items-center gap-2 px-8 py-3 border border-white/30 bg-white/10 hover:bg-white/15 text-white/70 hover:text-white/90 text-xs font-extralight tracking-[0.3em] uppercase transition-all"
+								class="flex items-center gap-2 px-8 py-3 border border-white/40 bg-white/15 hover:bg-white/20 text-white/90 hover:text-white/100 text-xs font-medium tracking-[0.3em] uppercase transition-all"
 							>
 								<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>

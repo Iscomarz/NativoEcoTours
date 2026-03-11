@@ -1,6 +1,7 @@
 <script>
 	import bgRegistro from '$lib/assets/backgrounds/bgRegistro.png';
 	import googleIcon from '$lib/assets/logos/logoGoogle.png';
+	import GoogleButton from '$lib/components/botones/GoogleButton.svelte';
 	export let form;
 </script>
 
@@ -12,8 +13,8 @@
 	>
 		<div class="flex h-full w-full items-center justify-center bg-black/50 px-12">
 			<div>
-				<p class="text-white/30 text-xs tracking-[0.4em] uppercase mb-3">Nativo Eco Tours</p>
-				<h2 class="text-2xl font-extralight text-white tracking-widest leading-relaxed">Empieza una<br/><span class="text-white/50">nueva aventura...</span></h2>
+				<p class="text-white/60 text-xs tracking-[0.4em] uppercase mb-3">Nativo Eco Tours</p>
+				<h2 class="text-2xl font-light text-white tracking-widest leading-relaxed">Empieza una<br/><span class="text-white/70">nueva aventura...</span></h2>
 			</div>
 		</div>
 	</div>
@@ -21,9 +22,9 @@
 	<!-- Formulario lado derecho -->
 	<div class="flex w-full items-center justify-center bg-black px-8 py-12 md:w-1/2">
 		<div class="w-full max-w-md">
-			<p class="text-white/30 text-xs tracking-[0.4em] uppercase mb-1">CREA TU CUENTA</p>
-			<h1 class="mb-2 text-xl font-extralight text-white tracking-widest">NATIVO</h1>
-			<p class="mb-6 text-xs text-white/30 font-extralight tracking-wide">
+			<p class="text-white/60 text-xs tracking-[0.4em] uppercase mb-1">CREA TU CUENTA</p>
+			<h1 class="mb-2 text-xl font-light text-white tracking-widest">NATIVO</h1>
+			<p class="mb-6 text-xs text-white/50 font-light tracking-wide">
 				Ya tienes una cuenta?
 				<a href="/login" class="font-medium text-green-500 hover:underline">Login</a>
 			</p>
@@ -31,44 +32,38 @@
 			<form method="POST" class="space-y-4 text-white">
 				<div class="grid grid-cols-2 gap-4">
 					<input type="text" id="nombre" name="nombre" placeholder="Nombre"
-						class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/20 font-extralight tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
+						class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/40 font-light tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
 						required />
 
 					<input type="text" id="apellido" name="apellido" placeholder="Apellido"
-						class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/20 font-extralight tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
+						class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/40 font-light tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
 						required />
 				</div>
 
 				<div class="grid grid-cols-2 gap-4">
 					<input type="text" id="pais" name="pais" placeholder="País / Estado"
-						class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/20 font-extralight tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
+						class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/40 font-light tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
 						required />
 					<input type="text" id="telefono" name="telefono" placeholder="Teléfono"
-						class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/20 font-extralight tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
+						class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/40 font-light tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
 						required />
 				</div>
 
 				<input type="email" id="correo" name="correo" placeholder="Email"
-					class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/20 font-extralight tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
+					class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/40 font-light tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
 					required />
 
 				<input type="password" id="password" name="password" placeholder="Contraseña"
-					class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/20 font-extralight tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
+					class="w-full bg-white/5 border border-white/10 p-3 text-xs text-white placeholder-white/40 font-light tracking-wide outline-none focus:ring-1 focus:ring-white/30 transition-all"
 					required />
 
 				<button type="submit" formaction="login?/register"
-					class="w-full bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 py-3 font-extralight text-white tracking-[0.3em] uppercase text-xs transition-all duration-300">
+					class="w-full bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/15 py-3 font-medium text-white tracking-[0.3em] uppercase text-xs transition-all duration-300">
 					Crear Cuenta
 				</button>
 
 				<!-- Botón Google -->
-				<button
-					type="button"
-					class="flex w-full items-center justify-center gap-2 rounded-md bg-white px-4 py-2 font-medium text-black hover:bg-gray-100"
-				>
-					<img src={googleIcon} alt="Google" class="h-5 w-5" />
-					<span>Continuar con Google</span>
-				</button>
+				<GoogleButton text="Registrarse con Google" />
 			</form>
 
 			<!-- Redes sociales -->

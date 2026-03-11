@@ -11,7 +11,7 @@
 <div class="flex flex-col min-h-screen">
 	{#if $page.url.pathname !== '/login'}
 		<!-- No mostrar NavBar ni Footer en la página de login -->
-		 <NavBar session={data.session} class="fixed top-0 left-0 w-full z-50" />
+		 <NavBar session={data.session} user_profile={data.user_profile} class="fixed top-0 left-0 w-full z-50" />
 	{:else}
 		<!-- Mostrar NavBar y Footer en otras páginas -->
 		

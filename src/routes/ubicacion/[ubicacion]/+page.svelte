@@ -1,61 +1,59 @@
 <script>
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { fade } from 'svelte/transition';
+	import GaleriaMasonry from '$lib/components/GaleriaMasonry.svelte';
     import logoNativo from '$lib/assets/logos/logoNativo.png';
 
 	let ubicacion = {};
 	let detalle = {};
+	let ubicaciones = [];
 	export let data;
 
 	$: ubicacion = data.ubicacion;
 	$: detalle = data.detalle;
+	$: ubicaciones = data.ubicaciones || [];
 
-	// Estado para la galería en pantalla completa
-	let imagenSeleccionada = null;
-	let indiceImagenActual = 0;
-
-	function abrirImagenCompleta(imagen, indice) {
-		imagenSeleccionada = imagen;
-		indiceImagenActual = indice;
+	// Calcular destino anterior y siguiente
+	function formatearNombreParaURL(nombre) {
+		return nombre
+			.replace(/\s+/g, '-')
+			.replace(/[áàäâ]/g, 'a')
+			.replace(/[éèëê]/g, 'e')
+			.replace(/[íìïî]/g, 'i')
+			.replace(/[úùüû]/g, 'u')
+			.replace(/ñ/g, 'n');
 	}
 
-	function cerrarImagenCompleta() {
-		imagenSeleccionada = null;
+	$: indiceActual = ubicaciones.findIndex(
+		(u) => u.nombre_ubicacion === ubicacion.nombre_ubicacion
+	);
+	$: destAnterior = indiceActual > 0 ? ubicaciones[indiceActual - 1] : null;
+	$: destSiguiente = indiceActual < ubicaciones.length - 1 ? ubicaciones[indiceActual + 1] : null;
+
+	function irAnterior() {
+		if (destAnterior) goto(`/ubicacion/${formatearNombreParaURL(destAnterior.nombre_ubicacion)}`);
 	}
 
-	function imagenAnterior() {
-		if (indiceImagenActual > 0) {
-			indiceImagenActual--;
-			imagenSeleccionada = detalle.imagenes[indiceImagenActual];
-		}
+	function irSiguiente() {
+		if (destSiguiente) goto(`/ubicacion/${formatearNombreParaURL(destSiguiente.nombre_ubicacion)}`);
 	}
 
-	function imagenSiguiente() {
-		if (indiceImagenActual < detalle.imagenes?.length - 1) {
-			indiceImagenActual++;
-			imagenSeleccionada = detalle.imagenes[indiceImagenActual];
-		}
-	}
-
-	// Navegación con teclado
+	// Navegación con teclado (solo destinos, el lightbox lo maneja GaleriaMasonry)
 	function manejarTecla(event) {
-		if (!imagenSeleccionada) return;
-
-		if (event.key === 'Escape') cerrarImagenCompleta();
-		if (event.key === 'ArrowLeft') imagenAnterior();
-		if (event.key === 'ArrowRight') imagenSiguiente();
+		if (event.key === 'ArrowLeft') irAnterior();
+		if (event.key === 'ArrowRight') irSiguiente();
 	}
 
 	onMount(() => {
 		console.log('Página de ubicación montada');
-		console.log('Ubicación:', ubicacion);
-		console.log('Detalle:', detalle);
 	});
 </script>
 
 <svelte:window on:keydown={manejarTecla} />
 
 <!-- Página de ubicación con diseño minimalista oscuro -->
-<div class="min-h-screen bg-black text-white">
+<div class="min-h-screen bg-black text-white" transition:fade={{ duration: 400 }}>
 	<!-- Hero Section con imagen de portada -->
 	<div class="relative h-[60vh] overflow-hidden md:h-[70vh]">
 		{#if ubicacion.portada && ubicacion.portada[0]}
@@ -69,31 +67,31 @@
 		<!-- Overlay con gradiente -->
 		<div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
 
-		<!-- Indicador verde en la esquina -->
+		<!-- Indicador minimalista -->
 		<div
-			class="absolute top-8 right-8 h-3 w-3 rounded-full bg-green-400 shadow-lg shadow-green-400/50"
+			class="absolute top-8 right-8 h-1.5 w-1.5 bg-white/40"
 		></div>
 
 		<!-- Contenido del hero -->
 		<div class="absolute right-0 bottom-0 left-0 px-6 pb-12 md:px-12 md:pb-16 lg:px-24">
 			<div class="mx-auto max-w-6xl">
 				<!-- Ubicación con ícono -->
-				<div class="animate-fade-in mb-4 flex items-center text-green-400">
-					<svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<div class="animate-fade-in mb-4 flex items-center text-white/40">
+					<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							stroke-width="2"
+							stroke-width="1.5"
 							d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
 						/>
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							stroke-width="2"
+							stroke-width="1.5"
 							d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
 						/>
 					</svg>
-					<span class="text-sm font-medium tracking-wider uppercase md:text-base"
+					<span class="text-xs font-extralight tracking-[0.35em] uppercase"
 						>{ubicacion.estado_ubicacion}, {ubicacion.pais_ubicacion}</span
 					>
 				</div>
@@ -138,16 +136,14 @@
 
 			<!-- Imagen destacada debajo de la descripción -->
 			{#if detalle.imagenes && detalle.imagenes[0]}
-				<div class="group relative overflow-hidden rounded-2xl shadow-2xl">
+				<div class="group relative overflow-hidden mb-16">
 					<img
 						src={detalle.imagenes[0]}
 						alt={ubicacion.nombre_ubicacion}
 						class="h-[400px] w-full object-cover transition-transform duration-700 group-hover:scale-105 md:h-[500px]"
 					/>
-					<!-- Indicador verde en la esquina -->
-					<div
-						class="absolute top-4 right-4 h-3 w-3 rounded-full bg-green-400 shadow-lg shadow-green-400/50"
-					></div>
+					<!-- Indicador minimalista -->
+					<div class="absolute top-4 right-4 h-1.5 w-1.5 bg-white/40"></div>
 				</div>
 			{/if}
 
@@ -185,56 +181,13 @@
             </div>
             
 
-			<!-- Galería con diseño tipo masonry (tamaños variados) -->
+			<!-- Galería masonry -->
 			{#if detalle.imagenes && detalle.imagenes.length > 1}
 				<section class="mb-16">
-					<!-- Grid masonry con tamaños variados -->
-					<div class="grid auto-rows-[200px] grid-cols-2 gap-4 md:grid-cols-4">
-						{#each detalle.imagenes.slice(1) as imagen, index}
-							{@const realIndex = index + 1}
-							{@const isLarge = realIndex % 5 === 0 || realIndex % 7 === 0}
-							{@const isTall = realIndex % 3 === 0 && !isLarge}
-							{@const isWide = realIndex % 4 === 0 && !isLarge && !isTall}
-
-							<button
-								on:click={() => abrirImagenCompleta(imagen, realIndex)}
-								class="group relative cursor-pointer overflow-hidden rounded-xl bg-neutral-900 transition-transform duration-300 hover:scale-105
-                                    {isLarge ? 'col-span-2 row-span-2' : ''}
-                                    {isTall ? 'row-span-2' : ''}
-                                    {isWide ? 'col-span-2' : ''}"
-							>
-								<img
-									src={imagen}
-									alt="Imagen {realIndex + 1} de {ubicacion.nombre_ubicacion}"
-									class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-								/>
-
-								<!-- Overlay al hacer hover -->
-								<div
-									class="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/40"
-								>
-									<svg
-										class="h-12 w-12 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"
-										/>
-									</svg>
-								</div>
-
-								<!-- Indicador verde en la esquina -->
-								<div
-									class="absolute top-3 right-3 h-2 w-2 rounded-full bg-green-400 opacity-60 transition-opacity duration-300 group-hover:opacity-100"
-								></div>
-							</button>
-						{/each}
-					</div>
+					<GaleriaMasonry
+						imagenes={detalle.imagenes.slice(1)}
+						alt={ubicacion.nombre_ubicacion}
+					/>
 				</section>
 			{/if}
 
@@ -251,78 +204,31 @@
 	</div>
 </div>
 
-<!-- Modal de imagen en pantalla completa -->
-{#if imagenSeleccionada}
-	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 backdrop-blur-sm"
-		on:click={cerrarImagenCompleta}
-		role="button"
-		tabindex="0"
-		on:keydown={(e) => e.key === 'Enter' && cerrarImagenCompleta()}
+<!-- Flechas de navegación entre destinos (fixed, centradas verticalmente) -->
+{#if destAnterior}
+	<button
+		on:click={irAnterior}
+		aria-label="Destino anterior: {destAnterior.nombre_ubicacion}"
+		class="fixed left-4 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-2 group"
 	>
-		<!-- Botón cerrar -->
-		<button
-			on:click={cerrarImagenCompleta}
-			class="absolute top-4 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full border border-green-400 bg-black/50 text-green-400 transition-all duration-300 hover:scale-110 hover:bg-black/70"
-			aria-label="Cerrar"
-		>
-			<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					stroke-width="2"
-					d="M6 18L18 6M6 6l12 12"
-				/>
-			</svg>
-		</button>
+		<svg class="w-7 h-7 text-white/60 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 19l-7-7 7-7" />
+		</svg>
+		<span class="text-[9px] font-extralight tracking-[0.2em] text-white/30 group-hover:text-white/60 uppercase transition-colors duration-300 max-w-[56px] text-center leading-tight line-clamp-2">{destAnterior.nombre_ubicacion}</span>
+	</button>
+{/if}
 
-		<!-- Contador de imágenes -->
-		<div
-			class="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 px-4 py-2 text-xs font-extralight text-white/50 tracking-widest backdrop-blur-sm"
-		>
-			{indiceImagenActual + 1} / {detalle.imagenes?.length || 0}
-		</div>
-
-		<!-- Botón anterior -->
-		{#if indiceImagenActual > 0}
-			<button
-				on:click|stopPropagation={imagenAnterior}
-				class="absolute left-4 flex h-12 w-12 items-center justify-center rounded-full border border-green-400 bg-black/50 text-green-400 transition-all duration-300 hover:scale-110 hover:bg-black/70"
-				aria-label="Imagen anterior"
-			>
-				<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M15 19l-7-7 7-7"
-					/>
-				</svg>
-			</button>
-		{/if}
-
-		<!-- Botón siguiente -->
-		{#if indiceImagenActual < detalle.imagenes?.length - 1}
-			<button
-				on:click|stopPropagation={imagenSiguiente}
-				class="absolute right-4 flex h-12 w-12 items-center justify-center rounded-full border border-green-400 bg-black/50 text-green-400 transition-all duration-300 hover:scale-110 hover:bg-black/70"
-				aria-label="Imagen siguiente"
-			>
-				<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-				</svg>
-			</button>
-		{/if}
-
-		<!-- Imagen -->
-		<img
-			src={imagenSeleccionada}
-			alt="Vista completa"
-			class="max-h-full max-w-full rounded-lg object-contain"
-			on:click|stopPropagation
-			role="presentation"
-		/>
-	</div>
+{#if destSiguiente}
+	<button
+		on:click={irSiguiente}
+		aria-label="Destino siguiente: {destSiguiente.nombre_ubicacion}"
+		class="fixed right-4 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-2 group"
+	>
+		<svg class="w-7 h-7 text-white/60 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5l7 7-7 7" />
+		</svg>
+		<span class="text-[9px] font-extralight tracking-[0.2em] text-white/30 group-hover:text-white/60 uppercase transition-colors duration-300 max-w-[56px] text-center leading-tight line-clamp-2">{destSiguiente.nombre_ubicacion}</span>
+	</button>
 {/if}
 
 <style>

@@ -78,7 +78,7 @@
 		</form>
 
 		<!-- Google button -->
-		<GoogleButton />
+		<GoogleButton text="Iniciar Sesión con Google" />
 
             <p class="mt-6 text-center text-xs font-extralight tracking-wide text-white/30">
             ¿No tienes una cuenta?

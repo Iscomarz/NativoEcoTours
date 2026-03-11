@@ -1,12 +1,18 @@
-// +layout.server.js
-import { supabase } from '$lib/core/supabase/client.js';
+export const load = async ({ locals: { session, supabase } }) => {
+	let user_profile = null;
 
-export const load = async ({ locals }) => {
-    const {
-		data: { session }
-	} = await supabase.auth.getSession();
-    
-  return {
-    session: session, 
-  };
+	if (session?.user) {
+		const { data: profile } = await supabase
+			.from('susuario')
+			.select('*')
+			.eq('idAuth', session.user.id)
+			.single();
+		
+		user_profile = profile;
+	}
+
+	return {
+		session,
+		user_profile
+	};
 };

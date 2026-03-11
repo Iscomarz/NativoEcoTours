@@ -14,7 +14,7 @@
 	style={$page.url.pathname === '/' || $page.url.pathname === '/experiencias' ? `background-image: url(${TarcilaBackground}); background-size: cover; background-position: center; background-attachment: fixed;` : ''}
 >
 	<div class="flex flex-col items-center">
-		<img src={LogoNativo} alt="Logo NativoEcoApp" class="mb-3 h-40" />
+		<img src={LogoNativo} alt="Logo NativoEcoApp" class="mb-3 h-20" />
 		<p class="text-white/20 text-xs font-extralight tracking-[0.3em] uppercase mb-4">TODOS LOS DERECHOS RESERVADOS</p>
 		<div class="flex gap-8 mb-6">
 			<a href="https://www.instagram.com/nativo_xx/" target="_blank" rel="noopener noreferrer">

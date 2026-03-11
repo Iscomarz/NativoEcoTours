@@ -37,7 +37,7 @@ export async function getExperienciaByTitulo(titulo) {
 
 	const { data, error } = await supabase
 		.from('cexperiencia')
-		.select(`id,titulo,descripcion,fecha_inicio,fecha_fin,capacidad,activo,
+		.select(`id,titulo,descripcion,fecha_inicio,fecha_fin,capacidad,activo,portada_experiencia,
 			cubicacion(id_ubicacion,nombre_ubicacion,estado_ubicacion,pais_ubicacion)`)
 		.eq('titulo', nombre)
 		.single();
