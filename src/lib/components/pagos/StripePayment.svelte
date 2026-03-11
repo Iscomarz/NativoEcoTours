@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { loadStripe } from '@stripe/stripe-js';
-	import { PUBLIC_STRIPE_PUBLISHABLE_KEY } from '$env/static/public';
+	import { env } from '$env/dynamic/public';
 	
 	export let amount = 0; // Cantidad en pesos mexicanos
 	export let currency = 'mxn';
@@ -23,7 +23,7 @@
 	
 	onMount(async () => {
 		// Inicializar Stripe
-		stripe = await loadStripe(PUBLIC_STRIPE_PUBLISHABLE_KEY);
+		stripe = await loadStripe(env.PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 		
 		if (stripe) {
 			// Crear elements instance sin configuración personalizada
