@@ -8,6 +8,9 @@
     import TarcilaBackground from '$lib/assets/backgrounds/tarcila.jpg';
     import campfire from '$lib/assets/icons/campfire-thin.svg';
     import ButtonCotizacion from '$lib/components/ButtonCotizacion.svelte';
+    import logoInsta from '$lib/assets/logos/logoInsta.png';
+    import logoFace from '$lib/assets/logos/logoFace.png';
+    import logoYouTube from '$lib/assets/logos/logoYouTube.png';
 
     export let data;
     let ubicaciones = data.props.ubicaciones;
@@ -169,13 +172,13 @@
         <!-- Redes sociales -->
         <div class="pb-16 flex justify-center gap-8">
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-                <img src="/src/lib/assets/logos/logoInsta.png" alt="Instagram" class="h-4 w-4 opacity-25 hover:opacity-70 transition-opacity" style="filter: invert(1);" />
+                <img src={logoInsta} alt="Instagram" class="h-4 w-4 opacity-25 hover:opacity-70 transition-opacity" style="filter: invert(1);" />
             </a>
             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-                <img src="/src/lib/assets/logos/logoFace.png" alt="Facebook" class="h-4 w-4 opacity-25 hover:opacity-70 transition-opacity" style="filter: invert(1);" />
+                <img src={logoFace} alt="Facebook" class="h-4 w-4 opacity-25 hover:opacity-70 transition-opacity" style="filter: invert(1);" />
             </a>
             <a href="https://youtube.com" target="_blank" rel="noopener noreferrer">
-                <img src="/src/lib/assets/logos/logoYouTube.png" alt="YouTube" class="h-4 w-4 opacity-25 hover:opacity-70 transition-opacity" style="filter: invert(1);" />
+                <img src={logoYouTube} alt="YouTube" class="h-4 w-4 opacity-25 hover:opacity-70 transition-opacity" style="filter: invert(1);" />
             </a>
         </div>
 

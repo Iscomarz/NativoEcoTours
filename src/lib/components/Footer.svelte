@@ -2,7 +2,7 @@
 	import LogoNativo from '$lib/assets/logos/logoNativo.png';
 	import LogoInstagram from '$lib/assets/logos/logoInsta.png';
 	import LogoFacebook from '$lib/assets/logos/logoFace.png';
-	import LogoYoutube from '$lib/assets/logos/logoYoutube.png';
+	import LogoYoutube from '$lib/assets/logos/logoYouTube.png';
 	import VinayakBackground from '$lib/assets/backgrounds/vinayak-jayaram.jpg';
 	import TarcilaBackground from '$lib/assets/backgrounds/tarcila.jpg';
 	import { page } from '$app/stores';
