@@ -4,7 +4,7 @@
     import { goto } from '$app/navigation';
     import { toast, Toaster } from 'svelte-sonner';
     import StripePayment from '$lib/components/pagos/StripePayment.svelte';
-	import { createReserva, createPago, createHabitacionReserva } from '$lib/core/controllers/reservas.service.js';
+	import { createReserva, createPago, createHabitacionReserva, createPlazo } from '$lib/core/controllers/reservas.service.js';
 	import MReserva from '$lib/objects/MReserva';
     
     export let data;
@@ -13,7 +13,7 @@
     let sesionActiva = data?.sesionActiva || false;
     let session = data?.session || null;
     let currentReserva = {};
-    let formaPago = 'tarjeta'; // tarjeta, transferencia
+    let formaPago = 'tarjeta'; // tarjeta, transferencia, plazos
     let tarjeta = {
         numero: '',
         nombre: '',
@@ -125,6 +125,7 @@
         }
         
         try {
+            const isPlazos = formaPago === 'plazos';
             
             // 1. Crear un objeto MReserva con los datos necesarios
             const nuevaReserva = new MReserva({
@@ -137,12 +138,12 @@
                 // Datos de la experiencia
                 experiencia_id: $reservaStore.experiencia_id,
                 fecha_reserva: new Date($reservaStore.fecha_reserva || new Date()),
-                fecha_liquidacion: new Date(), // Pagado ahora
+                fecha_liquidacion: isPlazos ? null : new Date(), // Null si es a plazos
                 
                 // Datos financieros
                 total: $reservaStore.total,
-                metodo_pago_id: formaPago === 'tarjeta' ? 1 : 2, // Asumiendo IDs: 1=tarjeta, 2=transferencia
-                pago_a_plazos: false, // O según corresponda
+                metodo_pago_id: (formaPago === 'tarjeta' || formaPago === 'plazos') ? 1 : 2, // 1=Tarjeta/Stripe, 2=Transferencia
+                pago_a_plazos: isPlazos,
                 
                 // Datos de grupo
                 grupo: $reservaStore.grupo,
@@ -166,17 +167,29 @@
                 throw new Error('No se pudo obtener el ID de la reserva creada');
             }
             
-            // 4. Crear el registro de pago
+            // 4. Crear el registro de pago (por el monto pagado ahora)
             const pagoData = {
                 reserva_id: reservaId,
                 fecha_pago: new Date().toISOString(),
-                monto_total: $reservaStore.total,
+                monto_total: isPlazos ? ($reservaStore.total * 0.20) : $reservaStore.total,
                 completado: true,
                 payment_intent_id: paymentIntent.id,
                 payment_status: paymentIntent.status || 'succeeded'
             };
             
             const resultadoPago = await createPago(pagoData);
+
+            // 4.5 Si es a plazos, insertar el primer plazo en dplazo
+            if (isPlazos) {
+                await createPlazo({
+                    id_reserva: reservaId,
+                    numero_plazo: 1,
+                    monto: $reservaStore.total * 0.20,
+                    fecha_vencimiento: new Date().toISOString(), // Ya pagado hoy
+                    pagado: true,
+                    fecha_pago: new Date().toISOString()
+                });
+            }
             
             // 5. Crear los registros de habitaciones reservadas
             if ($reservaStore.habitaciones && Array.isArray($reservaStore.habitaciones)) {
@@ -191,7 +204,6 @@
                         const resultadoHabitacion = await createHabitacionReserva(habitacionReservaData);
                     } catch (errorHabitacion) {
                         console.error(`Error al guardar habitación ${habitacion.habitacion_id}:`, errorHabitacion);
-                        // Continúa con las demás habitaciones aunque una falle
                     }
                 }
             }
@@ -205,7 +217,7 @@
                 id: reservaId,
                 payment_intent_id: paymentIntent.id,
                 payment_status: paymentIntent.status || 'succeeded',
-                status: 'pagado',
+                status: isPlazos ? 'pago_parcial' : 'pagado',
                 fecha_pago: new Date().toISOString(),
                 completado: true
             }));
@@ -221,12 +233,13 @@
                 errorMessage = 'Error al registrar el pago';
             } else if (error.message.includes('habitacion')) {
                 errorMessage = 'Error al reservar las habitaciones';
+            } else if (error.message.includes('plazo')) {
+                errorMessage = 'Error al registrar el primer plazo';
             } else {
                 errorMessage = error.message;
             }
             
             toast.error(`${errorMessage}. El pago fue exitoso, pero contacta al soporte para verificar tu reserva.`);
-            // Mantener visible que el pago fue exitoso aunque haya errores en el guardado
             guardadoPago = true;
         }
     }
@@ -358,15 +371,26 @@
                     {#if !guardadoPago}
 						<!-- Selector método de pago -->
 						<div class="mb-6">
-							<div class="flex gap-3 mb-4">
-								<label class={`flex-1 flex items-center justify-center gap-2 p-3 border cursor-pointer transition-all hover:bg-white/10 ${formaPago === 'tarjeta' ? 'border-white bg-white/10' : 'border-white/10 bg-white/5'}`}>
+							<div class="flex flex-wrap gap-3 mb-4">
+								<label class={`flex-1 min-w-[120px] flex items-center justify-center gap-2 p-3 border cursor-pointer transition-all hover:bg-white/10 ${formaPago === 'tarjeta' ? 'border-white bg-white/10' : 'border-white/10 bg-white/5'}`}>
 									<input type="radio" bind:group={formaPago} value="tarjeta" class="sr-only" />
 									<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
 									</svg>
 									<span class="text-xs font-extralight tracking-widest text-white/60">Tarjeta</span>
 								</label>
-								<label class={`flex-1 flex items-center justify-center gap-2 p-3 border cursor-pointer transition-all hover:bg-white/10 ${formaPago === 'transferencia' ? 'border-white bg-white/10' : 'border-white/10 bg-white/5'}`}>
+
+								{#if sesionActiva}
+									<label class={`flex-1 min-w-[120px] flex items-center justify-center gap-2 p-3 border cursor-pointer transition-all hover:bg-white/10 ${formaPago === 'plazos' ? 'border-green-400 bg-green-400/10' : 'border-white/10 bg-white/5'}`}>
+										<input type="radio" bind:group={formaPago} value="plazos" class="sr-only" />
+										<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-400/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+										</svg>
+										<span class="text-xs font-extralight tracking-widest text-white/60">A Plazos (20%)</span>
+									</label>
+								{/if}
+
+								<label class={`flex-1 min-w-[120px] flex items-center justify-center gap-2 p-3 border cursor-pointer transition-all hover:bg-white/10 ${formaPago === 'transferencia' ? 'border-white bg-white/10' : 'border-white/10 bg-white/5'}`}>
 									<input type="radio" bind:group={formaPago} value="transferencia" class="sr-only" />
 									<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
@@ -376,24 +400,34 @@
 							</div>
 						</div>
                         
-                        {#if formaPago === 'tarjeta'}
+                        {#if formaPago === 'tarjeta' || formaPago === 'plazos'}
                             <!-- Componente de Pago con Stripe -->
-                            <StripePayment 
-                                amount={totalMXN}
-                                currency="mxn"
-                                metadata={{
-                                    reserva_id: $reservaStore?.id || 'temp',
-                                    cliente_nombre: datosPersonales.nombre || '',
-                                    cliente_email: datosPersonales.correo || '',
-                                    cliente_telefono: datosPersonales.telefono || '',
-                                    experiencia_id: $reservaStore?.experiencia_id || '',
-                                    cantidad_personas: $reservaStore?.cantidad_grupo || 1,
-                                    fecha_reserva: $reservaStore?.fecha_reserva || '',
-                                    sesion_activa: sesionActiva
-                                }}
-                                onPaymentSuccess={handlePaymentSuccess}
-                                onPaymentError={handlePaymentError}
-                            />
+                            <div class="mb-4">
+                                {#if formaPago === 'plazos'}
+                                    <div class="bg-green-400/5 border border-green-400/20 p-4 mb-4">
+                                        <p class="text-[10px] text-green-400 uppercase tracking-widest font-light mb-1">Pago Inicial (20%)</p>
+                                        <p class="text-xl font-extralight text-white tracking-widest">{formatoMoneda($reservaStore.total * 0.20)}</p>
+                                        <p class="text-[10px] text-white/30 mt-2 leading-relaxed">Paga el 20% ahora y liquida el resto antes de tu llegada.</p>
+                                    </div>
+                                {/if}
+                                <StripePayment 
+                                    amount={formaPago === 'plazos' ? totalMXN * 0.20 : totalMXN}
+                                    currency="mxn"
+                                    metadata={{
+                                        reserva_id: $reservaStore?.id || 'temp',
+                                        cliente_nombre: datosPersonales.nombre || '',
+                                        cliente_email: datosPersonales.correo || '',
+                                        cliente_telefono: datosPersonales.telefono || '',
+                                        experiencia_id: $reservaStore?.experiencia_id || '',
+                                        cantidad_personas: $reservaStore?.cantidad_grupo || 1,
+                                        fecha_reserva: $reservaStore?.fecha_reserva || '',
+                                        sesion_activa: sesionActiva,
+                                        pago_a_plazos: formaPago === 'plazos'
+                                    }}
+                                    onPaymentSuccess={handlePaymentSuccess}
+                                    onPaymentError={handlePaymentError}
+                                />
+                            </div>
                             
                             <div class="flex items-center justify-center mt-4 text-sm text-gray-400">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -44,13 +44,11 @@ export async function getUbicacionById(id){
 
 export async function getUbicacionByNombre(nombre){
     const nombreUbicacion = nombre.replace(/-/g, ' ');
-    //console.log("Buscando ubicación por nombre:", nombreUbicacion);
     const {data, error} = await supabase.
     from('cubicacion')
     .select('*')
     .eq('nombre_ubicacion', nombreUbicacion)
     .single();
-    //console.log("Resultado de la búsqueda:", data);
 
     if(error){
         throw new Error (error.message);

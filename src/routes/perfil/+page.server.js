@@ -11,9 +11,16 @@ export const load = async ({ locals: { user, supabase } }) => {
 		.eq('idAuth', user.id)
 		.single();
 	
+	const { data: reservas } = await supabase
+		.from('mreserva')
+		.select('*, dplazo(*), cexperiencia(titulo)')
+		.eq('usuario_id', user.id)
+		.order('fecha_reserva', { ascending: false });
+	
 	return {
 		user,
-		user_profile: profile
+		user_profile: profile,
+		reservas: reservas || []
 	};
 };
 
@@ -26,7 +33,6 @@ export const actions = {
 			return fail(401, { error: 'No autorizado' });
 		}
 
-		console.log("🛠️ Intentando actualizar usuario:", user.email, "con ID:", user.id);
 
 		const nombre = formData.get('nombre');
 		const apellido = formData.get('apellido');
@@ -58,7 +64,6 @@ export const actions = {
 			return fail(404, { error: 'No se encontró tu perfil.' });
 		}
 
-		console.log('✅ Éxito! Usuario actualizado y vinculado:', data[0].nombre);
 		return { success: true };
 	}
 };

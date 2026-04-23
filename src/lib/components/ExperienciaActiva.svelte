@@ -44,10 +44,6 @@
 
 	// Configurar slideshow automático
 	onMount(() => {
-		//console.log('🔍 ExperienciaActiva recibida:', experienciaActiva);
-		//console.log('🔍 Imágenes disponibles:', experienciaActiva?.detalle?.imagenes);
-		//console.log('🔍 Cantidad de imágenes:', experienciaActiva?.detalle?.imagenes?.length);
-		//console.log('🔍 Primera imagen:', experienciaActiva?.detalle?.imagenes?.[0]);
 
 		if (experienciaActiva?.detalle?.imagenes?.length > 1) {
 			intervalId = setInterval(() => {
@@ -55,7 +51,6 @@
 				currentImageIndex = newIndex;
 			}, 5000);
 		} else {
-			//console.log('📷 Solo una imagen disponible, no se inicia slideshow');
 		}
 	});
 
@@ -95,10 +90,6 @@
 								on:error={(e) => {
 									console.error('❌ Error cargando imagen:', imagen);
 									console.error('❌ Error details:', e.target, e);
-								}}
-								on:load={(e) => {
-									console.log('✅ Imagen cargada exitosamente:', imagen);
-									console.log('✅ Image element:', e.target);
 								}}
 							/>
 						</div>

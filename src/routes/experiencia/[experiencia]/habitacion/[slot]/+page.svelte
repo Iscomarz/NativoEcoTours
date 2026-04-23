@@ -1,5 +1,4 @@
 <script>
-	import imgHabitacion from '$lib/assets/habitaciones/habitacion2.png';
 	import SeleccionHabitacion from '$lib/components/cards/SeleccionHabitacion.svelte';
 	import GaleriaHabitacion from '$lib/components/galerias/GaleriaHabitacion.svelte';
 	import { onMount } from 'svelte';
@@ -52,7 +51,9 @@
 	</div>
 </div>
 
-<GaleriaHabitacion {imagenes} />
+{#if imagenes && imagenes.length > 0}
+	<GaleriaHabitacion {imagenes} />
+{/if}
 <div class="min-h-screen bg-black px-4 py-8">
 	<div class="mx-auto grid max-w-5xl grid-cols-1 gap-10 md:grid-cols-2">
 		<!-- IZQUIERDA: RESERVA -->
@@ -79,7 +80,6 @@
 				bind:canSubmit={canSubmit}
 				bind:totalAPagar={totalAPagar}
 				{habitaciones}
-				{imgHabitacion}
 				{formulario}
 				{sesionActiva}
 				{experiencia_id}

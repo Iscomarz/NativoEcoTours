@@ -46,7 +46,6 @@
 	}
 
 	onMount(() => {
-		console.log('Página de ubicación montada');
 	});
 </script>
 

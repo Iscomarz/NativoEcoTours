@@ -6,7 +6,6 @@
 	let showPayment = true;
 	
 	function handlePaymentSuccess(paymentIntent) {
-		console.log('✅ Pago exitoso:', paymentIntent);
 		paymentResult = {
 			success: true,
 			data: paymentIntent

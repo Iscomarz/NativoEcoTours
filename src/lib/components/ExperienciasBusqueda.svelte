@@ -16,7 +16,6 @@
 		.slice(0, 6); // máximo 6
 
 		onMount(() =>{
-			console.log('🔍 Experiencias recibidas en ExperienciasBusqueda:', experiencias);
 		})
 </script>
 

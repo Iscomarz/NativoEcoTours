@@ -10,6 +10,11 @@
 	$: ({ user_profile, session } = data);
 
 	let activeTab = 'info';
+	let expandedReservaId = null;
+
+	function toggleReserva(id) {
+		expandedReservaId = expandedReservaId === id ? null : id;
+	}
 
 	const tabs = [
 		{ id: 'info', label: 'Info. del Usuario', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z' },
@@ -93,12 +98,15 @@
 						action="?/update" 
 						class="space-y-12"
 						use:enhance={() => {
-							return async ({ result }) => {
+							return async ({ result, update }) => {
 								if (result.type === 'success') {
 									toast.success('Perfil actualizado correctamente', {
 										description: 'Tus datos han sido guardados en Nativo Eco Tours.',
 										duration: 4000
 									});
+									// Esto refresca los datos (data) sin recargar la página
+									// reset: false evita que los inputs se pongan en blanco
+									await update({ reset: false });
 								} else if (result.type === 'failure') {
 									toast.error('Error al actualizar', {
 										description: result.data?.error || 'Ocurrió un error inesperado',
@@ -180,7 +188,152 @@
 						</div>
 					</form>
 				</div>
+			{:else if activeTab === 'reservas'}
+				<div in:fade={{ duration: 300 }} class="space-y-6">
+					<div class="mb-8">
+						<h3 class="text-xl font-extralight tracking-widest uppercase">Mis Reservas</h3>
+						<p class="text-xs text-white/30 font-light tracking-wide mt-1">Sigue el estado de tus aventuras y pagos pendientes.</p>
+					</div>
+
+					{#if data.reservas && data.reservas.length > 0}
+						<div class="grid grid-cols-1 gap-6">
+							{#each data.reservas as reserva}
+								{@const pagado = reserva.dplazo?.filter(p => p.pagado).reduce((acc, p) => acc + Number(p.monto || 0), 0) || (reserva.fecha_liquidacion ? reserva.total : 0)}
+								{@const faltante = Math.max(0, (reserva.total || 0) - pagado)}
+								
+								<button 
+									class="w-full text-left bg-white/[0.02] border border-white/5 rounded-sm p-6 hover:bg-white/[0.04] transition-all duration-300 group"
+									on:click={() => toggleReserva(reserva.id)}
+								>
+									<div class="flex flex-col md:flex-row justify-between gap-6">
+										<!-- Info Reserva -->
+										<div class="flex-1">
+											<div class="flex items-center gap-3 mb-2">
+												<span class="px-2 py-0.5 bg-green-500/10 border border-green-500/20 text-green-400 text-[10px] uppercase tracking-widest">
+													Reserva #{reserva.id.toString().slice(-6)}
+												</span>
+												{#if reserva.pago_a_plazos}
+													<span class="px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] uppercase tracking-widest">
+														A Plazos (20%)
+													</span>
+												{/if}
+												<div class="ml-auto md:hidden text-white/20 transition-transform duration-300 {expandedReservaId === reserva.id ? 'rotate-180' : ''}">
+													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+												</div>
+											</div>
+											<h4 class="text-lg font-light tracking-widest text-white mb-1 uppercase">
+												{reserva.cexperiencia?.titulo || 'Experiencia'}
+											</h4>
+											<p class="text-xs text-white/40 font-extralight tracking-wide">
+												Realizada el {new Date(reserva.fecha_reserva).toLocaleDateString()}
+											</p>
+										</div>
+
+										<!-- Estado Financiero -->
+										<div class="flex flex-col md:text-right">
+											<div class="text-[10px] text-white/30 uppercase tracking-[0.2em] mb-1">Total Reserva</div>
+											<div class="text-xl font-extralight text-white tracking-widest mb-4">
+												{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(reserva.total)}
+											</div>
+											
+											<div class="grid grid-cols-2 md:block gap-4">
+												<div class="mb-2">
+													<p class="text-[9px] text-green-400/60 uppercase tracking-widest mb-0.5">Pagado</p>
+													<p class="text-sm font-light text-green-400">{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(pagado)}</p>
+												</div>
+												{#if faltante > 0}
+													<div>
+														<p class="text-[9px] text-red-400/60 uppercase tracking-widest mb-0.5">Pendiente</p>
+														<p class="text-sm font-light text-red-400">{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(faltante)}</p>
+													</div>
+												{/if}
+											</div>
+										</div>
+									</div>
+
+									<!-- Barra de Progreso y Aviso -->
+									<div class="mt-8 pt-6 border-t border-white/5">
+										<div class="w-full bg-white/5 h-1 rounded-full mb-3 overflow-hidden">
+											<div class="bg-green-500 h-full transition-all duration-1000" style="width: {(pagado / reserva.total) * 100}%"></div>
+										</div>
+										
+										<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+											{#if faltante > 0}
+												<div class="flex items-start gap-2 text-red-400/60">
+													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 flex-shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+													<p class="text-[10px] uppercase tracking-widest leading-relaxed">
+														Debes liquidar el total antes de la fecha del evento.
+													</p>
+												</div>
+												<a href="/perfil/pagar/{reserva.id}" class="px-6 py-2 bg-white/5 border border-white/10 text-white/60 text-[10px] uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all text-center" on:click|stopPropagation>
+													Pagar Plazo
+												</a>
+											{:else}
+												<div class="flex items-center gap-2 text-green-400/60">
+													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+													<p class="text-[10px] uppercase tracking-widest">Reserva Liquidada Completamente</p>
+												</div>
+											{/if}
+										</div>
+									</div>
+
+									<!-- Detalles de Abonos (Acordeón) -->
+									{#if expandedReservaId === reserva.id}
+										<div transition:fly={{ y: 20, duration: 400 }} class="mt-8 pt-8 border-t border-white/10 space-y-6">
+											<div>
+												<h5 class="text-[10px] text-white/40 uppercase tracking-[0.3em] font-medium mb-4">Detalle de Pagos</h5>
+												<div class="grid grid-cols-1 gap-2">
+													{#each (reserva.dplazo || []).filter(p => p.pagado).sort((a,b) => b.numero_plazo - a.numero_plazo) as plazo}
+														<div class="flex justify-between items-center bg-white/[0.02] p-4 border border-white/5 rounded-sm hover:bg-white/[0.04] transition-colors">
+															<div class="flex items-center gap-4">
+																<div class="w-8 h-8 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400 text-[10px] font-medium">
+																	{plazo.numero_plazo}
+																</div>
+																<div>
+																	<p class="text-[10px] text-white/80 uppercase tracking-widest">Abono Confirmado</p>
+																	<p class="text-[9px] text-white/30 uppercase tracking-widest mt-0.5">
+																		{new Date(plazo.fecha_pago).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })} • {new Date(plazo.fecha_pago).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+																	</p>
+																</div>
+															</div>
+															<div class="text-right">
+																<p class="text-sm font-light tracking-widest text-white">
+																	{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(plazo.monto)}
+																</p>
+																<p class="text-[8px] text-green-400/50 uppercase tracking-[0.2em]">Completado</p>
+															</div>
+														</div>
+													{/each}
+												</div>
+											</div>
+										</div>
+									{/if}
+
+									<!-- Indicador de desplegable -->
+									<div class="mt-4 flex justify-center md:justify-end text-white/10 group-hover:text-white/30 transition-colors">
+										<div class="flex items-center gap-2 text-[8px] uppercase tracking-[0.3em] font-light">
+											<span>{expandedReservaId === reserva.id ? 'Cerrar Detalles' : 'Ver Detalle de Pagos'}</span>
+											<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300 {expandedReservaId === reserva.id ? 'rotate-180' : ''}">
+												<polyline points="6 9 12 15 18 9"/>
+											</svg>
+										</div>
+									</div>
+								</button>
+							{/each}
+						</div>
+					{:else}
+						<div class="h-[40vh] flex flex-col items-center justify-center text-center p-12 bg-white/[0.01] border border-dashed border-white/10 rounded-sm">
+							<div class="p-4 bg-white/5 rounded-full mb-6 text-white/20">
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10"/></svg>
+							</div>
+							<h3 class="text-lg font-extralight tracking-widest uppercase mb-2">Sin Reservas</h3>
+							<p class="text-xs text-white/30 font-light tracking-wide mb-6">Aún no has realizado ninguna reserva.</p>
+							<a href="/experiencias" class="px-8 py-3 bg-white/5 border border-white/10 text-white font-light tracking-widest uppercase text-[10px] hover:bg-white/10 transition-all">Explorar Experiencias</a>
+						</div>
+					{/if}
+				</div>
 			{:else}
+				<!-- Otro tab placeholder -->
 				<div class="h-[60vh] flex flex-col items-center justify-center text-center p-12 bg-white/[0.01] border border-dashed border-white/10 rounded-sm" in:fade>
 					<div class="p-4 bg-white/5 rounded-full mb-6 text-white/20">
 						<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
@@ -192,6 +345,5 @@
 				</div>
 			{/if}
 		</main>
-
 	</div>
 </div>

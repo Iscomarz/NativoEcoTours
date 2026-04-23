@@ -35,7 +35,6 @@ export const createReserva = async (reserva) => {
     throw new Error(error.message);
   }
 
-  console.log('Reserva guardada con éxito:', data);
   return data;
 };
 
@@ -44,6 +43,18 @@ export const createPago = async (pago) => {
     .from("mpago")
     .insert([pago])
     .select(); // Retorna los datos insertados
+    
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data;
+};
+
+export const createPlazo = async (plazo) => {
+  const { data, error } = await supabase
+    .from("dplazo")
+    .insert([plazo])
+    .select();
     
   if (error) {
     throw new Error(error.message);
@@ -82,7 +93,6 @@ async function actualizarConteoCapacidad(habitacionReserva) {
     const conteoActual = habitacion?.conteo_capacidad || 0;
     const nuevoConteo = conteoActual + habitacionReserva.totalclientes;
     
-    console.log(`Actualizando conteo habitación ${habitacionReserva.idhabitacion}: ${conteoActual} + ${habitacionReserva.totalclientes} = ${nuevoConteo}`);
     
     // 3. Actualizar el conteo
     const { data, error } = await supabase

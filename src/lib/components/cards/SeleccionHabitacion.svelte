@@ -8,7 +8,6 @@
 	import { getOcupacionesMultiplesHabitaciones, calcularEspaciosOcupados, isEspacioOcupado } from '$lib/core/controllers/habitaciones.service.js';
 
 	export let habitaciones = []; // [{capacidad:number, conteo_capacidad:number, chabitacion.precioPersona?:number}]
-	export let imgHabitacion;
 	export let formulario; // función para manejar el submit
 	export let sesionActiva = false; // si hay sesión activa, no pedir datos
 	export let experiencia_id;
@@ -315,13 +314,8 @@
 	<div class="grid grid-cols-2 gap-2">
 		{#each habitaciones as habitacion, rIdx (habitacion.id + '-' + ocupacionesVersion)}
 			<div class="relative rounded-md border border-white/10 p-2">
-				<img
-					src={imgHabitacion}
-					alt="Foto habitación"
-					class="h-32 w-full rounded-md object-cover"
-				/>
-				<div class="bottom-1 left-2 px-1 text-xs text-white/30 font-extralight tracking-wide">
-					<p>Hab. {rIdx + 1}</p>
+				<div class="text-[11px] text-white/40 font-extralight tracking-[0.2em] uppercase mb-4">
+					Habitación {rIdx + 1}
 				</div>
 
 				<!-- Slots -->
@@ -331,7 +325,7 @@
 						<div
 							role="button"
 							tabindex="0"
-							class={`rounded-lg p-2 transition-all duration-200 select-none
+							class={`rounded-none p-2 transition-all duration-200 select-none
 								${
 									isOccupied(rIdx, i)
 										? 'cursor-not-allowed bg-green-500/20 border border-green-500/50'

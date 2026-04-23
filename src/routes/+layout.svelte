@@ -2,11 +2,14 @@
 	import '../app.css';
 	import NavBar from '$lib/components/NavBar.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import GoogleOneTap from '$lib/components/auth/GoogleOneTap.svelte';
 	import { page } from '$app/stores';
 
 	export let data;
 
 </script>
+
+<GoogleOneTap session={data.session} />
 
 <div class="flex flex-col min-h-screen">
 	{#if $page.url.pathname !== '/login'}

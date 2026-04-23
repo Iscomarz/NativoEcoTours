@@ -16,7 +16,6 @@
 	$: ruta = data.ruta;
 
 	onMount(() => {
-		console.log('Experiencia cargada:', experiencia);
 	});
 
 	// Función para formatear la fecha tipo "Del 1 al 3 de Noviembre 2024"
@@ -182,6 +181,7 @@
 						idexperiencia={hab.idexperiencia}
                         slot={hab.ruta}
                         ruta={ruta}
+                        imagenes={hab.imagenes}
 					/>
 				{/each}
 			</div>
