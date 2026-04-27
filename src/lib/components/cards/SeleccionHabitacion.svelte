@@ -5,7 +5,7 @@
 	import { get } from 'svelte/store';
 	import { toast, Toaster } from 'svelte-sonner';
 	import {goto} from '$app/navigation';
-	import { getOcupacionesMultiplesHabitaciones, calcularEspaciosOcupados, isEspacioOcupado } from '$lib/core/controllers/habitaciones.service.js';
+	import { getOcupacionesMultiplesHabitaciones, calcularEspaciosOcupados, isEspacioOcupado, crearBloqueosTemporales } from '$lib/core/controllers/habitaciones.service.js';
 
 	export let habitaciones = []; // [{capacidad:number, conteo_capacidad:number, chabitacion.precioPersona?:number}]
 	export let formulario; // función para manejar el submit
@@ -29,9 +29,13 @@
 			0
 		) ?? 0;
 
-	// Mantener cantidad dentro de límites en grupo, 2 como minimo y totalDisponible como máximo
-	$: if (grupo && cantidad < 2) cantidad = 2;
-	$: if (grupo && cantidad > totalDisponible) cantidad = totalDisponible;
+	// Mantener cantidad dentro de límites en grupo
+	$: if (grupo) {
+		if (cantidad < 2) cantidad = 2;
+		if (totalDisponible > 0 && cantidad > totalDisponible) {
+			cantidad = totalDisponible;
+		}
+	}
 
 	// Selecciones por habitación: arreglo de Sets con índices seleccionados
 	let selectedByRoom = [];
@@ -213,9 +217,7 @@
 	$: precioUnitario = habitaciones?.[0]?.chabitacion?.precioPersona ?? 0;
 	$: totalAPagar = (precioUnitario || 0) * (seleccion === 'individual' ? 1 : cantidad || 0);
 
-	export function mandarFormulario() {
-		// Aquí puedes manejar el envío del formulario
-
+	export async function mandarFormulario() {
 		if (!sesionActiva && (!formulario.nombre || !formulario.telefono || !formulario.email)) {
 			console.log('Formulario incompleto');
 			toast.error('Por favor, completa todos los campos del formulario.');
@@ -233,47 +235,68 @@
 			}
 		});
 
-		//console.log('Habitaciones seleccionadas:', habitacionesSeleccionadas);
+		// Generar un ID de sesión para el bloqueo
+		const sessionId = crypto.randomUUID();
 
-		//llenar mreserva
-		reserva = new MReserva({
-			//Datos cliente
-			usuario_id: sesionActiva ? (formulario.idusuario ?? null) : null,
-			nombre_cliente: !sesionActiva ? (formulario.nombre ?? '') : '',
-			correo_cliente: !sesionActiva ? (formulario.email ?? '') : '',
-			numero_cliente: !sesionActiva ? (formulario.telefono ?? '') : '',
+		try {
+			toast.loading('Asegurando tus espacios...');
+			
+			// 1. Intentar crear bloqueos en la BD (esto valida disponibilidad real)
+			const bloqueosData = habitacionesSeleccionadas.map(h => ({
+				id_habitacion: parseInt(h.idhabitacion),
+				cantidad: parseInt(h.cantidad),
+				session_id: sessionId
+			}));
 
-			//Datos experiencia
-			experiencia_id: experiencia_id ?? null,
-			fecha_reserva: new Date(),
-			nombreExperiencia: nombreExperiencia ?? '',
+			await crearBloqueosTemporales(bloqueosData);
 
-			//datos grupo y pago
-			grupo: seleccion === 'grupo' ? 1 : 0,
-			cantidad_grupo: seleccion === 'grupo' ? cantidad : 1,
-			precio_unitario: habitaciones?.[0]?.chabitacion?.precioPersona ?? 0,
+			// 2. Si tiene éxito, llenar mreserva
+			reserva = new MReserva({
+				//Datos cliente
+				usuario_id: sesionActiva ? (formulario.idusuario ?? null) : null,
+				nombre_cliente: !sesionActiva ? (formulario.nombre ?? '') : '',
+				correo_cliente: !sesionActiva ? (formulario.email ?? '') : '',
+				numero_cliente: !sesionActiva ? (formulario.telefono ?? '') : '',
 
-			//calculo total
-			total:
-				(habitaciones?.[0]?.chabitacion?.precioPersona || 0) *
-				(seleccion === 'grupo' ? cantidad : 1)
-		});
+				//Datos experiencia
+				experiencia_id: experiencia_id ?? null,
+				fecha_reserva: new Date(),
+				nombreExperiencia: nombreExperiencia ?? '',
 
-		// Agregar las habitaciones a la reserva
-		habitacionesSeleccionadas.forEach((h) => {
-			reserva.agregarHabitacion(h.idhabitacion, h.cantidad);
-		});
+				//datos grupo y pago
+				grupo: seleccion === 'grupo' ? 1 : 0,
+				cantidad_grupo: seleccion === 'grupo' ? cantidad : 1,
+				precio_unitario: habitaciones?.[0]?.chabitacion?.precioPersona ?? 0,
 
-		// Si tienes un store, actualízalo
-		reservaStore.set(reserva);
-		//console.log('Reserva guardada en el store:', get(reservaStore));
+				//calculo total
+				total:
+					(habitaciones?.[0]?.chabitacion?.precioPersona || 0) *
+					(seleccion === 'grupo' ? cantidad : 1)
+			});
 
-		// Opcional: Mostrar confirmación
-		toast.success('Reserva agregada correctamente');
+			// Agregar las habitaciones a la reserva
+			habitacionesSeleccionadas.forEach((h) => {
+				reserva.agregarHabitacion(h.idhabitacion, h.cantidad);
+			});
 
-		// Redireccionar a la página de pago o continuar el flujo
-		goto('/checkout');
+			// Guardar el session_id en la reserva para poder liberarlo luego
+			reserva.checkout_session_id = sessionId;
+
+			// 3. Actualizar store
+			reservaStore.set(reserva);
+
+			toast.dismiss();
+			toast.success('Espacios reservados temporalmente');
+
+			// 4. Redireccionar
+			goto('/checkout');
+		} catch (error) {
+			toast.dismiss();
+			toast.error(error.message || 'Error al reservar espacios. Intenta de nuevo.');
+			// Recargar ocupaciones para mostrar la realidad
+			await cargarOcupaciones();
 		}
+	}
 		
 </script>
 

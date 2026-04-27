@@ -19,7 +19,7 @@
 		})
 </script>
 
-<section class="text-white px-6 py-12 md:px-20">
+<section id="explorar" class="text-white px-6 py-12 md:px-20">
 	<!-- Barra de búsqueda y filtro -->
 	<div class="mb-8 flex flex-col items-center justify-between gap-4 md:flex-row">
 		<input

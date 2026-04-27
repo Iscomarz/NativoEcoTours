@@ -5,6 +5,7 @@
     import { toast, Toaster } from 'svelte-sonner';
     import StripePayment from '$lib/components/pagos/StripePayment.svelte';
 	import { createReserva, createPago, createHabitacionReserva, createPlazo } from '$lib/core/controllers/reservas.service.js';
+	import { eliminarBloqueosActivos } from '$lib/core/controllers/habitaciones.service.js';
 	import MReserva from '$lib/objects/MReserva';
     
     export let data;
@@ -22,6 +23,7 @@
     };
     let guardadoPago = false;
     let loadingPago = false;
+    let reservaFinalizada = false; // Nueva variable para controlar el mensaje de éxito
     
     // Variables para el cronómetro
     let tiempoRestante = 8 * 60; // 8 minutos en segundos
@@ -80,6 +82,11 @@
                 // Limpiar el intervalo
                 clearInterval(intervalId);
                 
+                // Liberar bloqueos si existen
+                if (currentReserva?.checkout_session_id) {
+                    eliminarBloqueosActivos(currentReserva.checkout_session_id);
+                }
+                
                 // Resetear el store
                 reservaStore.set({});
                 
@@ -87,7 +94,7 @@
                 goto('/');
                 
                 // También podrías mostrar un mensaje antes de redirigir
-                toast.error('¡Tiempo agotado! Tu reserva ha sido cancelada.');
+                toast.error('¡Tiempo agotado! Tu reserva ha sido cancelada y los espacios liberados.');
             }
         }, 1000);
     });
@@ -126,7 +133,8 @@
         
         try {
             const isPlazos = formaPago === 'plazos';
-            
+            const checkoutSessionId = $reservaStore?.checkout_session_id;
+
             // 1. Crear un objeto MReserva con los datos necesarios
             const nuevaReserva = new MReserva({
                 // Datos del usuario o cliente
@@ -210,6 +218,11 @@
             
             // 6. Actualizar UI
             guardadoPago = true;
+
+            // 6.5 Limpiar los bloqueos temporales ya que ahora es una reserva fija
+            if (checkoutSessionId) {
+                await eliminarBloqueosActivos(checkoutSessionId);
+            }
             
             // 7. Actualizar store con datos finales (incluyendo ID de la DB)
             reservaStore.update(reserva => ({
@@ -221,6 +234,29 @@
                 fecha_pago: new Date().toISOString(),
                 completado: true
             }));
+
+            // 8. Enviar correo de confirmación (Pago único o plazos completados)
+            const pagoCompletado = !isPlazos || (montoPagado >= $reservaStore.total);
+            reservaFinalizada = pagoCompletado; // Guardamos el estado para la UI
+            
+            if (pagoCompletado) {
+                fetch('/api/confirmacion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        reserva: {
+                            nombre_cliente: datosPersonales.nombre,
+                            correo_cliente: datosPersonales.correo,
+                            nombreExperiencia: $reservaStore.nombreExperiencia,
+                            fecha_reserva: $reservaStore.fecha_reserva || new Date(),
+                            cantidad_grupo: $reservaStore.cantidad_grupo,
+                            grupo: $reservaStore.grupo,
+                            id: reservaId,
+                            whatsappLink: $reservaStore.whatsappLink
+                        } 
+                    })
+                }).catch(err => console.error('Error enviando correo:', err));
+            }
             
         } catch (error) {
             console.error('Error en el proceso de guardado:', error);
@@ -258,7 +294,7 @@
 <Toaster />
 
 <div class="min-h-screen bg-black py-20 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-6xl mx-auto">
         <!-- Encabezado -->
         		<div class="text-center mb-12">
 			<p class="text-xs text-white/30 font-extralight tracking-[0.4em] uppercase mb-2">Resumen</p>
@@ -354,11 +390,10 @@
 							</a>
 						</div>
                         {/if}
-                    </div>
-                </div>
-            </div>
+				</div>
+			</div>
             
-            			<!-- Formulario de Pago -->
+            <!-- Formulario de Pago -->
 			<div class="md:col-span-3">
 				<div class="bg-white/5 border border-white/10 p-6">
 					<h2 class="text-xs font-light text-white/50 tracking-[0.35em] uppercase flex items-center gap-2 mb-6">
@@ -390,13 +425,14 @@
 									</label>
 								{/if}
 
-								<label class={`flex-1 min-w-[120px] flex items-center justify-center gap-2 p-3 border cursor-pointer transition-all hover:bg-white/10 ${formaPago === 'transferencia' ? 'border-white bg-white/10' : 'border-white/10 bg-white/5'}`}>
+
+								<!-- <label class={`flex-1 min-w-[120px] flex items-center justify-center gap-2 p-3 border cursor-pointer transition-all hover:bg-white/10 ${formaPago === 'transferencia' ? 'border-white bg-white/10' : 'border-white/10 bg-white/5'}`}>
 									<input type="radio" bind:group={formaPago} value="transferencia" class="sr-only" />
 									<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
 									</svg>
 									<span class="text-xs font-extralight tracking-widest text-white/60">Transferencia</span>
-								</label>
+								</label> -->
 							</div>
 						</div>
                         
@@ -473,11 +509,21 @@
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M5 13l4 4L19 7" />
 								</svg>
 							</div>
-							<p class="text-xs text-white/30 font-extralight tracking-[0.4em] uppercase mb-2">Confirmada</p>
-							<h3 class="text-xl font-extralight tracking-widest text-white mb-3">¡Reserva Confirmada!</h3>
-							<p class="text-xs text-white/40 font-extralight">Hemos enviado un correo con los detalles de tu reserva a {$reservaStore?.correo_cliente || 'tu correo'}</p>
+							<p class="text-xs text-white/30 font-extralight tracking-[0.4em] uppercase mb-2">
+                                {reservaFinalizada ? 'Confirmada' : 'Recibida'}
+                            </p>
+							<h3 class="text-xl font-extralight tracking-widest text-white mb-3">
+                                {reservaFinalizada ? '¡Reserva Confirmada!' : '¡Reserva Recibida!'}
+                            </h3>
+							
+                            {#if reservaFinalizada}
+                                <p class="text-xs text-white/40 font-extralight">Hemos enviado un correo con los detalles de tu reserva a {$reservaStore?.correo_cliente || 'tu correo'}</p>
+                            {:else}
+                                <p class="text-xs text-white/40 font-extralight">Tu primer pago se registró con éxito. Revisa tu perfil para liquidar el total y recibir tu confirmación oficial.</p>
+                            {/if}
+
 							<div class="mt-8 space-y-3">
-								<a href="/mis-reservas" class="block w-full bg-white/5 border border-white/20 hover:bg-white/10 px-4 py-3 text-xs font-extralight tracking-[0.3em] uppercase text-white transition-all duration-300">
+								<a href={sesionActiva ? '/perfil' : '/mis-reservas'} class="block w-full bg-white/5 border border-white/20 hover:bg-white/10 px-4 py-3 text-xs font-extralight tracking-[0.3em] uppercase text-white transition-all duration-300">
 									Ver Mis Reservas
 								</a>
 								<a href="/experiencias" class="block w-full bg-transparent border border-white/10 hover:bg-white/5 px-4 py-3 text-xs font-extralight tracking-[0.3em] uppercase text-white/40 transition-all duration-300">
@@ -501,3 +547,4 @@
 		</div>
 	</div>
 </div>
+</div>

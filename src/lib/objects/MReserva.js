@@ -21,6 +21,10 @@ class MReserva {
         grupo = false,                // Si es reserva grupal
         cantidad_grupo = 1,           // Cantidad de personas
         precio_unitario = 0,          // Precio por persona
+
+        // Metadatos adicionales (UI/Emails)
+        nombreExperiencia = '',
+        whatsappLink = ''
     } = {}) {
         // Asignar propiedades
         this.usuario_id = usuario_id;
@@ -37,6 +41,8 @@ class MReserva {
         this.grupo = grupo;
         this.cantidad_grupo = cantidad_grupo;
         this.precio_unitario = precio_unitario;
+        this.nombreExperiencia = nombreExperiencia;
+        this.whatsappLink = whatsappLink;
         
         // Propiedades derivadas
         this.habitaciones = []; // Array para almacenar IDs de habitaciones y cantidades
@@ -100,6 +106,8 @@ class MReserva {
             grupo: this.grupo,
             cantidad_grupo: this.cantidad_grupo,
             precio_unitario: this.precio_unitario,
+            nombreExperiencia: this.nombreExperiencia,
+            whatsappLink: this.whatsappLink,
             habitaciones: [...this.habitaciones]
         };
     }

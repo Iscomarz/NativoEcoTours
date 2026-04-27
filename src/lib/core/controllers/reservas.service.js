@@ -110,3 +110,23 @@ async function actualizarConteoCapacidad(habitacionReserva) {
     throw error;
   }
 }
+export const getReservasByGuest = async (nombre, correo) => {
+  const { data, error } = await supabase
+    .from("mreserva")
+    .select(`
+      *,
+      cexperiencia!inner(*),
+      mpago(*),
+      rhabitacionreserva(*, dhabitacion(*))
+    `)
+    .eq("nombre_cliente", nombre)
+    .eq("correo_cliente", correo)
+    .eq("cexperiencia.activo", true) // Solo informamos de experiencias activas según lo solicitado
+    .order('fecha_reserva', { ascending: false });
+
+  if (error) {
+    console.error('Error al buscar reservas de invitado:', error);
+    throw new Error(error.message);
+  }
+  return data;
+};

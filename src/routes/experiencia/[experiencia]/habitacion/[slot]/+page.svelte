@@ -83,6 +83,8 @@
 				{formulario}
 				{sesionActiva}
 				{experiencia_id}
+				nombreExperiencia={experiencia.titulo}
+				whatsappLink={detalleExperiencia.grupo_whatsapp}
 			/>
 		</div>
 

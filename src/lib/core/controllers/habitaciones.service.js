@@ -7,22 +7,12 @@ import { supabase } from "../supabase/client";
  */
 export const getEspaciosOcupados = async (idhabitacion) => {
   try {
-    const { data, error } = await supabase
-      .from("rhabitacionreserva")
-      .select('*')
-      .eq('idhabitacion', idhabitacion);
+    const { data, error } = await supabase.rpc('obtener_ocupacion_habitaciones', {
+      p_ids: [parseInt(idhabitacion)]
+    });
 
-    if (error) {
-      console.error('Error al obtener ocupaciones:', error);
-      throw new Error(error.message);
-    }
-
-    // Sumar todos los totalclientes para esta habitación
-    const totalOcupados = data?.reduce((total, reserva) => {
-      return total + (reserva.totalclientes || 0);
-    }, 0) || 0;
-
-    return totalOcupados;
+    if (error) throw error;
+    return data?.[0]?.total_ocupado || 0;
     
   } catch (error) {
     console.error('Error en getEspaciosOcupados:', error);
@@ -31,7 +21,7 @@ export const getEspaciosOcupados = async (idhabitacion) => {
 };
 
 /**
- * Obtiene las ocupaciones de todas las habitaciones de una vez
+ * Obtiene las ocupaciones de todas las habitaciones de una vez, incluyendo bloqueos
  * @param {Array} habitacionIds - Array de IDs de habitaciones 
  * @returns {Promise<Object>} - Objeto con ocupaciones por habitación { habitacionId: numeroClientes }
  */
@@ -39,30 +29,16 @@ export const getOcupacionesMultiplesHabitaciones = async (habitacionIds) => {
   try {
     if (!habitacionIds || habitacionIds.length === 0) return {};
 
-    const { data, error } = await supabase
-      .from("rhabitacionreserva")
-      .select('*')
-      .in('idhabitacion', habitacionIds);
-
-    if (error) {
-      console.error('Error al obtener ocupaciones:', error);
-      throw new Error(error.message);
-    }
-
-    // Agrupar por habitación y sumar los clientes
-    const ocupacionesPorHabitacion = {};
-    
-    // Inicializar todas las habitaciones con 0
-    habitacionIds.forEach(id => {
-      ocupacionesPorHabitacion[id] = 0;
+    const { data, error } = await supabase.rpc('obtener_ocupacion_habitaciones', {
+      p_ids: habitacionIds.map(id => parseInt(id))
     });
 
-    // Sumar ocupaciones
+    if (error) throw error;
+
+    const ocupacionesPorHabitacion = {};
     if (data) {
-      data.forEach(reserva => {
-        const habitacionId = reserva.idhabitacion;
-        const clientes = reserva.totalclientes || 0;
-        ocupacionesPorHabitacion[habitacionId] += clientes;
+      data.forEach(item => {
+        ocupacionesPorHabitacion[item.habitacion_id] = item.total_ocupado;
       });
     }
 
@@ -96,6 +72,52 @@ export const calcularEspaciosOcupados = (habitaciones, ocupaciones) => {
   });
   
   return espaciosOcupados;
+};
+
+/**
+ * Crea bloqueos temporales para una lista de habitaciones seleccionadas
+ * @param {Array} bloqueos - Lista de objetos { id_habitacion, cantidad, session_id }
+ * @returns {Promise<boolean>} - True si todos los bloqueos fueron exitosos
+ */
+export const crearBloqueosTemporales = async (bloqueos) => {
+  try {
+    // Usamos el RPC para asegurar atomicidad y evitar race conditions
+    for (const b of bloqueos) {
+      const { data, error } = await supabase.rpc('intentar_bloqueo_habitacion', {
+        p_id_habitacion: b.id_habitacion,
+        p_cantidad: b.cantidad,
+        p_session_id: b.session_id
+      });
+
+      if (error) throw error;
+      if (!data) {
+        throw new Error('Lo sentimos, uno de los espacios seleccionados ya no está disponible.');
+      }
+    }
+    return true;
+  } catch (error) {
+    console.error('Error al crear bloqueos:', error);
+    throw error;
+  }
+};
+
+/**
+ * Elimina los bloqueos asociados a una sesión específica
+ * @param {string} sessionId - ID de la sesión/checkout
+ */
+export const eliminarBloqueosActivos = async (sessionId) => {
+  try {
+    const { error } = await supabase
+      .from('bloqueos_habitacion')
+      .delete()
+      .eq('session_id', sessionId);
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Error al eliminar bloqueos:', error);
+    return false;
+  }
 };
 
 /**

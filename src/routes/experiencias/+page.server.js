@@ -8,19 +8,32 @@ export const load = async () => {
 	} = await supabase.auth.getSession();
 
 	//traer experiencias
-
-	let experiencias = await getExperiencias();
-
-	experiencias = experiencias.map((exp) => ({
-		...exp,
-		experiencia: exp.titulo.replace(/\s+/g, '-')
-	}));
+	let experiencias = [];
+	try {
+		experiencias = await getExperiencias();
+		experiencias = (experiencias || []).map((exp) => ({
+			...exp,
+			experiencia: exp.titulo.replace(/\s+/g, '-')
+		}));
+	} catch (e) {
+		console.error('Error loading experiencias:', e);
+	}
 
 	//traer ubicaciones
-	let ubicaciones = await getUbicacionesDestacadas();
+	let ubicaciones = [];
+	try {
+		ubicaciones = await getUbicacionesDestacadas();
+	} catch (e) {
+		console.error('Error loading ubicaciones:', e);
+	}
 
 	//traer experiencia activa
-	let experienciaActiva = await getExperienciaActiva();
+	let experienciaActiva = null;
+	try {
+		experienciaActiva = await getExperienciaActiva();
+	} catch (e) {
+		console.error('Error loading active experience:', e);
+	}
 
 	return {
 		props: {

@@ -13,7 +13,7 @@ export const load = async ({ locals: { user, supabase } }) => {
 	
 	const { data: reservas } = await supabase
 		.from('mreserva')
-		.select('*, dplazo(*), cexperiencia(titulo)')
+		.select('*, dplazo(*), cexperiencia(titulo, dexperiencia(grupo_whatsapp))')
 		.eq('usuario_id', user.id)
 		.order('fecha_reserva', { ascending: false });
 	

@@ -14,10 +14,19 @@
     // Calcular cuántas cards se ven por pantalla
     let itemsPerView = 1;
     
-    // Duplicar las cards para efecto infinito
-    $: extendedUbicaciones = ubicaciones.length > 0 
+    // Determinar si el slide debe ser infinito (solo si hay más de 3 ubicaciones)
+    $: isInfinite = ubicaciones.length > 3;
+    
+    // Duplicar las cards para efecto infinito solo si es necesario
+    $: extendedUbicaciones = isInfinite 
         ? [...ubicaciones, ...ubicaciones] 
-        : [];
+        : ubicaciones;
+    
+    // Resetear índice si cambia la configuración de infinito
+    $: if (!isInfinite) {
+        currentIndex = 0;
+        if (carouselContainer) updateCarouselPosition(false);
+    }
     
     onMount(() => {
         checkScreenSize();
@@ -31,14 +40,13 @@
             
             if (isDesktop) {
                 // En escritorio: calcular cuántas cards caben
-                if (window.innerWidth >= 1536) itemsPerView = 3; // 2xl
-                else if (window.innerWidth >= 1280) itemsPerView = 3; // xl  
-                else if (window.innerWidth >= 1024) itemsPerView = 2; // lg
+                if (window.innerWidth >= 1280) itemsPerView = 3; // xl y superior
+                else itemsPerView = 2; // lg
                 
-                // Mostrar botones solo si hay tours
-                showNavigationButtons = ubicaciones.length > 0;
+                // Mostrar botones solo si hay más tours que los que se pueden ver
+                showNavigationButtons = ubicaciones.length > itemsPerView;
             } else {
-                // En móvil siempre slide
+                // En móvil siempre slide (pero usando scroll nativo)
                 itemsPerView = 1;
                 showNavigationButtons = false;
             }
@@ -48,74 +56,95 @@
     function slideNext() {
         if (isTransitioning || ubicaciones.length === 0) return;
         
-        isTransitioning = true;
-        currentIndex += 1;
-        
-        // Si llegamos al final del primer conjunto, preparar el salto
-        if (currentIndex >= ubicaciones.length) {
-            updateCarouselPosition(true);
+        if (isInfinite) {
+            isTransitioning = true;
+            currentIndex += 1;
             
-            setTimeout(() => {
-                carouselContainer.style.transition = 'none';
-                currentIndex = 0;
-                updateCarouselPosition(false);
+            // Si llegamos al final del primer conjunto, preparar el salto
+            if (currentIndex >= ubicaciones.length) {
+                updateCarouselPosition(true);
                 
-                // Pequeño delay para reactivar la transición
-                requestAnimationFrame(() => {
+                setTimeout(() => {
+                    carouselContainer.style.transition = 'none';
+                    currentIndex = 0;
+                    updateCarouselPosition(false);
+                    
                     requestAnimationFrame(() => {
-                        carouselContainer.style.transition = 'transform 500ms ease-in-out';
-                        isTransitioning = false;
+                        requestAnimationFrame(() => {
+                            carouselContainer.style.transition = 'transform 500ms ease-in-out';
+                            isTransitioning = false;
+                        });
                     });
-                });
-            }, 500);
+                }, 500);
+            } else {
+                updateCarouselPosition(true);
+                setTimeout(() => {
+                    isTransitioning = false;
+                }, 500);
+            }
         } else {
-            updateCarouselPosition(true);
-            setTimeout(() => {
-                isTransitioning = false;
-            }, 500);
+            // Lógica para slide NO infinito (acotado)
+            if (currentIndex < ubicaciones.length - itemsPerView) {
+                isTransitioning = true;
+                currentIndex += 1;
+                updateCarouselPosition(true);
+                setTimeout(() => {
+                    isTransitioning = false;
+                }, 500);
+            }
         }
     }
     
     function slidePrev() {
         if (isTransitioning || ubicaciones.length === 0) return;
         
-        isTransitioning = true;
-        
-        // Si estamos al inicio, saltar al final del primer conjunto primero
-        if (currentIndex === 0) {
-            carouselContainer.style.transition = 'none';
-            currentIndex = ubicaciones.length;
-            updateCarouselPosition(false);
+        if (isInfinite) {
+            isTransitioning = true;
             
-            // Esperar un frame y luego hacer la animación hacia atrás
-            requestAnimationFrame(() => {
+            // Si estamos al inicio, saltar al final del primer conjunto primero
+            if (currentIndex === 0) {
+                carouselContainer.style.transition = 'none';
+                currentIndex = ubicaciones.length;
+                updateCarouselPosition(false);
+                
                 requestAnimationFrame(() => {
-                    carouselContainer.style.transition = 'transform 500ms ease-in-out';
-                    currentIndex -= 1;
-                    updateCarouselPosition(true);
-                    
-                    setTimeout(() => {
-                        isTransitioning = false;
-                    }, 500);
+                    requestAnimationFrame(() => {
+                        carouselContainer.style.transition = 'transform 500ms ease-in-out';
+                        currentIndex -= 1;
+                        updateCarouselPosition(true);
+                        
+                        setTimeout(() => {
+                            isTransitioning = false;
+                        }, 500);
+                    });
                 });
-            });
+            } else {
+                currentIndex -= 1;
+                updateCarouselPosition(true);
+                setTimeout(() => {
+                    isTransitioning = false;
+                }, 500);
+            }
         } else {
-            currentIndex -= 1;
-            updateCarouselPosition(true);
-            setTimeout(() => {
-                isTransitioning = false;
-            }, 500);
+            // Lógica para slide NO infinito (acotado)
+            if (currentIndex > 0) {
+                isTransitioning = true;
+                currentIndex -= 1;
+                updateCarouselPosition(true);
+                setTimeout(() => {
+                    isTransitioning = false;
+                }, 500);
+            }
         }
     }
     
     function updateCarouselPosition(withTransition = true) {
         if (carouselContainer && isDesktop) {
-            const cardWidth = 380; // Ancho de cada card
-            const gap = 40; // Gap entre cards (gap-10 = 40px)
-            const scrollAmount = cardWidth + gap; // Una card completa por cada avance
+            const cardWidth = 380; 
+            const gap = 40; 
+            const scrollAmount = cardWidth + gap; 
             const translateX = currentIndex * scrollAmount;
             
-            // Controlar la transición
             if (!withTransition) {
                 carouselContainer.style.transition = 'none';
             } else {
@@ -126,7 +155,6 @@
         }
     }
     
-    // Reactive statement para actualizar cuando cambien las ubicaciones
     $: if (ubicaciones.length && typeof window !== 'undefined') {
         checkScreenSize();
     }
@@ -168,7 +196,7 @@
         <div class="overflow-hidden">
             <div 
                 bind:this={carouselContainer}
-                class="flex gap-10 {isDesktop ? '' : 'overflow-x-auto snap-x snap-mandatory px-6'}"
+                class="flex gap-10 {isDesktop ? (ubicaciones.length <= itemsPerView ? 'justify-center' : '') : 'overflow-x-auto snap-x snap-mandatory px-6'}"
                 style={isDesktop ? '' : 'padding-left: calc((100vw - 380px) / 2); padding-right: calc((100vw - 380px) / 2);'}
             >
                 {#each extendedUbicaciones as tour, index}

@@ -269,9 +269,24 @@
 													Pagar Plazo
 												</a>
 											{:else}
-												<div class="flex items-center gap-2 text-green-400/60">
-													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-													<p class="text-[10px] uppercase tracking-widest">Reserva Liquidada Completamente</p>
+												<div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full">
+													<div class="flex items-center gap-2 text-green-400/60">
+														<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+														<p class="text-[10px] uppercase tracking-widest text-nowrap">Reserva Liquidada Completamente</p>
+													</div>
+													
+													{#if (Array.isArray(reserva.cexperiencia?.dexperiencia) ? reserva.cexperiencia.dexperiencia[0]?.grupo_whatsapp : reserva.cexperiencia?.dexperiencia?.grupo_whatsapp)}
+														<a 
+															href={Array.isArray(reserva.cexperiencia?.dexperiencia) ? reserva.cexperiencia.dexperiencia[0].grupo_whatsapp : reserva.cexperiencia.dexperiencia.grupo_whatsapp} 
+															target="_blank" 
+															rel="noopener noreferrer"
+															class="ml-auto px-4 py-2 bg-[#25D366]/10 border border-[#25D366]/30 text-[#25D366] text-[9px] uppercase tracking-widest hover:bg-[#25D366] hover:text-white transition-all flex items-center gap-2"
+															on:click|stopPropagation
+														>
+															<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-10.6 8.38 8.38 0 0 1 3.8.9L21 3z"></path></svg>
+															Grupo WhatsApp
+														</a>
+													{/if}
 												</div>
 											{/if}
 										</div>

@@ -150,7 +150,7 @@
 
         <!-- Tours destacados -->
         <div class="pt-20 pb-12">
-            <p class="text-white/40 text-xs tracking-[0.4em] uppercase text-center mb-10">Próximas experiencias</p>
+            <p class="text-white/40 text-xs tracking-[0.4em] uppercase text-center mb-10">Descubre nuestros destinos</p>
             <ToursDestacados {ubicaciones} todasLasExperiencias={true} />
         </div>
 

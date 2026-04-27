@@ -25,7 +25,7 @@
 
         const { data: resData, error } = await supabase
             .from('mreserva')
-            .select('*, dplazo(*), cexperiencia(titulo, fecha_inicio)')
+            .select('*, dplazo(*), cexperiencia(titulo, fecha_inicio, dexperiencia(grupo_whatsapp))')
             .eq('id', reservaId)
             .eq('usuario_id', session.user.id)
             .single();
@@ -88,6 +88,26 @@
                     .from('mreserva')
                     .update({ fecha_liquidacion: new Date().toISOString() })
                     .eq('id', reserva.id);
+
+                // Enviar correo de confirmación final
+                fetch('/api/confirmacion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        reserva: {
+                            nombre_cliente: reserva.nombre_cliente || session.user.user_metadata?.full_name || '',
+                            correo_cliente: reserva.correo_cliente || session.user.email,
+                            nombreExperiencia: reserva.cexperiencia?.titulo || '',
+                            fecha_reserva: reserva.fecha_reserva || new Date(),
+                            cantidad_grupo: reserva.cantidad_grupo,
+                            grupo: reserva.grupo,
+                            id: reserva.id,
+                            whatsappLink: Array.isArray(reserva.cexperiencia?.dexperiencia) 
+                                ? reserva.cexperiencia.dexperiencia[0]?.grupo_whatsapp 
+                                : reserva.cexperiencia?.dexperiencia?.grupo_whatsapp || ''
+                        } 
+                    })
+                }).catch(err => console.error('Error enviando correo:', err));
             }
 
             guardado = true;

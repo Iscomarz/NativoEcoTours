@@ -144,6 +144,21 @@
 				</li>
 
 				<li>
+					<a
+						href="/mis-reservas"
+						class="nav-link relative transition-colors"
+						class:text-white={$page.url.pathname !== '/'}
+						class:!text-green-400={$page.url.pathname.includes('/mis-reservas')}
+						style={$page.url.pathname === '/' ? `color: ${textColor}` : ''}
+					>
+						MIS RESERVAS
+						{#if $page.url.pathname.includes('/mis-reservas')}
+							<span class="absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-green-400"></span>
+						{/if}
+					</a>
+				</li>
+
+				<li>
 					<a 
 						href="/login" 
 						class="login-btn flex items-center gap-1"
@@ -305,6 +320,17 @@
 					on:click={() => (menuAbierto = false)}
 				>
 					COTIZACIONES
+				</a>
+			</li>
+
+			<li>
+				<a
+					href="/mis-reservas"
+					class="relative block w-full py-3 text-white/70 hover:text-white hover:pl-2 transition-all"
+					class:!text-green-400={$page.url.pathname.includes('/mis-reservas')}
+					on:click={() => (menuAbierto = false)}
+				>
+					MIS RESERVAS
 				</a>
 			</li>
 
