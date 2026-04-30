@@ -24,7 +24,8 @@ class MReserva {
 
         // Metadatos adicionales (UI/Emails)
         nombreExperiencia = '',
-        whatsappLink = ''
+        whatsappLink = '',
+        fecha_inicio = null
     } = {}) {
         // Asignar propiedades
         this.usuario_id = usuario_id;
@@ -43,6 +44,7 @@ class MReserva {
         this.precio_unitario = precio_unitario;
         this.nombreExperiencia = nombreExperiencia;
         this.whatsappLink = whatsappLink;
+        this.fecha_inicio = fecha_inicio;
         
         // Propiedades derivadas
         this.habitaciones = []; // Array para almacenar IDs de habitaciones y cantidades
@@ -108,6 +110,7 @@ class MReserva {
             precio_unitario: this.precio_unitario,
             nombreExperiencia: this.nombreExperiencia,
             whatsappLink: this.whatsappLink,
+            fecha_inicio: this.fecha_inicio,
             habitaciones: [...this.habitaciones]
         };
     }

@@ -1,16 +1,122 @@
 <script>
 	import { fade, fly } from 'svelte/transition';
-	import { toast, Toaster } from 'svelte-sonner';
+	import { toast } from 'svelte-sonner';
 	import { enhance } from '$app/forms';
+	import { supabase } from '$lib/core/supabase/client';
 
 	export let data;
 	export let form;
 
-	let { user_profile, session } = data;
-	$: ({ user_profile, session } = data);
+	let { user_profile, session, favoritos } = data;
+	$: ({ user_profile, session, favoritos } = data);
+
+	async function quitarFavorito(id) {
+		try {
+			const { error } = await supabase
+				.from('rfavoritoubicacion')
+				.delete()
+				.eq('id', id);
+
+			if (error) throw error;
+			
+			// Actualizar localmente
+			data.favoritos = data.favoritos.filter(f => f.id !== id);
+			toast.success('Aviso eliminado correctamente.');
+		} catch (e) {
+			console.error(e);
+			toast.error('No se pudo eliminar el aviso.');
+		}
+	}
+
+	async function actualizarNotificacion(id, estado) {
+		try {
+			const { error } = await supabase
+				.from('rfavoritoubicacion')
+				.update({ notificar: estado })
+				.eq('id', id);
+
+			if (error) throw error;
+			
+			toast.success(estado ? 'Notificaciones activadas' : 'Notificaciones pausadas');
+		} catch (e) {
+			console.error(e);
+			toast.error('No se pudo actualizar la preferencia.');
+			// Revertimos el estado local si falla la base de datos
+			const fav = data.favoritos.find(f => f.id === id);
+			if (fav) fav.notificar = !estado;
+			data.favoritos = data.favoritos; // Disparar reactividad
+		}
+	}
+
+	function formatearNombreParaURL(nombre) {
+		if (!nombre) return '';
+		return nombre
+			.replace(/\s+/g, '-')
+			.replace(/[áàäâ]/g, 'a')
+			.replace(/[éèëê]/g, 'e')
+			.replace(/[íìïî]/g, 'i')
+			.replace(/[úùüû]/g, 'u')
+			.replace(/ñ/g, 'n');
+	}
+
+	let showPasswordForm = false;
+	let newPassword = '';
+	let confirmPassword = '';
+	let loadingPassword = false;
+	let infoSubTab = 'profile'; // 'profile' o 'security'
+
+	async function cambiarPassword() {
+		if (newPassword !== confirmPassword) {
+			toast.error('Las contraseñas no coinciden');
+			return;
+		}
+
+		if (newPassword.length < 6) {
+			toast.error('La contraseña debe tener al menos 6 caracteres');
+			return;
+		}
+
+		loadingPassword = true;
+		try {
+			const { error } = await supabase.auth.updateUser({
+				password: newPassword
+			});
+
+			if (error) throw error;
+
+			toast.success('Contraseña actualizada correctamente');
+			showPasswordForm = false;
+			newPassword = '';
+			confirmPassword = '';
+		} catch (e) {
+			console.error(e);
+			toast.error('Error al actualizar la contraseña: ' + e.message);
+		} finally {
+			loadingPassword = false;
+		}
+	}
 
 	let activeTab = 'info';
 	let expandedReservaId = null;
+
+	// Paginación y Filtros
+	let showPastReservations = false;
+	let currentPage = 1;
+	const itemsPerPage = 3;
+
+	$: filteredReservas = data.reservas.filter(reserva => {
+		const fechaFin = reserva.cexperiencia?.fecha_fin ? new Date(reserva.cexperiencia.fecha_fin) : 
+						 reserva.cexperiencia?.fecha_inicio ? new Date(reserva.cexperiencia.fecha_inicio) : new Date();
+		const isPast = fechaFin < new Date();
+		return showPastReservations ? true : !isPast;
+	});
+
+	$: totalPages = Math.ceil(filteredReservas.length / itemsPerPage);
+	$: paginatedReservas = filteredReservas.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+	$: if (showPastReservations || activeTab) {
+		currentPage = 1;
+	}
 
 	function toggleReserva(id) {
 		expandedReservaId = expandedReservaId === id ? null : id;
@@ -20,14 +126,11 @@
 		{ id: 'info', label: 'Info. del Usuario', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z' },
 		{ id: 'favoritos', label: 'Favoritos', icon: 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z' },
 		{ id: 'reservas', label: 'Mis Reservas', icon: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10' },
-		{ id: 'notificaciones', label: 'Notificaciones', icon: 'M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0' }
+		// { id: 'notificaciones', label: 'Notificaciones', icon: 'M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0' }
 	];
 	// Disparar toast (ahora se maneja dentro de use:enhance en el form)
 </script>
 
-<Toaster position="bottom-right" richColors toastOptions={{
-	style: 'background: #0A0A0A; border: 1px solid rgba(255,255,255,0.1); color: white; font-family: inherit;'
-}} />
 
 <div class="min-h-screen bg-[#050505] text-white pt-24 pb-12 px-6 md:px-12 xl:px-24">
 
@@ -88,118 +191,191 @@
 						<div class="text-center sm:text-left">
 							<h2 class="text-3xl font-extralight tracking-widest mb-1">{user_profile?.nombre || 'Nombre'} {user_profile?.apellido || 'Apellido'}</h2>
 							<p class="text-xs text-white/40 tracking-[0.3em] uppercase mb-4">{user_profile?.estado || 'Rumbo a la aventura'}, {user_profile?.pais || ''}</p>
-							<button class="text-[10px] text-green-400 font-medium tracking-widest uppercase hover:underline">Cambiar contraseña</button>
+							<button 
+								on:click={() => infoSubTab = infoSubTab === 'profile' ? 'security' : 'profile'}
+								class="text-[10px] text-green-400 font-medium tracking-widest uppercase hover:underline"
+							>
+								{infoSubTab === 'profile' ? 'Seguridad de la cuenta' : 'Volver al Perfil'}
+							</button>
 						</div>
 					</div>
 
-					<!-- Form -->
-					<form 
-						method="POST" 
-						action="?/update" 
-						class="space-y-12"
-						use:enhance={() => {
-							return async ({ result, update }) => {
-								if (result.type === 'success') {
-									toast.success('Perfil actualizado correctamente', {
-										description: 'Tus datos han sido guardados en Nativo Eco Tours.',
-										duration: 4000
-									});
-									// Esto refresca los datos (data) sin recargar la página
-									// reset: false evita que los inputs se pongan en blanco
-									await update({ reset: false });
-								} else if (result.type === 'failure') {
-									toast.error('Error al actualizar', {
-										description: result.data?.error || 'Ocurrió un error inesperado',
-										duration: 5000
-									});
-								}
-							};
-						}}
-					>
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-							<div class="space-y-3">
-								<label for="nombre" class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">Nombre</label>
-								<input 
-									type="text" 
-									id="nombre" 
-									name="nombre" 
-									value={user_profile?.nombre || ''}
-									class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors"
-								/>
-							</div>
-							<div class="space-y-3">
-								<label for="apellido" class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">Apellidos</label>
-								<input 
-									type="text" 
-									id="apellido" 
-									name="apellido" 
-									value={user_profile?.apellido || ''}
-									class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors"
-								/>
-							</div>
-							<div class="space-y-3">
-								<label class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">Correo</label>
-								<input 
-									type="email" 
-									disabled
-									value={session?.user?.email || ''}
-									class="w-full bg-white/[0.01] border border-white/5 px-4 py-4 text-sm font-light tracking-wide text-white/20 cursor-not-allowed"
-								/>
-							</div>
-							<div class="space-y-3">
-								<label for="telefono" class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">Teléfono</label>
-								<input 
-									type="text" 
-									id="telefono" 
-									name="telefono" 
-									value={user_profile?.telefono || ''}
-									class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors"
-								/>
-							</div>
-							<div class="space-y-3">
-								<label for="pais" class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">País</label>
-								<input 
-									type="text" 
-									id="pais" 
-									name="pais" 
-									value={user_profile?.pais || ''}
-									class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors"
-								/>
-							</div>
-							<div class="space-y-3">
-								<label for="estado" class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">Estado</label>
-								<input 
-									type="text" 
-									id="estado" 
-									name="estado" 
-									value={user_profile?.estado || ''}
-									class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors"
-								/>
-							</div>
-						</div>
-
-						<div class="flex flex-col sm:flex-row items-center gap-6 pt-6">
-							<button 
-								type="submit"
-								class="w-full sm:w-auto px-12 py-4 bg-green-500 text-black font-medium tracking-[0.3em] uppercase text-xs hover:bg-green-400 transition-colors shadow-lg shadow-green-500/10"
+					{#if infoSubTab === 'profile'}
+						<div in:fade>
+							<!-- Form -->
+							<form 
+								method="POST" 
+								action="?/update" 
+								class="space-y-12"
+								use:enhance={() => {
+									return async ({ result, update }) => {
+										if (result.type === 'success') {
+											toast.success('Perfil actualizado correctamente', {
+												description: 'Tus datos han sido guardados en Nativo Eco Tours.',
+												duration: 4000
+											});
+											await update({ reset: false });
+										} else if (result.type === 'failure') {
+											toast.error('Error al actualizar', {
+												description: result.data?.error || 'Ocurrió un error inesperado',
+												duration: 5000
+											});
+										}
+									};
+								}}
 							>
-								Guardar cambios
-							</button>
+								<div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+									<div class="space-y-3">
+										<label for="nombre" class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">Nombre</label>
+										<input 
+											type="text" 
+											id="nombre" 
+											name="nombre" 
+											value={user_profile?.nombre || ''}
+											class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors"
+										/>
+									</div>
+									<div class="space-y-3">
+										<label for="apellido" class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">Apellidos</label>
+										<input 
+											type="text" 
+											id="apellido" 
+											name="apellido" 
+											value={user_profile?.apellido || ''}
+											class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors"
+										/>
+									</div>
+									<div class="space-y-3">
+										<label class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">Correo</label>
+										<input 
+											type="email" 
+											disabled
+											value={session?.user?.email || ''}
+											class="w-full bg-white/[0.01] border border-white/5 px-4 py-4 text-sm font-light tracking-wide text-white/20 cursor-not-allowed"
+										/>
+									</div>
+									<div class="space-y-3">
+										<label for="telefono" class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">Teléfono</label>
+										<input 
+											type="tel" 
+											id="telefono" 
+											name="telefono" 
+											value={user_profile?.telefono || ''}
+											class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors"
+										/>
+									</div>
+									<div class="space-y-3">
+										<label for="pais" class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">País</label>
+										<input 
+											type="text" 
+											id="pais" 
+											name="pais" 
+											value={user_profile?.pais || ''}
+											class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors"
+										/>
+									</div>
+									<div class="space-y-3">
+										<label for="estado" class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">Estado</label>
+										<input 
+											type="text" 
+											id="estado" 
+											name="estado" 
+											value={user_profile?.estado || ''}
+											class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors"
+										/>
+									</div>
+								</div>
+
+								<div class="flex flex-col sm:flex-row items-center gap-6 pt-6">
+									<button 
+										type="submit"
+										class="w-full sm:w-auto px-12 py-4 bg-green-500 text-black font-medium tracking-[0.3em] uppercase text-xs hover:bg-green-400 transition-colors shadow-lg shadow-green-500/10"
+									>
+										Guardar cambios
+									</button>
+								</div>
+							</form>
 						</div>
-					</form>
+					{:else if infoSubTab === 'security'}
+						<div in:fade class="max-w-xl">
+							<div class="flex items-center gap-4 mb-8">
+								<button 
+									on:click={() => infoSubTab = 'profile'}
+									class="p-2 hover:bg-white/5 rounded-full transition-colors text-white/40 hover:text-white"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+								</button>
+								<div>
+									<h3 class="text-xl font-extralight tracking-widest uppercase">Seguridad de la cuenta</h3>
+									<p class="text-[10px] text-white/30 uppercase tracking-[0.2em] mt-1">Actualiza tus credenciales de acceso</p>
+								</div>
+							</div>
+
+							<div class="space-y-8 bg-white/[0.02] border border-white/5 p-8 rounded-sm">
+								<div class="grid grid-cols-1 gap-6">
+									<div class="space-y-3">
+										<label class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">Nueva Contraseña</label>
+										<input 
+											type="password" 
+											bind:value={newPassword}
+											placeholder="Mínimo 6 caracteres"
+											class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors text-white"
+										/>
+									</div>
+									<div class="space-y-3">
+										<label class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">Confirmar Nueva Contraseña</label>
+										<input 
+											type="password" 
+											bind:value={confirmPassword}
+											placeholder="Repite la contraseña"
+											class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors text-white"
+										/>
+									</div>
+								</div>
+								
+								<div class="flex items-center gap-6">
+									<button 
+										on:click={cambiarPassword}
+										disabled={loadingPassword}
+										class="px-12 py-4 bg-white/10 text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-sm hover:bg-white/20 transition-all disabled:opacity-50"
+									>
+										{loadingPassword ? 'Actualizando...' : 'Confirmar Cambio'}
+									</button>
+									<button 
+										on:click={() => infoSubTab = 'profile'}
+										class="text-[10px] text-white/20 uppercase tracking-[0.2em] hover:text-white transition-colors"
+									>
+										Cancelar
+									</button>
+								</div>
+							</div>
+						</div>
+					{/if}
 				</div>
 			{:else if activeTab === 'reservas'}
 				<div in:fade={{ duration: 300 }} class="space-y-6">
-					<div class="mb-8">
-						<h3 class="text-xl font-extralight tracking-widest uppercase">Mis Reservas</h3>
-						<p class="text-xs text-white/30 font-light tracking-wide mt-1">Sigue el estado de tus aventuras y pagos pendientes.</p>
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
+						<div>
+							<h3 class="text-xl font-extralight tracking-widest uppercase">Mis Reservas</h3>
+							<p class="text-xs text-white/30 font-light tracking-wide mt-1">Sigue el estado de tus aventuras y pagos pendientes.</p>
+						</div>
+						
+						<label class="flex items-center gap-3 cursor-pointer group">
+							<span class="text-[10px] uppercase tracking-widest text-white/40 group-hover:text-white/60 transition-colors">Ver viajes pasados</span>
+							<div class="relative">
+								<input type="checkbox" bind:checked={showPastReservations} class="sr-only peer" />
+								<div class="w-9 h-5 bg-white/5 border border-white/10 rounded-full peer peer-checked:bg-green-500/20 peer-checked:border-green-500/40 transition-all duration-300"></div>
+								<div class="absolute left-1 top-1 w-3 h-3 bg-white/20 rounded-full peer-checked:translate-x-4 peer-checked:bg-green-400 transition-all duration-300"></div>
+							</div>
+						</label>
 					</div>
 
-					{#if data.reservas && data.reservas.length > 0}
+					{#if paginatedReservas.length > 0}
 						<div class="grid grid-cols-1 gap-6">
-							{#each data.reservas as reserva}
+							{#each paginatedReservas as reserva}
 								{@const pagado = reserva.dplazo?.filter(p => p.pagado).reduce((acc, p) => acc + Number(p.monto || 0), 0) || (reserva.fecha_liquidacion ? reserva.total : 0)}
 								{@const faltante = Math.max(0, (reserva.total || 0) - pagado)}
+								{@const habitacionesNombres = Array.from(new Set(reserva.rhabitacionreserva?.map(rh => rh.dhabitacion?.chabitacion?.nombre).filter(Boolean))).join(', ') || 'Habitación'}
 								
 								<button 
 									class="w-full text-left bg-white/[0.02] border border-white/5 rounded-sm p-6 hover:bg-white/[0.04] transition-all duration-300 group"
@@ -224,9 +400,23 @@
 											<h4 class="text-lg font-light tracking-widest text-white mb-1 uppercase">
 												{reserva.cexperiencia?.titulo || 'Experiencia'}
 											</h4>
-											<p class="text-xs text-white/40 font-extralight tracking-wide">
+											<p class="text-xs text-white/40 font-extralight tracking-wide mb-2">
 												Realizada el {new Date(reserva.fecha_reserva).toLocaleDateString()}
 											</p>
+											<div class="flex flex-wrap items-center gap-2">
+												<div class="flex items-center gap-2 text-white/60 bg-white/5 w-fit px-2 py-1 rounded-sm border border-white/5">
+													<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+													<span class="text-[10px] uppercase tracking-[0.1em] font-light">
+														{reserva.cantidad_grupo} {reserva.cantidad_grupo === 1 ? 'Viajero' : 'Viajeros'}
+													</span>
+												</div>
+												<div class="flex items-center gap-2 text-white/60 bg-white/5 w-fit px-2 py-1 rounded-sm border border-white/5">
+													<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+													<span class="text-[10px] uppercase tracking-[0.1em] font-light">
+														{habitacionesNombres}
+													</span>
+												</div>
+											</div>
 										</div>
 
 										<!-- Estado Financiero -->
@@ -347,17 +537,103 @@
 						</div>
 					{/if}
 				</div>
-			{:else}
-				<!-- Otro tab placeholder -->
+			{:else if activeTab === 'favoritos'}
+				<div in:fade={{ duration: 300 }}>
+					<div class="mb-8">
+						<h3 class="text-xl font-extralight tracking-widest uppercase">Mis Avisos</h3>
+						<p class="text-xs text-white/30 font-light tracking-wide mt-1">Destinos en los que estás interesado. Te avisaremos cuando haya nuevas fechas.</p>
+					</div>
+
+					{#if favoritos && favoritos.length > 0}
+						<div class="space-y-4">
+							{#each favoritos as fav}
+								<div class="group relative bg-white/[0.02] border border-white/5 rounded-sm overflow-hidden flex flex-col md:flex-row h-auto md:h-32 transition-all duration-300 hover:bg-white/[0.04] hover:border-white/10">
+									<!-- Imagen Lateral (Portrait/Landscape depending on screen) -->
+									<div class="relative w-full md:w-48 h-32 md:h-full overflow-hidden flex-shrink-0">
+										{#if fav.cubicacion?.portada?.[0]}
+											<img 
+												src={fav.cubicacion.portada[0]} 
+												alt={fav.cubicacion.nombre_ubicacion} 
+												class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+											/>
+										{/if}
+										<div class="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent hidden md:block"></div>
+									</div>
+
+									<!-- Contenido Central -->
+									<div class="flex-1 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+										<div class="text-center md:text-left">
+											<h4 class="text-sm font-light tracking-widest text-white uppercase mb-1">
+												{fav.cubicacion?.nombre_ubicacion}
+											</h4>
+											<p class="text-[9px] text-white/30 uppercase tracking-[0.2em]">
+												{fav.cubicacion?.estado_ubicacion}, {fav.cubicacion?.pais_ubicacion}
+											</p>
+										</div>
+
+										<!-- Controles -->
+										<div class="flex items-center gap-8">
+											<!-- Toggle Notificación -->
+											<div class="flex items-center gap-4 border-l border-white/5 pl-8 h-8">
+												<div class="flex flex-col items-end">
+													<span class="text-[8px] uppercase tracking-[0.2em] {fav.notificar ? 'text-green-400' : 'text-white/20'} transition-colors">
+														{fav.notificar ? 'Alertas ON' : 'Alertas OFF'}
+													</span>
+												</div>
+												<label class="relative inline-flex items-center cursor-pointer">
+													<input 
+														type="checkbox" 
+														bind:checked={fav.notificar} 
+														on:change={(e) => actualizarNotificacion(fav.id, e.target.checked)}
+														class="sr-only peer" 
+													/>
+													<div class="w-8 h-4 bg-white/5 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white/20 after:border-white/10 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-green-500/20 peer-checked:after:bg-green-400"></div>
+												</label>
+											</div>
+
+											<!-- Botones Acción -->
+											<div class="flex items-center gap-2">
+												<a 
+													href="/ubicacion/{formatearNombreParaURL(fav.cubicacion?.nombre_ubicacion)}" 
+													class="p-2 text-white/20 hover:text-white transition-colors"
+													title="Ver destino"
+												>
+													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+												</a>
+												<button 
+													on:click={() => quitarFavorito(fav.id)}
+													class="p-2 text-white/20 hover:text-red-400 transition-colors"
+													title="Eliminar aviso"
+												>
+													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+												</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							{/each}
+						</div>
+					{:else}
+						<div class="h-[40vh] flex flex-col items-center justify-center text-center p-12 bg-white/[0.01] border border-dashed border-white/10 rounded-sm">
+							<div class="p-4 bg-white/5 rounded-full mb-6 text-white/20">
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+							</div>
+							<h3 class="text-lg font-extralight tracking-widest uppercase mb-2">Sin Favoritos</h3>
+							<p class="text-xs text-white/30 font-light tracking-wide mb-6">Aún no has guardado ningún destino en tus favoritos.</p>
+							<a href="/experiencias" class="px-8 py-3 bg-white/5 border border-white/10 text-white font-light tracking-widest uppercase text-[10px] hover:bg-white/10 transition-all">Explorar Destinos</a>
+						</div>
+					{/if}
+				</div>
+			<!-- {:else if activeTab === 'notificaciones'}
 				<div class="h-[60vh] flex flex-col items-center justify-center text-center p-12 bg-white/[0.01] border border-dashed border-white/10 rounded-sm" in:fade>
 					<div class="p-4 bg-white/5 rounded-full mb-6 text-white/20">
 						<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M12 2v20M2 12h20"></path>
+							<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0"></path>
 						</svg>
 					</div>
 					<h3 class="text-lg font-extralight tracking-widest uppercase mb-2">Próximamente</h3>
-					<p class="text-xs text-white/30 font-light tracking-wide max-w-xs">Estamos trabajando para habilitar esta sección muy pronto.</p>
-				</div>
+					<p class="text-xs text-white/30 font-light tracking-wide max-w-xs">Tus notificaciones de sistema aparecerán aquí.</p>
+				</div> -->
 			{/if}
 		</main>
 	</div>

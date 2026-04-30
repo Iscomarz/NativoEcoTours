@@ -11,12 +11,28 @@ export async function sendConfirmationEmail(reserva) {
 
     try {
         console.log('Reserva:', reserva);
+        
+        // Calcular días restantes
+        const fechaInicio = reserva.fecha_inicio ? new Date(reserva.fecha_inicio) : null;
+        const hoy = new Date();
+        let diasRestantes = null;
+        
+        if (fechaInicio) {
+            const diffTime = fechaInicio - hoy;
+            diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
         const { data, error } = await resend.emails.send({
-            from: 'Nativo Eco Tours <reservas@takeovermx.com>', // Cambiar a dominio verificado en Resend
+            from: 'Nativo Eco Tours <reservas@takeovermx.com>', 
             to: [reserva.correo_cliente],
             subject: '¡Reserva Confirmada! - ' + reserva.nombreExperiencia,
             html: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background-color: #050505; color: #ffffff; padding: 40px; border-radius: 16px;">
+                    <!-- Logo Header -->
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <img src="https://pnqbnspshbamsgpgejsx.supabase.co/storage/v1/object/public/logosNativo/logoNativo.png" alt="Nativo Eco Tours" style="width: 200px; height: auto;" />
+                    </div>
+
                     <h1 style="font-weight: 200; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 20px; text-align: center;">¡Bienvenido a la Aventura!</h1>
                     
                     <p style="color: #ffffff; font-size: 16px; line-height: 1.6; text-align: center; margin-bottom: 30px;">
@@ -24,7 +40,7 @@ export async function sendConfirmationEmail(reserva) {
                     </p>
 
                     <div style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 25px; border-radius: 12px; margin-bottom: 30px;">
-                        <h2 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.3em; color: rgba(255,255,255,0.4); margin-bottom: 15px;">Detalles de tu Reserva</h2>
+                        <h2 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.3em; color: rgba(255,255,255,0.4); margin-bottom: 15px;">Detalles de tu Viaje</h2>
                         
                         <div style="margin-bottom: 10px;">
                             <span style="color: rgba(255,255,255,0.4); font-size: 12px;">Experiencia:</span>
@@ -32,8 +48,9 @@ export async function sendConfirmationEmail(reserva) {
                         </div>
 
                         <div style="margin-bottom: 10px;">
-                            <span style="color: rgba(255,255,255,0.4); font-size: 12px;">Fecha:</span>
-                            <div style="font-size: 16px;">${new Date(reserva.fecha_reserva).toLocaleDateString('es-MX')}</div>
+                            <span style="color: rgba(255,255,255,0.4); font-size: 12px;">Fecha de Salida:</span>
+                            <div style="font-size: 16px;">${fechaInicio ? fechaInicio.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Próximamente'}</div>
+                            ${diasRestantes !== null && diasRestantes > 0 ? `<div style="font-size: 12px; color: #25D366; margin-top: 5px;">¡Faltan solo ${diasRestantes} días para partir!</div>` : ''}
                         </div>
 
                         <div style="margin-bottom: 0;">

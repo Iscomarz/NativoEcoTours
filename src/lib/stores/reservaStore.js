@@ -15,6 +15,7 @@ export const reservaStore = writable({
   grupo: null,
   totalPersonas: null,
   precioUnitario: null,
+  whatsappLink: null,
   habitaciones: [{ idhabitacion: null, cantidad: null }],
   // Campos para Stripe
   payment_intent_id: null,
@@ -23,7 +24,8 @@ export const reservaStore = writable({
   stripe_payment_method: null,
   fecha_pago: null,
   amount_mxn: null,
-  currency: 'mxn'
+  currency: 'mxn',
+  fecha_inicio: null
 });
 
 //Funciones para manipular el store

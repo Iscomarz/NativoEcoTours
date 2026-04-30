@@ -3,17 +3,59 @@
 	import { goto } from '$app/navigation';
 	import { fade } from 'svelte/transition';
 	import GaleriaMasonry from '$lib/components/GaleriaMasonry.svelte';
-    import logoNativo from '$lib/assets/logos/logoNativo.png';
+	import logoNativo from '$lib/assets/logos/logoNativo.png';
+	import AuthInvitationModal from '$lib/components/modals/AuthInvitationModal.svelte';
+	import { toast } from 'svelte-sonner';
+	import { supabase } from '$lib/core/supabase/client';
 
 	let ubicacion = {};
 	let detalle = {};
 	let ubicaciones = [];
 	export let data;
 
+	let isModalOpen = false;
+	let loadingAviso = false;
+
 	$: ubicacion = data.ubicacion;
 	$: detalle = data.detalle;
 	$: ubicaciones = data.ubicaciones || [];
 
+	async function manejarAviso() {
+		if (!data.session) {
+			isModalOpen = true;
+			return;
+		}
+
+		loadingAviso = true;
+		try {
+			const { error } = await supabase
+				.from('rfavoritoubicacion')
+				.insert({
+					usuario_id: data.session.user.id,
+					ubicacion_id: ubicacion.id_ubicacion
+				});
+
+			if (error) {
+				// 23505 es el código de Postgres, 409 es el estado HTTP de conflicto
+				if (error.code === '23505' || error.status === 409) {
+					toast.info('Ya te tenemos registrado para este destino. ¡Te avisaremos pronto!');
+				} else {
+					throw error;
+				}
+			} else {
+				toast.success('¡Perfecto! Te avisaremos en cuanto haya nuevas aventuras aquí.');
+			}
+		} catch (e) {
+			console.error(e);
+			toast.error('Hubo un problema al registrar tu aviso.');
+		} finally {
+			loadingAviso = false;
+		}
+	}
+
+	$: ubicacion = data.ubicacion;
+	$: detalle = data.detalle;
+	$: ubicaciones = data.ubicaciones || [];
 	// Calcular destino anterior y siguiente
 	function formatearNombreParaURL(nombre) {
 		return nombre
@@ -166,9 +208,11 @@
             <div class="w-full flex items-center justify-center mb-12 gap-2.5">
                 <!-- Botón de disponibilidad -->
                  <button
-					class="inline-flex items-center justify-center gap-3 bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 text-white font-extralight tracking-[0.3em] py-3 px-8 transition-all duration-300 uppercase text-xs"
+					class="inline-flex items-center justify-center gap-3 bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 text-white font-extralight tracking-[0.3em] py-3 px-8 transition-all duration-300 uppercase text-xs disabled:opacity-50"
+					on:click={manejarAviso}
+					disabled={loadingAviso}
 				>
-					AVÍSAME CUANDO ESTÉ DISPONIBLE
+					{loadingAviso ? 'Registrando...' : 'AVÍSAME CUANDO ESTÉ DISPONIBLE'}
 				</button>
 
                 <!-- Botón de disponibilidad -->
@@ -202,6 +246,11 @@
 		</div>
 	</div>
 </div>
+
+<AuthInvitationModal 
+	isOpen={isModalOpen} 
+	on:close={() => isModalOpen = false} 
+/>
 
 <!-- Flechas de navegación entre destinos (fixed, centradas verticalmente) -->
 {#if destAnterior}

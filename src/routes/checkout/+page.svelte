@@ -252,7 +252,8 @@
                             cantidad_grupo: $reservaStore.cantidad_grupo,
                             grupo: $reservaStore.grupo,
                             id: reservaId,
-                            whatsappLink: $reservaStore.whatsappLink
+                            whatsappLink: $reservaStore.whatsappLink,
+                            fecha_inicio: $reservaStore.fecha_inicio
                         } 
                     })
                 }).catch(err => console.error('Error enviando correo:', err));

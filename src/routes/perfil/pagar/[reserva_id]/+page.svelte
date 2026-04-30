@@ -104,7 +104,8 @@
                             id: reserva.id,
                             whatsappLink: Array.isArray(reserva.cexperiencia?.dexperiencia) 
                                 ? reserva.cexperiencia.dexperiencia[0]?.grupo_whatsapp 
-                                : reserva.cexperiencia?.dexperiencia?.grupo_whatsapp || ''
+                                : reserva.cexperiencia?.dexperiencia?.grupo_whatsapp || '',
+                            fecha_inicio: reserva.cexperiencia?.fecha_inicio
                         } 
                     })
                 }).catch(err => console.error('Error enviando correo:', err));

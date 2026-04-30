@@ -85,6 +85,7 @@
 				{experiencia_id}
 				nombreExperiencia={experiencia.titulo}
 				whatsappLink={detalleExperiencia.grupo_whatsapp}
+				fecha_inicio={experiencia.fecha_inicio}
 			/>
 		</div>
 

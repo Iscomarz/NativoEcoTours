@@ -13,14 +13,20 @@ export const load = async ({ locals: { user, supabase } }) => {
 	
 	const { data: reservas } = await supabase
 		.from('mreserva')
-		.select('*, dplazo(*), cexperiencia(titulo, dexperiencia(grupo_whatsapp))')
+		.select('*, dplazo(*), cexperiencia(titulo, fecha_inicio, fecha_fin, dexperiencia(grupo_whatsapp)), rhabitacionreserva(dhabitacion(chabitacion(nombre)))')
 		.eq('usuario_id', user.id)
 		.order('fecha_reserva', { ascending: false });
+
+	const { data: favoritos } = await supabase
+		.from('rfavoritoubicacion')
+		.select('*, cubicacion(*)')
+		.eq('usuario_id', user.id);
 	
 	return {
 		user,
 		user_profile: profile,
-		reservas: reservas || []
+		reservas: reservas || [],
+		favoritos: favoritos || []
 	};
 };
 

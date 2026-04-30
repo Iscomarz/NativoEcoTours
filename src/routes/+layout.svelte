@@ -4,10 +4,13 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import GoogleOneTap from '$lib/components/auth/GoogleOneTap.svelte';
 	import { page } from '$app/stores';
+	import { Toaster } from 'svelte-sonner';
 
 	export let data;
 
 </script>
+
+<Toaster theme="dark" expand={true} richColors  />
 
 <GoogleOneTap session={data.session} />
 

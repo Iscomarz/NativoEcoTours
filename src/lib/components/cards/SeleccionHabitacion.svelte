@@ -12,6 +12,8 @@
 	export let sesionActiva = false; // si hay sesión activa, no pedir datos
 	export let experiencia_id;
 	export let nombreExperiencia;
+	export let whatsappLink = '';
+	export let fecha_inicio = null;
 
 	$: formulario = formulario ?? {};
 
@@ -262,6 +264,8 @@
 				experiencia_id: experiencia_id ?? null,
 				fecha_reserva: new Date(),
 				nombreExperiencia: nombreExperiencia ?? '',
+				whatsappLink: whatsappLink ?? '',
+				fecha_inicio: fecha_inicio ?? null,
 
 				//datos grupo y pago
 				grupo: seleccion === 'grupo' ? 1 : 0,
