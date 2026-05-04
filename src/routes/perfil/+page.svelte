@@ -64,6 +64,27 @@
 	let confirmPassword = '';
 	let loadingPassword = false;
 	let infoSubTab = 'profile'; // 'profile' o 'security'
+	let showPassword = false;
+
+	$: hasUppercase = /[A-Z]/.test(newPassword);
+	$: hasNumber = /[0-9]/.test(newPassword);
+	$: hasSpecial = /[^A-Za-z0-9]/.test(newPassword);
+	$: isLengthValid = newPassword.length >= 6;
+	
+	$: passwordStrength = (() => {
+		if (!newPassword) return 0;
+		let score = 0;
+		if (isLengthValid) score += 25;
+		if (hasUppercase) score += 25;
+		if (hasNumber) score += 25;
+		if (hasSpecial) score += 25;
+		return score;
+	})();
+
+	$: strengthColor = passwordStrength === 0 ? 'bg-white/10' :
+					   passwordStrength <= 25 ? 'bg-red-500' :
+					   passwordStrength <= 50 ? 'bg-orange-500' :
+					   passwordStrength <= 75 ? 'bg-yellow-500' : 'bg-green-500';
 
 	async function cambiarPassword() {
 		if (newPassword !== confirmPassword) {
@@ -71,8 +92,8 @@
 			return;
 		}
 
-		if (newPassword.length < 6) {
-			toast.error('La contraseña debe tener al menos 6 caracteres');
+		if (!isLengthValid || !hasUppercase || !hasNumber) {
+			toast.error('La contraseña no cumple con los requisitos mínimos');
 			return;
 		}
 
@@ -315,21 +336,62 @@
 								<div class="grid grid-cols-1 gap-6">
 									<div class="space-y-3">
 										<label class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">Nueva Contraseña</label>
-										<input 
-											type="password" 
-											bind:value={newPassword}
-											placeholder="Mínimo 6 caracteres"
-											class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors text-white"
-										/>
+										<div class="relative">
+											<input 
+												type={showPassword ? "text" : "password"} 
+												bind:value={newPassword}
+												placeholder="Mínimo 6 caracteres"
+												class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 pr-12 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors text-white"
+											/>
+											<button 
+												type="button"
+												on:click={() => showPassword = !showPassword}
+												class="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+											>
+												{#if showPassword}
+													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+												{:else}
+													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+												{/if}
+											</button>
+										</div>
+										<!-- Medidor de fuerza y requisitos -->
+										{#if newPassword.length > 0}
+											<div class="space-y-4 mt-4" in:fade>
+												<div class="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+													<div class="h-full {strengthColor} transition-all duration-300" style="width: {passwordStrength}%"></div>
+												</div>
+												<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+													<div class="flex items-center gap-2 text-[9px] uppercase tracking-widest {isLengthValid ? 'text-green-400' : 'text-white/30'} transition-colors">
+														<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+														<span>Mínimo 6 caracteres</span>
+													</div>
+													<div class="flex items-center gap-2 text-[9px] uppercase tracking-widest {hasUppercase ? 'text-green-400' : 'text-white/30'} transition-colors">
+														<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+														<span>1 Mayúscula</span>
+													</div>
+													<div class="flex items-center gap-2 text-[9px] uppercase tracking-widest {hasNumber ? 'text-green-400' : 'text-white/30'} transition-colors">
+														<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+														<span>1 Número</span>
+													</div>
+													<div class="flex items-center gap-2 text-[9px] uppercase tracking-widest {hasSpecial ? 'text-green-400' : 'text-white/30'} transition-colors">
+														<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+														<span>1 Carácter Especial (opcional)</span>
+													</div>
+												</div>
+											</div>
+										{/if}
 									</div>
 									<div class="space-y-3">
 										<label class="block text-[10px] text-white/40 font-medium tracking-[0.4em] uppercase">Confirmar Nueva Contraseña</label>
-										<input 
-											type="password" 
-											bind:value={confirmPassword}
-											placeholder="Repite la contraseña"
-											class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors text-white"
-										/>
+										<div class="relative">
+											<input 
+												type={showPassword ? "text" : "password"} 
+												bind:value={confirmPassword}
+												placeholder="Repite la contraseña"
+												class="w-full bg-white/[0.03] border border-white/10 px-4 py-4 pr-12 text-sm font-light tracking-wide focus:border-green-400/50 focus:outline-none transition-colors text-white"
+											/>
+										</div>
 									</div>
 								</div>
 								

@@ -73,10 +73,7 @@
 
 	<!-- Contenido -->
 	<div class="relative z-10">
-		<ExperienciasBusqueda {experiencias} />
-		<ToursDestacados {ubicaciones} />
-		
-		<!-- Sección: Por qué nuestras experiencias son únicas -->
+	<!-- Sección: Por qué nuestras experiencias son únicas -->
 		<section class="py-12">
 			<div class="max-w-7xl mx-auto px-6">
 				<h2 class="text-center text-white font-extralight text-xs tracking-[0.4em] uppercase mb-8">POR QUE NUESTRAS EXPERIENCIAS SON UNICAS</h2>
@@ -108,5 +105,10 @@
 				</div>
 			</div>
 		</section>
+		<!-- <ExperienciasBusqueda {experiencias} /> -->
+		<div class="pt-20 pb-12">
+            <p class="text-white/40 text-xs tracking-[0.4em] uppercase text-center mb-10">Descubre nuestros destinos</p>
+            <ToursDestacados {ubicaciones} />
+        </div>
 	</div>
 </div>
