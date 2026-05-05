@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
-import { RESEND_API_KEY, PUBLIC_WHATSAPP_GROUP_LINK } from '$env/static/private';
+import { RESEND_API_KEY } from '$env/static/private';
+import { PUBLIC_WHATSAPP_GROUP_LINK } from '$env/static/public';
 
 const resend = new Resend(RESEND_API_KEY);
 
