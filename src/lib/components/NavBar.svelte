@@ -221,32 +221,61 @@
 		{/if}
 	</div>
 
-	<!-- Botón de menú hamburguesa (Móvil siempre, solo si NO hay sesión) -->
-	{#if !session}
-		<button
-			class="relative flex h-8 w-8 flex-col items-center justify-center md:hidden"
-			on:click={toggleMenu}
-			aria-label="Abrir menú"
-		>
-			<span
-				class="block h-0.5 w-6 transition-all duration-300 ease-in-out"
-				class:bg-black={$page.url.pathname === '/'}
-				class:bg-white={$page.url.pathname !== '/'}
-				class:transform={menuAbierto}
-				class:rotate-45={menuAbierto}
-				class:translate-y-[0.3rem]={menuAbierto}
-			></span>
+	<!-- Controles móviles (Visible solo en md:hidden) -->
+	<div class="flex items-center gap-4 md:hidden">
+		{#if session}
+			<!-- Perfil de usuario (Reemplaza el menú de hamburguesa) -->
+			<button class="flex items-center gap-3 group text-left" on:click={toggleMenu}>
+				<div class="flex flex-col items-end">
+					<span 
+						class="text-[11px] font-medium tracking-widest uppercase transition-colors group-hover:text-green-400"
+						class:text-white={$page.url.pathname !== '/'}
+						style={$page.url.pathname === '/' ? `color: ${textColor}` : ''}
+					>
+						{user_profile?.nombre || 'Explorador'} {user_profile?.apellido || ''}
+					</span>
+					<span class="text-[9px] text-white/30 font-light tracking-wide group-hover:text-white/50">{user_profile?.estado || 'Rumbo a la aventura'}</span>
+				</div>
+				<div class="relative">
+					<div class="w-10 h-10 rounded-full border border-white/10 overflow-hidden bg-white/5 transition-transform group-hover:scale-105 group-hover:border-green-400/30">
+						{#if user_profile?.image_perfil}
+							<img src={user_profile.image_perfil} alt="Perfil" class="w-full h-full object-cover" />
+						{:else}
+							<div class="w-full h-full flex items-center justify-center text-white/20">
+								<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+							</div>
+						{/if}
+					</div>
+					<div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-black"></div>
+				</div>
+			</button>
+		{:else}
+			<!-- Menú de hamburguesa normal para visitantes -->
+			<button
+				class="relative flex h-8 w-8 flex-col items-center justify-center"
+				on:click={toggleMenu}
+				aria-label="Abrir menú"
+			>
+				<span
+					class="block h-0.5 w-6 transition-all duration-300 ease-in-out"
+					class:bg-black={$page.url.pathname === '/'}
+					class:bg-white={$page.url.pathname !== '/'}
+					class:transform={menuAbierto}
+					class:rotate-45={menuAbierto}
+					class:translate-y-[0.3rem]={menuAbierto}
+				></span>
 
-			<span
-				class="mt-2 block h-0.5 w-6 transition-all duration-300 ease-in-out"
-				class:bg-black={$page.url.pathname === '/'}
-				class:bg-white={$page.url.pathname !== '/'}
-				class:transform={menuAbierto}
-				class:-rotate-45={menuAbierto}
-				class:-translate-y-[0.3rem]={menuAbierto}
-			></span>
-		</button>
-	{/if}
+				<span
+					class="mt-2 block h-0.5 w-6 transition-all duration-300 ease-in-out"
+					class:bg-black={$page.url.pathname === '/'}
+					class:bg-white={$page.url.pathname !== '/'}
+					class:transform={menuAbierto}
+					class:-rotate-45={menuAbierto}
+					class:-translate-y-[0.3rem]={menuAbierto}
+				></span>
+			</button>
+		{/if}
+	</div>
 
 </nav>
 

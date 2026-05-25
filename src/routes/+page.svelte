@@ -53,14 +53,14 @@
 
 <!-- Contenido principal -->
 <div class="relative bg-black">
-    <!-- Background image con overlay -->
-    <div 
+    <!-- Background image con overlay (Comentado para ver fondo negro total) -->
+    <!-- <div 
         class="absolute inset-0 z-0 opacity-30"
         style="background-image: url({TarcilaBackground}); background-size: cover; background-position: center; background-attachment: fixed;"
-    ></div>
+    ></div> -->
     
-    <!-- Overlay degradado -->
-    <div class="absolute inset-0 z-0 bg-gradient-to-b from-black via-transparent to-black"></div>
+    <!-- Overlay degradado (Comentado para ver fondo negro total) -->
+    <!-- <div class="absolute inset-0 z-0 bg-gradient-to-b from-black via-transparent to-black"></div> -->
     
     <!-- Contenido -->
     <div class="relative z-10">

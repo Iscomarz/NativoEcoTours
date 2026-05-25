@@ -63,13 +63,8 @@
 	</section>
 {/if}
 
-<!-- Contenido inferior con background tarcila -->
-<div
-	class="relative"
-	style="background-image: url({TarcilaBackground}); background-size: cover; background-position: center; background-attachment: fixed;"
->
-	<!-- Degradado desde negro arriba para continuidad -->
-	<div class="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black to-transparent z-10 pointer-events-none"></div>
+<!-- Contenido inferior con fondo negro -->
+<div class="relative bg-black">
 
 	<!-- Contenido -->
 	<div class="relative z-10">
