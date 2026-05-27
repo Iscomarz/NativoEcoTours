@@ -21,11 +21,12 @@ export const actions = {
 			return fail(400, { error: 'Todos los campos son obligatorios.' });
 		}
 
+		const origin = new URL(request.url).origin;
 		const { error } = await supabase.auth.signUp({
 			email: correo,
 			password,
 			options: {
-				emailRedirectTo: 'http://localhost:5173/auth/callback',
+				emailRedirectTo: `${origin}/auth/callback`,
 				data: {
 					nombre,
 					apellido,

@@ -17,6 +17,13 @@
 	let paymentError = null;
 	let paymentSuccess = false;
 	
+	// Resetear el clientSecret si cambia el monto para evitar cobros incorrectos si el usuario edita la cantidad
+	$: {
+		if (amount) {
+			clientSecret = null;
+		}
+	}
+	
 	// Referencias a elementos del DOM
 	let cardElementContainer;
 	let paymentForm;

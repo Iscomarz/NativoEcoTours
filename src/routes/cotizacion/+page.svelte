@@ -16,6 +16,7 @@
 		edadesMenores: [],
 		vehiculoRenta: null,
 		destinos: '',
+		otroDestino: '',
 		fechaLlegada: '',
 		fechaSalida: '',
 		hospedaje: '',
@@ -66,6 +67,10 @@
 				toast.error('Por favor selecciona un destino de interés.');
 				return;
 			}
+			if (formData.destinos === 'Otro' && !formData.otroDestino?.trim()) {
+				toast.error('Por favor especifica tu destino de interés.');
+				return;
+			}
 		}
 		if (currentStep < totalSteps) currentStep++;
 	}
@@ -82,6 +87,7 @@
 			edadesMenores: [],
 			vehiculoRenta: null,
 			destinos: '',
+			otroDestino: '',
 			fechaLlegada: '',
 			fechaSalida: '',
 			hospedaje: '',
@@ -130,7 +136,7 @@ ${formData.vehiculoRenta !== null ? `• Vehículo de renta: ${formData.vehiculo
 ━━━━━━━━━━━━━━━━━━━━━
 📍 *DESTINO Y FECHAS*
 ━━━━━━━━━━━━━━━━━━━━━
-• Destino: ${formData.destinos || 'No especificado'}
+• Destino: ${formData.destinos === 'Otro' ? formData.otroDestino : (formData.destinos || 'No especificado')}
 • Salida: ${formData.fechaSalida || 'Por definir'}
 • Regreso: ${formData.fechaLlegada || 'Por definir'}
 
@@ -165,6 +171,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 
 	$: showVehiculoRenta = (formData.adultos + (formData.llevaMenores ? parseInt(formData.cantidadMenores) || 0 : 0)) < 7;
 	$: totalPersonas = formData.adultos + (formData.llevaMenores ? parseInt(formData.cantidadMenores) || 0 : 0);
+	$: if (formData.destinos !== 'Otro') { formData.otroDestino = ''; }
 
 	const stepLabels = ['Grupo', 'Destino', 'Preferencias', 'Contacto'];
 </script>
@@ -172,7 +179,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 <svelte:window bind:scrollY />
 <Toaster />
 
-<div class="relative min-h-screen bg-black mt-20">
+<div class="relative min-h-screen bg-black mt-16 md:mt-20">
 
 	<!-- Hero minimalista -->
 	<section class="relative overflow-hidden" style="height: 320px;">
@@ -363,8 +370,22 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 								{#each ubicaciones as ubicacion}
 									<option value={ubicacion.nombre_ubicacion} class="bg-black">{ubicacion.nombre_ubicacion}</option>
 								{/each}
+								<option value="Otro" class="bg-black">Otro</option>
 							</select>
 						</div>
+
+						{#if formData.destinos === 'Otro'}
+							<div class="space-y-3">
+								<label class="block text-xs text-white/60 font-medium tracking-[0.3em] uppercase">Especifica tu destino *</label>
+								<input
+									type="text"
+									maxlength="50"
+									bind:value={formData.otroDestino}
+									placeholder="Escribe tu destino de interés (máx. 50 caracteres)"
+									class="w-full bg-transparent border border-white/10 px-4 py-3 text-white/80 font-light text-sm placeholder-white/40 focus:border-white/40 focus:outline-none transition-colors"
+								/>
+							</div>
+						{/if}
 
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 							<div class="space-y-3">
@@ -530,7 +551,7 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 								</div>
 								<div class="flex justify-between col-span-2 sm:col-span-1">
 									<span class="text-xs text-white/50 font-light">Destino</span>
-									<span class="text-xs text-white/80 font-medium">{formData.destinos || '—'}</span>
+									<span class="text-xs text-white/80 font-medium">{formData.destinos === 'Otro' ? (formData.otroDestino || 'Otro') : (formData.destinos || '—')}</span>
 								</div>
 								<div class="flex justify-between col-span-2 sm:col-span-1">
 									<span class="text-xs text-white/50 font-light">Hospedaje</span>
@@ -546,54 +567,87 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 				{/if}
 
 				<!-- Botones de navegación -->
-				<div class="flex justify-between items-center mt-12 pt-8 border-t border-white/10">
-					{#if currentStep > 1}
-						<button
-							type="button"
-							on:click={prevStep}
-							class="flex items-center gap-2 px-5 py-3 border border-white/20 bg-white/[0.02] hover:bg-white/5 text-white/60 hover:text-white/80 text-xs font-light tracking-[0.3em] uppercase transition-all"
-						>
-							<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"></path>
-							</svg>
-							Anterior
-						</button>
-					{:else}
-						<div></div>
-					{/if}
-
+				<div class="mt-12 pt-8 border-t border-white/10">
 					{#if currentStep < totalSteps}
-						<button
-							type="button"
-							on:click={nextStep}
-							class="flex items-center gap-2 px-6 py-3 border border-white/30 bg-white/10 hover:bg-white/15 text-white/80 hover:text-white/100 text-xs font-medium tracking-[0.3em] uppercase transition-all"
-						>
-							Siguiente
-							<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"></path>
-							</svg>
-						</button>
-					{:else}
-						<div class="flex items-center gap-4">
+						<div class="flex justify-between items-center">
+							{#if currentStep > 1}
+								<button
+									type="button"
+									on:click={prevStep}
+									class="flex items-center gap-2 px-5 py-3 border border-white/20 bg-white/[0.02] hover:bg-white/5 text-white/60 hover:text-white/80 text-xs font-light tracking-[0.3em] uppercase transition-all"
+								>
+									<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"></path>
+									</svg>
+									Anterior
+								</button>
+							{:else}
+								<div></div>
+							{/if}
+
 							<button
 								type="button"
-								on:click={() => { cleanForm(); goToStep(1); }}
-								class="flex items-center gap-2 px-5 py-3 border border-white/10 bg-transparent hover:bg-white/5 text-white/50 hover:text-white/70 text-xs font-light tracking-[0.3em] uppercase transition-all"
+								on:click={nextStep}
+								class="flex items-center gap-2 px-6 py-3 border border-white/30 bg-white/10 hover:bg-white/15 text-white/80 hover:text-white/100 text-xs font-medium tracking-[0.3em] uppercase transition-all"
 							>
+								Siguiente
 								<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"></path>
 								</svg>
-								Reiniciar
 							</button>
+						</div>
+					{:else}
+						<div class="flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
+							<!-- En móvil: Solicitar cotización arriba y ancho completo. En escritorio: a la derecha con Reiniciar -->
+							<div class="order-1 md:order-2 flex flex-col gap-3 md:flex-row md:items-center md:gap-4 w-full md:w-auto">
+								<button
+									type="button"
+									on:click={submitForm}
+									class="w-full md:w-auto flex items-center justify-center gap-2 px-8 py-4 md:py-3 border border-white/40 bg-white/15 hover:bg-white/20 text-white/90 hover:text-white/100 text-xs font-medium tracking-[0.3em] uppercase transition-all order-1 md:order-2"
+								>
+									<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+									</svg>
+									Solicitar cotización
+								</button>
+
+								<div class="flex gap-3 w-full md:w-auto order-2 md:order-1 justify-between md:justify-start">
+									<!-- Anterior (solo móvil, se alinea con Reiniciar) -->
+									<button
+										type="button"
+										on:click={prevStep}
+										class="flex-1 md:hidden flex items-center justify-center gap-2 px-5 py-3 border border-white/20 bg-white/[0.02] hover:bg-white/5 text-white/60 hover:text-white/80 text-xs font-light tracking-[0.3em] uppercase transition-all"
+									>
+										<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"></path>
+										</svg>
+										Anterior
+									</button>
+
+									<!-- Reiniciar -->
+									<button
+										type="button"
+										on:click={() => { cleanForm(); goToStep(1); }}
+										class="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-3 border border-white/10 bg-transparent hover:bg-white/5 text-white/50 hover:text-white/70 text-xs font-light tracking-[0.3em] uppercase transition-all"
+									>
+										<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+										</svg>
+										Reiniciar
+									</button>
+								</div>
+							</div>
+
+							<!-- Anterior (solo escritorio, va a la izquierda externa) -->
 							<button
 								type="button"
-								on:click={submitForm}
-								class="flex items-center gap-2 px-8 py-3 border border-white/40 bg-white/15 hover:bg-white/20 text-white/90 hover:text-white/100 text-xs font-medium tracking-[0.3em] uppercase transition-all"
+								on:click={prevStep}
+								class="hidden md:flex items-center gap-2 px-5 py-3 border border-white/20 bg-white/[0.02] hover:bg-white/5 text-white/60 hover:text-white/80 text-xs font-light tracking-[0.3em] uppercase transition-all order-1"
 							>
 								<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"></path>
 								</svg>
-								Solicitar cotización
+								Anterior
 							</button>
 						</div>
 					{/if}

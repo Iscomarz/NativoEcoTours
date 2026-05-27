@@ -134,6 +134,12 @@
         try {
             const isPlazos = formaPago === 'plazos';
             const checkoutSessionId = $reservaStore?.checkout_session_id;
+            const expectedAmount = isPlazos ? ($reservaStore.total * 0.20) : $reservaStore.total;
+            const montoPagado = paymentIntent.amount / 100;
+
+            if (Math.abs(montoPagado - expectedAmount) > 0.01) {
+                throw new Error(`El monto cobrado por Stripe (${montoPagado} MXN) no coincide con el monto esperado de la reserva (${expectedAmount} MXN).`);
+            }
 
             // 1. Crear un objeto MReserva con los datos necesarios
             const nuevaReserva = new MReserva({

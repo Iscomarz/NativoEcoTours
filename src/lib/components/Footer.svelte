@@ -6,6 +6,51 @@
 	import VinayakBackground from '$lib/assets/backgrounds/vinayak-jayaram.jpg';
 	import TarcilaBackground from '$lib/assets/backgrounds/tarcila.jpg';
 	import { page } from '$app/stores';
+	import { supabase } from '$lib/core/supabase/client';
+	import { toast } from 'svelte-sonner';
+
+	let email = '';
+	let cargando = false;
+
+	async function suscribirse(event) {
+		event.preventDefault();
+
+		if (!email || !email.trim()) {
+			toast.error('Por favor ingresa un correo electrónico.');
+			return;
+		}
+
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(email.trim())) {
+			toast.error('Por favor ingresa un correo electrónico válido.');
+			return;
+		}
+
+		cargando = true;
+
+		try {
+			const { error } = await supabase
+				.from('newsletter_subscriptions')
+				.insert([{ email: email.trim().toLowerCase(), activo: true }]);
+
+			if (error) {
+				if (error.code === '23505') {
+					toast.info('Este correo ya se encuentra registrado en nuestro boletín.');
+				} else {
+					toast.error('Hubo un error al suscribirte. Inténtalo de nuevo.');
+					console.error(error);
+				}
+			} else {
+				toast.success('¡Te has suscrito con éxito a nuestro boletín!');
+				email = '';
+			}
+		} catch (err) {
+			toast.error('Ocurrió un error inesperado.');
+			console.error(err);
+		} finally {
+			cargando = false;
+		}
+	}
 </script>
 
 <footer 
@@ -49,7 +94,7 @@
 		<div class="flex flex-col gap-2 text-left">
 			<a href="/experiencias" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Experiencias</a>
 			<a href="/about" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Nosotros</a>
-			<a href="/cotizaciones" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Cotizaciones</a>
+			<a href="/cotizacion" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Cotizaciones</a>
 			<a href="/faq" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">FAQ</a>
 		</div>
 		<div class="flex flex-col gap-2 text-left">
@@ -59,13 +104,21 @@
 		</div>
 		<div class="flex flex-col gap-2">
 			<span class="text-white/20 text-xs font-extralight tracking-widest mb-1">Recibir avisos para las próximas experiencias</span>
-			<form class="flex flex-col gap-2">
+			<form on:submit={suscribirse} class="flex flex-col gap-2">
 				<input
 					type="email"
 					placeholder="Correo electrónico"
-					class="bg-white/5 text-white border border-white/10 px-3 py-2 text-xs font-extralight placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-white/20 transition-all"
+					bind:value={email}
+					disabled={cargando}
+					class="bg-white/5 text-white border border-white/10 px-3 py-2 text-xs font-extralight placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-white/20 transition-all disabled:opacity-50"
 				/>
-				<button type="submit" class="bg-white/5 border border-white/20 hover:bg-white/10 px-3 py-2 text-white font-extralight text-xs tracking-[0.3em] uppercase transition-all duration-300">Subscribirse</button>
+				<button 
+					type="submit" 
+					disabled={cargando}
+					class="bg-white/5 border border-white/20 hover:bg-white/10 px-3 py-2 text-white font-extralight text-xs tracking-[0.3em] uppercase transition-all duration-300 disabled:opacity-50"
+				>
+					{cargando ? 'Subscribiendo...' : 'Subscribirse'}
+				</button>
 			</form>
 		</div>
 	</div>
