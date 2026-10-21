@@ -24,7 +24,7 @@ export async function sendConfirmationEmail(reserva) {
         }
 
         const { data, error } = await resend.emails.send({
-            from: 'Nativo Eco Tours <reservas@takeovermx.com>', 
+            from: 'Nativo Eco Tours <reservas@nativotravels.com>', 
             to: [reserva.correo_cliente],
             subject: '¡Reserva Confirmada! - ' + reserva.nombreExperiencia,
             html: `

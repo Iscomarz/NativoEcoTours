@@ -138,99 +138,53 @@
             const montoPagado = paymentIntent.amount / 100;
 
             if (Math.abs(montoPagado - expectedAmount) > 0.01) {
-                throw new Error(`El monto cobrado por Stripe (${montoPagado} MXN) no coincide con el monto esperado de la reserva (${expectedAmount} MXN).`);
+                throw new Error(`El monto cobrado por Stripe (${montoPagado} MXN) no coincide con el monto esperado (${expectedAmount} MXN).`);
             }
 
-            // 1. Crear un objeto MReserva con los datos necesarios
-            const nuevaReserva = new MReserva({
-                // Datos del usuario o cliente
-                usuario_id: sesionActiva ? session?.user?.id : null,
-                nombre_cliente: !sesionActiva ? datosPersonales.nombre : null,
-                correo_cliente: !sesionActiva ? datosPersonales.correo : null,
-                numero_cliente: !sesionActiva ? datosPersonales.telefono : null,
-                
-                // Datos de la experiencia
-                experiencia_id: $reservaStore.experiencia_id,
-                fecha_reserva: new Date($reservaStore.fecha_reserva || new Date()),
-                fecha_liquidacion: isPlazos ? null : new Date(), // Null si es a plazos
-                
-                // Datos financieros
-                total: $reservaStore.total,
-                metodo_pago_id: (formaPago === 'tarjeta' || formaPago === 'plazos') ? 1 : 2, // 1=Tarjeta/Stripe, 2=Transferencia
-                pago_a_plazos: isPlazos,
-                
-                // Datos de grupo
-                grupo: $reservaStore.grupo,
-                cantidad_grupo: $reservaStore.cantidad_grupo || 1,
-                precio_unitario: $reservaStore.precio_unitario
-            });
-            
-            // 2. Agregar las habitaciones al objeto MReserva (para lógica local)
-            if ($reservaStore.habitaciones && Array.isArray($reservaStore.habitaciones)) {
-                $reservaStore.habitaciones.forEach(hab => {
-                    nuevaReserva.agregarHabitacion(hab.habitacion_id, hab.cantidad);
-                });
-            }
-            
-            // 3. Guardar la reserva en Supabase
-            const resultado = await createReserva(nuevaReserva);
-            
-            // Obtener el ID de la reserva creada
-            const reservaId = resultado?.[0]?.id;
-            if (!reservaId) {
-                throw new Error('No se pudo obtener el ID de la reserva creada');
-            }
-            
-            // 4. Crear el registro de pago (por el monto pagado ahora)
-            const pagoData = {
-                reserva_id: reservaId,
-                fecha_pago: new Date().toISOString(),
-                monto_total: isPlazos ? ($reservaStore.total * 0.20) : $reservaStore.total,
-                completado: true,
-                payment_intent_id: paymentIntent.id,
-                payment_status: paymentIntent.status || 'succeeded'
-            };
-            
-            const resultadoPago = await createPago(pagoData);
+            let reservaId = $reservaStore?.id;
 
-            // 4.5 Si es a plazos, insertar el primer plazo en dplazo
-            if (isPlazos) {
-                await createPlazo({
-                    id_reserva: reservaId,
-                    numero_plazo: 1,
-                    monto: $reservaStore.total * 0.20,
-                    fecha_vencimiento: new Date().toISOString(), // Ya pagado hoy
-                    pagado: true,
-                    fecha_pago: new Date().toISOString()
+            // Fallback de contingencia: Si por alguna razón la pre-reserva no tenía ID
+            if (!reservaId || reservaId === 'temp') {
+                const nuevaReserva = new MReserva({
+                    usuario_id: sesionActiva ? session?.user?.id : null,
+                    nombre_cliente: !sesionActiva ? datosPersonales.nombre : null,
+                    correo_cliente: !sesionActiva ? datosPersonales.correo : null,
+                    numero_cliente: !sesionActiva ? datosPersonales.telefono : null,
+                    experiencia_id: $reservaStore.experiencia_id,
+                    fecha_reserva: new Date($reservaStore.fecha_reserva || new Date()),
+                    fecha_liquidacion: isPlazos ? null : new Date(),
+                    total: $reservaStore.total,
+                    metodo_pago_id: (formaPago === 'tarjeta' || formaPago === 'plazos') ? 1 : 2,
+                    pago_a_plazos: isPlazos,
+                    grupo: $reservaStore.grupo,
+                    cantidad_grupo: $reservaStore.cantidad_grupo || 1,
+                    precio_unitario: $reservaStore.precio_unitario
                 });
+
+                if ($reservaStore.habitaciones && Array.isArray($reservaStore.habitaciones)) {
+                    $reservaStore.habitaciones.forEach(hab => {
+                        nuevaReserva.agregarHabitacion(hab.habitacion_id, hab.cantidad);
+                    });
+                }
+
+                const resultado = await createReserva(nuevaReserva);
+                reservaId = resultado?.[0]?.id;
             }
-            
-            // 5. Crear los registros de habitaciones reservadas
-            if ($reservaStore.habitaciones && Array.isArray($reservaStore.habitaciones)) {
-                for (const habitacion of $reservaStore.habitaciones) {
-                    try {
-                        const habitacionReservaData = {
-                            idhabitacion: habitacion.habitacion_id,
-                            idmreserva: reservaId,
-                            totalclientes: habitacion.cantidad
-                        };
-                        
-                        const resultadoHabitacion = await createHabitacionReserva(habitacionReservaData);
-                    } catch (errorHabitacion) {
-                        console.error(`Error al guardar habitación ${habitacion.habitacion_id}:`, errorHabitacion);
-                    }
+
+            // Actualizar UI y estados de éxito
+            guardadoPago = true;
+            reservaFinalizada = true;
+
+            // Limpiar bloqueos temporales en cliente
+            if (checkoutSessionId) {
+                try {
+                    await eliminarBloqueosActivos(checkoutSessionId);
+                } catch (e) {
+                    console.warn('Error limpiando bloqueos cliente:', e);
                 }
             }
-            
-            // 6. Actualizar UI
-            guardadoPago = true;
 
-            // 6.5 Limpiar los bloqueos temporales ya que ahora es una reserva fija
-            if (checkoutSessionId) {
-                await eliminarBloqueosActivos(checkoutSessionId);
-            }
-            
-            // 7. Actualizar store con datos finales (incluyendo ID de la DB)
+            // Actualizar store con datos finales
             reservaStore.update(reserva => ({
                 ...reserva,
                 id: reservaId,
@@ -241,48 +195,10 @@
                 completado: true
             }));
 
-            // 8. Enviar correo de confirmación (Pago único o plazos completados)
-            const pagoCompletado = !isPlazos || (montoPagado >= $reservaStore.total);
-            reservaFinalizada = pagoCompletado; // Guardamos el estado para la UI
-            
-            if (pagoCompletado) {
-                fetch('/api/confirmacion', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        reserva: {
-                            nombre_cliente: datosPersonales.nombre,
-                            correo_cliente: datosPersonales.correo,
-                            nombreExperiencia: $reservaStore.nombreExperiencia,
-                            fecha_reserva: $reservaStore.fecha_reserva || new Date(),
-                            cantidad_grupo: $reservaStore.cantidad_grupo,
-                            grupo: $reservaStore.grupo,
-                            id: reservaId,
-                            whatsappLink: $reservaStore.whatsappLink,
-                            fecha_inicio: $reservaStore.fecha_inicio
-                        } 
-                    })
-                }).catch(err => console.error('Error enviando correo:', err));
-            }
-            
+            toast.success('¡Pago exitoso! Tu reserva ha sido confirmada.');
         } catch (error) {
-            console.error('Error en el proceso de guardado:', error);
-            
-            // Mostrar error específico según el tipo
-            let errorMessage = 'Error desconocido';
-            if (error.message.includes('reserva')) {
-                errorMessage = 'Error al guardar la reserva principal';
-            } else if (error.message.includes('pago')) {
-                errorMessage = 'Error al registrar el pago';
-            } else if (error.message.includes('habitacion')) {
-                errorMessage = 'Error al reservar las habitaciones';
-            } else if (error.message.includes('plazo')) {
-                errorMessage = 'Error al registrar el primer plazo';
-            } else {
-                errorMessage = error.message;
-            }
-            
-            toast.error(`${errorMessage}. El pago fue exitoso, pero contacta al soporte para verificar tu reserva.`);
+            console.error('Error al procesar confirmación:', error);
+            toast.error(error.message || 'Error al confirmar la reserva.');
             guardadoPago = true;
         }
     }
@@ -456,8 +372,26 @@
                                 <StripePayment 
                                     amount={formaPago === 'plazos' ? totalMXN * 0.20 : totalMXN}
                                     currency="mxn"
+                                    reservaData={{
+                                        id: $reservaStore?.id,
+                                        usuario_id: sesionActiva ? session?.user?.id : null,
+                                        nombre_cliente: datosPersonales.nombre || '',
+                                        correo_cliente: datosPersonales.correo || '',
+                                        numero_cliente: datosPersonales.telefono || '',
+                                        experiencia_id: $reservaStore?.experiencia_id,
+                                        fecha_reserva: $reservaStore?.fecha_reserva || new Date().toISOString(),
+                                        total: $reservaStore?.total,
+                                        pago_a_plazos: formaPago === 'plazos',
+                                        grupo: $reservaStore?.grupo,
+                                        cantidad_grupo: $reservaStore?.cantidad_grupo || 1,
+                                        precio_unitario: $reservaStore?.precio_unitario || 0,
+                                        habitaciones: $reservaStore?.habitaciones || [],
+                                        checkout_session_id: $reservaStore?.checkout_session_id
+                                    }}
+                                    onReservaCreated={(id) => {
+                                        reservaStore.update(r => ({ ...r, id }));
+                                    }}
                                     metadata={{
-                                        reserva_id: $reservaStore?.id || 'temp',
                                         cliente_nombre: datosPersonales.nombre || '',
                                         cliente_email: datosPersonales.correo || '',
                                         cliente_telefono: datosPersonales.telefono || '',

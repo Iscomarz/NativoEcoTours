@@ -6,6 +6,8 @@
 	export let amount = 0; // Cantidad en pesos mexicanos
 	export let currency = 'mxn';
 	export let metadata = {};
+	export let reservaData = null;
+	export let onReservaCreated = () => {};
 	export let onPaymentSuccess = () => {};
 	export let onPaymentError = () => {};
 	
@@ -70,7 +72,8 @@
 				body: JSON.stringify({
 					amount,
 					currency,
-					metadata
+					metadata,
+					reservaData
 				})
 			});
 			
@@ -78,6 +81,9 @@
 			
 			if (result.success) {
 				clientSecret = result.client_secret;
+				if (result.reserva_id && typeof onReservaCreated === 'function') {
+					onReservaCreated(result.reserva_id);
+				}
 				return result;
 			} else {
 				throw new Error(result.error);

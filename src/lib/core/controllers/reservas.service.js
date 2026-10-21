@@ -122,6 +122,7 @@ export const getReservasByGuest = async (nombre, correo) => {
     .eq("nombre_cliente", nombre)
     .eq("correo_cliente", correo)
     .eq("cexperiencia.activo", true) // Solo informamos de experiencias activas según lo solicitado
+    .in("estatus_id", [1, 6]) // Solo reservas confirmadas (1) o con anticipo pagado (6)
     .order('fecha_reserva', { ascending: false });
 
   if (error) {
