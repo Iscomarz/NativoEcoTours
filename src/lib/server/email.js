@@ -115,7 +115,7 @@ export async function sendWelcomeEmail({ email, nombre }) {
                     
                     <p style="color: rgba(255,255,255,0.85); font-size: 15px; font-weight: 300; line-height: 1.8; text-align: center; margin-bottom: 32px;">
                         Hola <strong style="font-weight: 400; color: #ffffff;">${displayName}</strong>, bienvenido a la comunidad Nativo.<br/>
-                        Tu cuenta ha sido activada con éxito. Ya puedes descubrir nuestras experiencias exclusivas en la Sierra Tarahumara y las Barrancas del Cobre.
+                        Tu cuenta ha sido activada con éxito. Ya puedes descubrir nuestras experiencias exclusivas en Chihuahua y la República Mexicana.
                     </p>
 
                     <!-- Beneficios -->
