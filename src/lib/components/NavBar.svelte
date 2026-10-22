@@ -57,13 +57,13 @@
 	{#if $page.url.pathname === '/' && scrollY < 50}
 		<div class="h-10 md:h-12 flex items-center">
 			<a href="/" class="flex items-center h-full">
-				<img src={LogoNativo} alt="Nativo Eco Tours" class="h-10 md:h-12 w-auto" />
+				<img src={LogoNativo} alt="Nativo Eco Tours" width="189" height="71" class="h-10 md:h-12 w-auto" />
 			</a>
 		</div>
 	{:else}
 		<div class="h-10 md:h-12 flex items-center">
 			<a href="/" class="flex items-center h-full">
-				<img src={LogoNativo} alt="Nativo Eco Tours" class="h-10 md:h-12 w-auto" style="filter: brightness(0) invert(1);" />
+				<img src={LogoNativo} alt="Nativo Eco Tours" width="189" height="71" class="h-10 md:h-12 w-auto" style="filter: brightness(0) invert(1);" />
 			</a>
 		</div>
 	{/if}

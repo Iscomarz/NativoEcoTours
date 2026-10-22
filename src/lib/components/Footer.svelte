@@ -73,17 +73,17 @@
 	<!-- Contenedor principal de todo el contenido del footer para mantenerlo por encima del fondo -->
 	<div class="relative z-10 w-full">
 		<div class="flex flex-col items-center">
-			<img src={LogoNativo} alt="Logo NativoEcoApp" class="mb-3 h-20" />
+			<img src={LogoNativo} alt="Logo NativoEcoApp" width="530" height="132" class="mb-3 h-20 w-auto" />
 			<p class="text-white/20 text-xs font-extralight tracking-[0.3em] uppercase mb-4">TODOS LOS DERECHOS RESERVADOS</p>
 			<div class="flex gap-8 mb-6">
 				<a href="https://www.instagram.com/nativo_xx/" target="_blank" rel="noopener noreferrer">
-					<img src={LogoInstagram} alt="Instagram" class="h-7 w-7 hover:scale-110 transition" />
+					<img src={LogoInstagram} alt="Instagram" width="28" height="28" class="h-7 w-7 hover:scale-110 transition" />
 				</a>
 				<a href="https://www.youtube.com/@nativoecotours4828" target="_blank" rel="noopener noreferrer">
-					<img src={LogoYoutube} alt="YouTube" class="h-7 w-7 hover:scale-110 transition" />
+					<img src={LogoYoutube} alt="YouTube" width="28" height="28" class="h-7 w-7 hover:scale-110 transition" />
 				</a>
-				<a href="https://www.facebook.com/p/Nativo-100071924532907/?locale=es_LAp" target="_blank" rel="noopener noreferrer">
-					<img src={LogoFacebook} alt="Facebook" class="h-7 w-7 hover:scale-110 transition" />
+				<a href="https://www.facebook.com/p/Nativo-100071924532907/?locale=es_LA" target="_blank" rel="noopener noreferrer">
+					<img src={LogoFacebook} alt="Facebook" width="28" height="28" class="h-7 w-7 hover:scale-110 transition" />
 				</a>
 			</div>
 		</div>
