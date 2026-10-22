@@ -25,3 +25,5 @@ vite.config.ts.timestamp-*
 .env
 
 supabase/.temp
+
+backup/
