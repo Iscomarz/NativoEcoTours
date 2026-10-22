@@ -86,10 +86,13 @@
             if (userAmount >= remainingAmount) {
                 await supabase
                     .from('mreserva')
-                    .update({ fecha_liquidacion: new Date().toISOString() })
+                    .update({ 
+                        fecha_liquidacion: new Date().toISOString(),
+                        estatus_id: 1 
+                    })
                     .eq('id', reserva.id);
 
-                // Enviar correo de confirmación final
+                // Enviar correo de confirmación final de liquidación
                 fetch('/api/confirmacion', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -102,6 +105,9 @@
                             cantidad_grupo: reserva.cantidad_grupo,
                             grupo: reserva.grupo,
                             id: reserva.id,
+                            total: reserva.total,
+                            is_liquidacion: true,
+                            is_plazos: true,
                             whatsappLink: Array.isArray(reserva.cexperiencia?.dexperiencia) 
                                 ? reserva.cexperiencia.dexperiencia[0]?.grupo_whatsapp 
                                 : reserva.cexperiencia?.dexperiencia?.grupo_whatsapp || '',

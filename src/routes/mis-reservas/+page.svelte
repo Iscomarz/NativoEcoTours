@@ -107,21 +107,44 @@
             <div class="space-y-6" in:fade>
                 {#if reservations.length > 0}
                     {#each reservations as res (res.id)}
+                        {@const pagado = res.dplazo?.filter(p => p.pagado).reduce((acc, p) => acc + Number(p.monto || 0), 0) || (res.fecha_liquidacion ? res.total : (res.mpago?.[0]?.monto_total || 0))}
+                        {@const faltante = Math.max(0, (res.total || 0) - pagado)}
+                        {@const isLiquidada = res.estatus_id === 1 || Boolean(res.fecha_liquidacion) || (faltante === 0 && pagado > 0)}
+                        {@const whatsappUrl = Array.isArray(res.cexperiencia?.dexperiencia) 
+                            ? res.cexperiencia.dexperiencia[0]?.grupo_whatsapp 
+                            : res.cexperiencia?.dexperiencia?.grupo_whatsapp || res.cexperiencia?.whatsapp_link || ''}
+
                         <div class="group bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-500 shadow-xl" in:slide>
                             <div class="p-6 md:p-8">
                                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                                     <div>
                                         <div class="flex items-center gap-3 mb-2">
-                                            <span class="bg-green-500/20 text-green-400 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border border-green-500/20">
-                                                Reserva Confirmada
-                                            </span>
+                                            {#if isLiquidada}
+                                                <span class="bg-green-500/20 text-green-400 text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-sm border border-green-500/20">
+                                                    Reserva Liquidada (Confirmada)
+                                                </span>
+                                            {:else}
+                                                <span class="bg-blue-500/20 text-blue-400 text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-sm border border-blue-500/20">
+                                                    A Plazos (Pendiente de Liquidar)
+                                                </span>
+                                            {/if}
                                             <span class="text-white/30 text-[10px] tracking-widest uppercase">ID: #{res.id.toString().slice(-6)}</span>
                                         </div>
                                         <h2 class="text-xl font-light tracking-wider">{res.cexperiencia.titulo}</h2>
                                     </div>
                                     <div class="text-right">
-                                        <p class="text-[10px] uppercase tracking-widest text-white/40 mb-1">Total Pagado</p>
-                                        <p class="text-xl font-light text-green-400 tracking-wider font-mono">{formatCurrency(res.total)}</p>
+                                        {#if isLiquidada}
+                                            <p class="text-[10px] uppercase tracking-widest text-white/40 mb-1">Total Pagado</p>
+                                            <p class="text-xl font-light text-green-400 tracking-wider font-mono">{formatCurrency(res.total)}</p>
+                                        {:else}
+                                            <p class="text-[10px] uppercase tracking-widest text-white/40 mb-1">Anticipo / Total</p>
+                                            <p class="text-lg font-light text-green-400 tracking-wider font-mono">
+                                                {formatCurrency(pagado)} <span class="text-xs text-white/30 font-sans">/ {formatCurrency(res.total)}</span>
+                                            </p>
+                                            <p class="text-[10px] uppercase tracking-widest text-amber-400/90 mt-0.5">
+                                                Resta: {formatCurrency(faltante)}
+                                            </p>
+                                        {/if}
                                     </div>
                                 </div>
 
@@ -140,16 +163,34 @@
                                     </div>
                                 </div>
 
-                                <div class="mt-6 flex flex-wrap gap-4 items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <p class="text-[10px] text-white/20 uppercase tracking-widest font-extralight">Presenta tu identificación al llegar</p>
+                                <div class="mt-6 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                    {#if isLiquidada}
+                                        {#if whatsappUrl}
+                                            <a 
+                                                href={whatsappUrl} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                class="px-4 py-2 bg-[#25D366]/10 border border-[#25D366]/30 text-[#25D366] text-[10px] uppercase tracking-widest hover:bg-[#25D366] hover:text-white transition-all flex items-center gap-2 rounded-sm"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-10.6 8.38 8.38 0 0 1 3.8.9L21 3z"></path></svg>
+                                                Unirse al Grupo de WhatsApp
+                                            </a>
+                                        {/if}
+                                    {:else}
+                                        <div class="flex items-center gap-2 text-white/50 text-[10px] uppercase tracking-widest bg-white/[0.02] border border-white/10 px-3.5 py-2 rounded-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400/90"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                            <span>El grupo de WhatsApp se habilitará al liquidar tu reserva</span>
+                                        </div>
+                                        {#if res.usuario_id}
+                                            <a href="/perfil" class="text-[10px] uppercase tracking-widest text-green-400 hover:text-green-300 transition-colors border-b border-green-500/30 pb-0.5">
+                                                Liquidar en Mi Perfil &rarr;
+                                            </a>
+                                        {/if}
+                                    {/if}
+
+                                    <div class="flex items-center gap-2 ml-auto text-[10px] text-white/30 uppercase tracking-widest font-extralight">
+                                        <span>Presenta tu identificación al llegar</span>
                                     </div>
-                                    <button class="text-[10px] uppercase tracking-widest text-white/40 hover:text-white transition-colors border-b border-transparent hover:border-white/20 pb-0.5">
-                                        Ayuda con mi reserva
-                                    </button>
                                 </div>
                             </div>
                         </div>

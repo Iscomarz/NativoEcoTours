@@ -41,10 +41,10 @@ export async function POST({ request }) {
 					break;
 				}
 
-				// 1. Obtener la reserva actual
+				// 1. Obtener la reserva actual con datos completos
 				const { data: reserva, error: errFetch } = await supabaseAdmin
 					.from('mreserva')
-					.select('*, cexperiencia(*)')
+					.select('*, cexperiencia(*, dexperiencia(*)), dplazo(*)')
 					.eq('id', Number(reservaId))
 					.single();
 
@@ -53,8 +53,106 @@ export async function POST({ request }) {
 					break;
 				}
 
-				// 2. Idempotencia: Si ya está completada (1) o con enganche pagado (6), omitir
+				const dexper = Array.isArray(reserva.cexperiencia?.dexperiencia) 
+					? reserva.cexperiencia.dexperiencia[0] 
+					: reserva.cexperiencia?.dexperiencia;
+				const whatsappLink = dexper?.grupo_whatsapp || reserva.cexperiencia?.whatsapp_link || '';
+
+				const tipoPago = paymentIntent.metadata?.tipo_pago;
+				const isSubsequentPlazo = tipoPago === 'plazo';
 				const isPlazos = paymentIntent.metadata?.is_plazos === 'true' || Boolean(reserva.pago_a_plazos);
+
+				// Caso A: Pago de un plazo posterior desde /perfil/pagar
+				if (isSubsequentPlazo) {
+					// 1. Registrar en mpago
+					const { data: existingPago } = await supabaseAdmin
+						.from('mpago')
+						.select('id')
+						.eq('payment_intent_id', paymentIntent.id)
+						.maybeSingle();
+
+					if (!existingPago) {
+						await supabaseAdmin
+							.from('mpago')
+							.insert([{
+								reserva_id: Number(reservaId),
+								fecha_pago: new Date().toISOString(),
+								monto_total: paymentIntent.amount / 100,
+								completado: true,
+								payment_intent_id: paymentIntent.id,
+								payment_status: paymentIntent.status || 'succeeded'
+							}]);
+					}
+
+					// 2. Registrar en dplazo si no existe
+					const numPlazo = Number(paymentIntent.metadata?.numero_plazo) || ((reserva.dplazo?.length || 0) + 1);
+					const { data: existingPlazo } = await supabaseAdmin
+						.from('dplazo')
+						.select('id')
+						.eq('id_reserva', Number(reservaId))
+						.eq('numero_plazo', numPlazo)
+						.maybeSingle();
+
+					if (!existingPlazo) {
+						await supabaseAdmin
+							.from('dplazo')
+							.insert([{
+								id_reserva: Number(reservaId),
+								numero_plazo: numPlazo,
+								monto: paymentIntent.amount / 100,
+								fecha_vencimiento: new Date().toISOString().split('T')[0],
+								pagado: true,
+								fecha_pago: new Date().toISOString()
+							}]);
+					}
+
+					// 3. Recalcular total pagado
+					const { data: todosPlazos } = await supabaseAdmin
+						.from('dplazo')
+						.select('monto')
+						.eq('id_reserva', Number(reservaId))
+						.eq('pagado', true);
+
+					const totalPagado = (todosPlazos || []).reduce((acc, p) => acc + Number(p.monto || 0), 0);
+					const yaLiquidado = totalPagado >= (reserva.total || 0);
+
+					if (yaLiquidado && reserva.estatus_id !== 1) {
+						await supabaseAdmin
+							.from('mreserva')
+							.update({
+								estatus_id: 1,
+								fecha_liquidacion: new Date().toISOString()
+							})
+							.eq('id', Number(reservaId));
+
+						// Enviar correo de liquidación 100% con botón de WhatsApp
+						try {
+							if (reserva.correo_cliente) {
+								await sendConfirmationEmail({
+									correo_cliente: reserva.correo_cliente,
+									nombre_cliente: reserva.nombre_cliente,
+									nombreExperiencia: reserva.cexperiencia?.titulo || 'Tu Experiencia',
+									fecha_inicio: reserva.cexperiencia?.fecha_inicio,
+									cantidad_grupo: reserva.cantidad_grupo,
+									grupo: reserva.grupo,
+									whatsappLink: whatsappLink,
+									is_plazos: true,
+									is_liquidacion: true,
+									total: reserva.total,
+									monto_pagado: totalPagado,
+									monto_pendiente: 0
+								});
+								console.log(`✉️ Webhook: Correo de liquidación total enviado a ${reserva.correo_cliente}`);
+							}
+						} catch (errMail) {
+							console.error('❌ Webhook: Error enviando correo de liquidación:', errMail);
+						}
+					}
+
+					break;
+				}
+
+				// Caso B: Primer pago de la reserva (checkout inicial)
 				const nuevoEstatus = isPlazos ? 6 : 1; // 6 = pago_parcial, 1 = completada
 
 				if (reserva.estatus_id === 1 || (isPlazos && reserva.estatus_id === 6)) {
@@ -62,7 +160,7 @@ export async function POST({ request }) {
 					break;
 				}
 
-				// 3. Actualizar mreserva
+				// Actualizar mreserva
 				const { error: errUpdate } = await supabaseAdmin
 					.from('mreserva')
 					.update({
@@ -75,7 +173,7 @@ export async function POST({ request }) {
 					console.error(`❌ Webhook: Error actualizando estatus de reserva #${reservaId}:`, errUpdate);
 				}
 
-				// 4. Registrar en mpago evitando duplicados
+				// Registrar en mpago evitando duplicados
 				const { data: existingPago } = await supabaseAdmin
 					.from('mpago')
 					.select('id')
@@ -99,7 +197,7 @@ export async function POST({ request }) {
 					}
 				}
 
-				// 5. Si es a plazos, registrar el primer plazo pagado en dplazo
+				// Si es a plazos, registrar el primer plazo en dplazo
 				if (isPlazos) {
 					const { data: existingPlazo } = await supabaseAdmin
 						.from('dplazo')
@@ -126,7 +224,7 @@ export async function POST({ request }) {
 					}
 				}
 
-				// 6. Limpiar bloqueos de habitación temporales
+				// Limpiar bloqueos de habitación temporales
 				const checkoutSessionId = paymentIntent.metadata?.checkout_session_id;
 				if (checkoutSessionId) {
 					await supabaseAdmin
@@ -135,9 +233,12 @@ export async function POST({ request }) {
 						.eq('session_id', checkoutSessionId);
 				}
 
-				// 7. Enviar correo de confirmación con Resend
+				// Enviar correo de confirmación con Resend
 				try {
 					if (reserva.correo_cliente) {
+						const montoCobrado = paymentIntent.amount / 100;
+						const montoPendiente = isPlazos ? Math.max(0, (reserva.total || 0) - montoCobrado) : 0;
+
 						await sendConfirmationEmail({
 							correo_cliente: reserva.correo_cliente,
 							nombre_cliente: reserva.nombre_cliente,
@@ -145,7 +246,13 @@ export async function POST({ request }) {
 							fecha_inicio: reserva.cexperiencia?.fecha_inicio,
 							cantidad_grupo: reserva.cantidad_grupo,
 							grupo: reserva.grupo,
-							whatsappLink: reserva.cexperiencia?.whatsapp_link || ''
+							whatsappLink: whatsappLink,
+							is_plazos: isPlazos,
+							is_liquidacion: false,
+							total: reserva.total,
+							monto_pagado: montoCobrado,
+							monto_pendiente: montoPendiente,
+							fecha_limite: reserva.cexperiencia?.fecha_inicio
 						});
 						console.log(`✉️ Webhook: Correo de confirmación enviado exitosamente a ${reserva.correo_cliente}`);
 					}

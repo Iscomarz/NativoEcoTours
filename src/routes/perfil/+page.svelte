@@ -508,15 +508,22 @@
 										
 										<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 											{#if faltante > 0}
-												<div class="flex items-start gap-2 text-red-400/60">
-													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 flex-shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-													<p class="text-[10px] uppercase tracking-widest leading-relaxed">
-														Debes liquidar el total antes de la fecha del evento.
-													</p>
+												<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full">
+													<div class="space-y-1">
+														<div class="flex items-center gap-2 text-amber-400/80">
+															<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+															<p class="text-[10px] uppercase tracking-widest leading-relaxed">
+																Debes liquidar el total antes de la fecha del evento
+															</p>
+														</div>
+														<p class="text-[9px] uppercase tracking-widest text-white/30 ml-5">
+															🔒 El grupo de WhatsApp se habilitará al liquidar tu reserva
+														</p>
+													</div>
+													<a href="/perfil/pagar/{reserva.id}" class="px-6 py-2 bg-white/5 border border-white/10 text-white/60 text-[10px] uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all text-center ml-auto" on:click|stopPropagation>
+														Pagar Plazo
+													</a>
 												</div>
-												<a href="/perfil/pagar/{reserva.id}" class="px-6 py-2 bg-white/5 border border-white/10 text-white/60 text-[10px] uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all text-center" on:click|stopPropagation>
-													Pagar Plazo
-												</a>
 											{:else}
 												<div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full">
 													<div class="flex items-center gap-2 text-green-400/60">

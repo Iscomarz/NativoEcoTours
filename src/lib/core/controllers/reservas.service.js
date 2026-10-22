@@ -115,7 +115,8 @@ export const getReservasByGuest = async (nombre, correo) => {
     .from("mreserva")
     .select(`
       *,
-      cexperiencia!inner(*),
+      cexperiencia!inner(*, dexperiencia(*)),
+      dplazo(*),
       mpago(*),
       rhabitacionreserva(*, dhabitacion(*))
     `)
