@@ -4,7 +4,7 @@
 	import LogoFacebook from '$lib/assets/logos/logoFace.png';
 	import LogoYoutube from '$lib/assets/logos/logoYouTube.png';
 	import VinayakBackground from '$lib/assets/backgrounds/vinayak-jayaram.jpg';
-	import TarcilaBackground from '$lib/assets/backgrounds/tarcila.jpg';
+	import TarcilaBackground from '$lib/assets/backgrounds/tarcila.webp';
 	import { page } from '$app/stores';
 	import { supabase } from '$lib/core/supabase/client';
 	import { toast } from 'svelte-sonner';
@@ -95,12 +95,13 @@
 			<a href="/experiencias" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Experiencias</a>
 			<a href="/about" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Nosotros</a>
 			<a href="/cotizacion" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Cotizaciones</a>
-			<a href="/faq" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">FAQ</a>
+			<a href="https://wa.me/526143604415" target="_blank" rel="noopener noreferrer" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">WhatsApp: +52 614 360 4415</a>
 		</div>
 		<div class="flex flex-col gap-2 text-left">
 			<a href="/aviso-legal" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Aviso legal</a>
 			<a href="/politica-privacidad" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Política de Privacidad</a>
 			<a href="/politica-cookies" class="text-white/30 font-extralight text-xs tracking-widest hover:text-white/70 transition-colors">Política de Cookies</a>
+			<span class="text-white/20 font-extralight text-xs tracking-widest">Chihuahua, Chih., México</span>
 		</div>
 		<div class="flex flex-col gap-2">
 			<span class="text-white/20 text-xs font-extralight tracking-widest mb-1">Recibir avisos para las próximas experiencias</span>

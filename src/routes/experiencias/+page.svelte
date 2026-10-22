@@ -1,6 +1,6 @@
 <script>
-	import portada from '$lib/assets/backgrounds/bgBanner.jpg';
-	import TarcilaBackground from '$lib/assets/backgrounds/tarcila.jpg';
+	import portada from '$lib/assets/backgrounds/bgBanner.webp';
+	import TarcilaBackground from '$lib/assets/backgrounds/tarcila.webp';
 	import ExperienciasBusqueda from '$lib/components/ExperienciasBusqueda.svelte';
 	import { onMount } from 'svelte';
 	import ToursDestacados from '$lib/components/ToursDestacados.svelte';
@@ -17,6 +17,15 @@
 	$: ubicaciones = data?.props?.ubicaciones || [];
 	$: experienciaActiva = data?.props?.experienciaActiva;
 </script>
+
+<svelte:head>
+	<title>Experiencias y Próximas Fechas | Nativo Eco Tours</title>
+	<meta name="description" content="Explora nuestras próximas expediciones y experiencias ecoturísticas en México. Reserva tu lugar o suscríbete para recibir avisos de nuevas fechas." />
+	<meta property="og:title" content="Experiencias y Próximas Fechas | Nativo Eco Tours" />
+	<meta property="og:description" content="Explora nuestras próximas expediciones y experiencias ecoturísticas en México. Reserva tu lugar o suscríbete para recibir avisos de nuevas fechas." />
+	<meta name="twitter:title" content="Experiencias y Próximas Fechas | Nativo Eco Tours" />
+	<meta name="twitter:description" content="Explora nuestras próximas expediciones y experiencias ecoturísticas en México. Reserva tu lugar o suscríbete para recibir avisos de nuevas fechas." />
+</svelte:head>
 
 <!-- Sección superior -->
 {#if experienciaActiva != null}

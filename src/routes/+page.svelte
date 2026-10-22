@@ -1,9 +1,9 @@
 <script>
     import ToursDestacados from '$lib/components/ToursDestacados.svelte';
     import videoSrc from '$lib/assets/videos/22.mp4';
-    import home1 from '$lib/assets/backgrounds/home1.png';
-    import home2 from '$lib/assets/backgrounds/home2.png';
-    import home3 from '$lib/assets/backgrounds/home3.png';
+    import home1 from '$lib/assets/backgrounds/home1.webp';
+    import home2 from '$lib/assets/backgrounds/home2.webp';
+    import home3 from '$lib/assets/backgrounds/home3.webp';
     import campfire from '$lib/assets/icons/campfire-thin.svg';
     import ButtonCotizacion from '$lib/components/ButtonCotizacion.svelte';
     import logoInsta from '$lib/assets/logos/logoInsta.png';
@@ -13,6 +13,15 @@
     export let data;
     let ubicaciones = data.props.ubicaciones;
 </script>
+
+<svelte:head>
+    <title>Nativo Eco Tours | Experiencias Únicas y Viajes en México</title>
+    <meta name="description" content="Descubre expediciones y experiencias ecoturísticas únicas en México. Conéctate con la naturaleza y vive aventuras inolvidables diseñadas a tu medida." />
+    <meta property="og:title" content="Nativo Eco Tours | Experiencias Únicas y Viajes en México" />
+    <meta property="og:description" content="Descubre expediciones y experiencias ecoturísticas únicas en México. Conéctate con la naturaleza y vive aventuras inolvidables diseñadas a tu medida." />
+    <meta name="twitter:title" content="Nativo Eco Tours | Experiencias Únicas y Viajes en México" />
+    <meta name="twitter:description" content="Descubre expediciones y experiencias ecoturísticas únicas en México. Conéctate con la naturaleza y vive aventuras inolvidables diseñadas a tu medida." />
+</svelte:head>
 
 <!-- Sección Hero con Video -->
 <section class="relative w-full h-screen overflow-hidden">
@@ -35,9 +44,12 @@
     <!-- Gradiente inferior -->
     <div class="absolute bottom-0 left-0 w-full h-96 z-20 pointer-events-none bg-gradient-to-t from-black via-black/70 to-transparent"></div>
 
-    <!-- Fragmento de copy sobre el video -->
-    <div class="absolute bottom-36 z-30 text-center w-full px-6">
+    <!-- Fragmento de copy sobre el video con H1 para jerarquía SEO -->
+    <div class="absolute bottom-32 z-30 text-center w-full px-6 max-w-4xl left-1/2 -translate-x-1/2">
         <p class="text-white/60 text-xs tracking-[0.3em] uppercase mb-3">Experiencias en México</p>
+        <h1 class="text-white text-xl md:text-2xl lg:text-3xl font-extralight tracking-widest leading-relaxed">
+            Creadores de experiencias únicas en la naturaleza de México
+        </h1>
     </div>
 </section>
 
@@ -48,7 +60,7 @@
 
         <!-- ─── ACTO I: La presentación (Contexto) ─── -->
         <section class="pt-24 pb-12 px-6 md:px-12 lg:px-20 max-w-5xl mx-auto text-center">
-            <p class="text-green-400/70 text-xs tracking-[0.4em] uppercase mb-6">Creadores de experiencias</p>
+            <h2 class="text-green-400/70 text-xs tracking-[0.4em] uppercase mb-6">Creadores de experiencias</h2>
             <p class="text-white/50 text-sm font-extralight tracking-wide leading-loose max-w-2xl mx-auto">
                 Cada experiencia que diseñamos es una invitación a desconectarte del ruido del mundo y reconectarte con lo que importa: la tierra, la gente y el momento presente.
             </p>
@@ -57,7 +69,7 @@
         <!-- Separador -->
         <div class="flex items-center max-w-5xl mx-auto px-6 md:px-12 lg:px-20 mb-16">
             <div class="flex-1 h-px bg-white/10"></div>
-            <img src={campfire} alt="" class="h-5 w-5 mx-6 opacity-30" style="filter: invert(1);" />
+            <img src={campfire} alt="Símbolo fogata" width="20" height="20" class="h-5 w-5 mx-6 opacity-30" style="filter: invert(1);" />
             <div class="flex-1 h-px bg-white/10"></div>
         </div>
 
@@ -84,7 +96,7 @@
 
         <!-- ─── Experiencias (Tours Destacados) ─── -->
         <div class="pt-8 pb-16">
-            <p class="text-white/40 text-xs tracking-[0.4em] uppercase text-center mb-10">Descubre nuestros destinos</p>
+            <h2 class="text-white/40 text-xs tracking-[0.4em] uppercase text-center mb-10">Descubre nuestros destinos</h2>
             <ToursDestacados {ubicaciones} todasLasExperiencias={true} />
         </div>
 
@@ -93,7 +105,11 @@
             <div class="relative overflow-hidden group">
                 <img 
                     src={home1} 
-                    alt="Experiencia Nativo" 
+                    alt="Experiencia Nativo en la Sierra Tarahumara" 
+                    width="1920" 
+                    height="1080" 
+                    loading="lazy" 
+                    decoding="async" 
                     class="w-full h-[55vh] object-cover transition-transform duration-1000 group-hover:scale-105" 
                 />
                 <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent"></div>
@@ -111,7 +127,11 @@
             <div class="relative overflow-hidden group md:col-span-3">
                 <img 
                     src={home2} 
-                    alt="Naturaleza Chihuahua" 
+                    alt="Naturaleza y cañones en México" 
+                    width="1200" 
+                    height="800" 
+                    loading="lazy" 
+                    decoding="async" 
                     class="w-full h-[45vh] object-cover transition-transform duration-1000 group-hover:scale-105" 
                 />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -119,7 +139,11 @@
             <div class="relative overflow-hidden group md:col-span-2">
                 <img 
                     src={home3} 
-                    alt="Aventura Nativo" 
+                    alt="Aventura y comunidad Nativo Eco Tours" 
+                    width="800" 
+                    height="800" 
+                    loading="lazy" 
+                    decoding="async" 
                     class="w-full h-[45vh] object-cover transition-transform duration-1000 group-hover:scale-105" 
                 />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -149,44 +173,16 @@
 
         <!-- Redes sociales -->
         <div class="pb-16 flex justify-center gap-8">
-            <a href="https://www.instagram.com/nativo_xx/" target="_blank" rel="noopener noreferrer">
-                <img src={logoInsta} alt="Instagram" class="h-4 w-4 opacity-25 hover:opacity-70 transition-opacity" style="filter: invert(1);" />
+            <a href="https://www.instagram.com/nativo_xx/" target="_blank" rel="noopener noreferrer" aria-label="Instagram de Nativo">
+                <img src={logoInsta} alt="Instagram" width="16" height="16" class="h-4 w-4 opacity-25 hover:opacity-70 transition-opacity" style="filter: invert(1);" />
             </a>
-            <a href="https://www.facebook.com/p/Nativo-100071924532907/?locale=es_LA" target="_blank" rel="noopener noreferrer">
-                <img src={logoFace} alt="Facebook" class="h-4 w-4 opacity-25 hover:opacity-70 transition-opacity" style="filter: invert(1);" />
+            <a href="https://www.facebook.com/p/Nativo-100071924532907/?locale=es_LA" target="_blank" rel="noopener noreferrer" aria-label="Facebook de Nativo">
+                <img src={logoFace} alt="Facebook" width="16" height="16" class="h-4 w-4 opacity-25 hover:opacity-70 transition-opacity" style="filter: invert(1);" />
             </a>
-            <a href="https://www.youtube.com/@nativoecotours4828" target="_blank" rel="noopener noreferrer">
-                <img src={logoYouTube} alt="YouTube" class="h-4 w-4 opacity-25 hover:opacity-70 transition-opacity" style="filter: invert(1);" />
+            <a href="https://www.youtube.com/@nativoecotours4828" target="_blank" rel="noopener noreferrer" aria-label="YouTube de Nativo">
+                <img src={logoYouTube} alt="YouTube" width="16" height="16" class="h-4 w-4 opacity-25 hover:opacity-70 transition-opacity" style="filter: invert(1);" />
             </a>
         </div>
 
     </div>
 </div>
-
-<style>
-    @keyframes fade-in {
-        from {
-            opacity: 0;
-            transform: translateX(-50%) translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-    }
-
-    @keyframes fade-up {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .animate-fade-in {
-        animation: fade-in 1s ease-out;
-    }
-</style>

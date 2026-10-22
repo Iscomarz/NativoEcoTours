@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { toast, Toaster } from 'svelte-sonner';
-	import TarcilaBackground from '$lib/assets/backgrounds/tarcila.jpg';
+	import TarcilaBackground from '$lib/assets/backgrounds/tarcila.webp';
 
 	export let data;
 	$: ubicaciones = data.ubicaciones || [];
@@ -175,6 +175,13 @@ ${formData.comentarios ? `\n💬 *Comentarios adicionales:*\n${formData.comentar
 
 	const stepLabels = ['Grupo', 'Destino', 'Preferencias', 'Contacto'];
 </script>
+
+<svelte:head>
+	<title>Cotiza tu Experiencia Personalizada | Nativo Eco Tours</title>
+	<meta name="description" content="Diseña tu viaje a medida con Nativo Eco Tours. Cuéntanos las fechas, número de personas y tipo de aventura que buscas para tu cotización exclusiva." />
+	<meta property="og:title" content="Cotiza tu Experiencia Personalizada | Nativo Eco Tours" />
+	<meta property="og:description" content="Diseña tu viaje a medida con Nativo Eco Tours. Cuéntanos las fechas, número de personas y tipo de aventura que buscas para tu cotización exclusiva." />
+</svelte:head>
 
 <svelte:window bind:scrollY />
 <Toaster />

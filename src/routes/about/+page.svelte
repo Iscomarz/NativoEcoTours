@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import TarcilaBackground from '$lib/assets/backgrounds/tarcila.jpg';
+	import TarcilaBackground from '$lib/assets/backgrounds/tarcila.webp';
 	import ButtonCotizacion from '$lib/components/ButtonCotizacion.svelte';
 
 	let scrollY = 0;
@@ -11,6 +11,13 @@
 		return () => window.removeEventListener('scroll', handleScroll);
 	});
 </script>
+
+<svelte:head>
+	<title>Nosotros | Manifiesto y Filosofía Nativo Eco Tours</title>
+	<meta name="description" content="Conoce la filosofía de Nativo Eco Tours: viajes que despiertan, conexión interior y turismo responsable en los rincones más extraordinarios de México." />
+	<meta property="og:title" content="Nosotros | Manifiesto y Filosofía Nativo Eco Tours" />
+	<meta property="og:description" content="Conoce la filosofía de Nativo Eco Tours: viajes que despiertan, conexión interior y turismo responsable en los rincones más extraordinarios de México." />
+</svelte:head>
 
 <svelte:window bind:scrollY />
 
