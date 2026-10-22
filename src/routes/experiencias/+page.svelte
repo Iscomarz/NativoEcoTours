@@ -6,9 +6,12 @@
 	import ToursDestacados from '$lib/components/ToursDestacados.svelte';
 	import ExperienciaActiva from '$lib/components/ExperienciaActiva.svelte';
 	import ButtonCotizacion from '$lib/components/ButtonCotizacion.svelte';
+	import AvisoProximasFechasModal from '$lib/components/modals/AvisoProximasFechasModal.svelte';
 
 	let experiencias = [];
 	export let data;
+
+	let isAvisoModalOpen = false;
 
 	$: experiencias = data?.props?.experiencias || [];
 	$: ubicaciones = data?.props?.ubicaciones || [];
@@ -42,16 +45,19 @@
 			<div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
 				<button 
 					on:click={() => document.getElementById('explorar')?.scrollIntoView({behavior: 'smooth'})}
-					class="group relative px-10 py-4 overflow-hidden border border-white/10 transition-all duration-500 hover:border-white/40"
+					class="group relative px-10 py-4 overflow-hidden border border-white/10 transition-all duration-500 hover:border-white/40 cursor-pointer"
 				>
 					<div class="absolute inset-0 bg-white translate-y-[101%] transition-transform duration-500 group-hover:translate-y-0"></div>
 					<span class="relative text-xs tracking-[0.4em] uppercase text-white transition-colors duration-500 group-hover:text-black font-light">Ver destinos</span>
 				</button>
 				
-				<a href="/login" class="text-white/30 text-xs tracking-[0.4em] uppercase hover:text-white transition-colors duration-300 flex items-center gap-2 group">
+				<button 
+					on:click={() => isAvisoModalOpen = true}
+					class="text-white/40 text-xs tracking-[0.4em] uppercase hover:text-white transition-colors duration-300 flex items-center gap-2 group cursor-pointer bg-transparent border-0 p-0"
+				>
 					<span>Avisar de próximas fechas</span>
 					<span class="transform transition-transform duration-300 group-hover:translate-x-1">→</span>
-				</a>
+				</button>
 			</div>
 		</div>
 
@@ -101,9 +107,15 @@
 			</div>
 		</section>
 		<!-- <ExperienciasBusqueda {experiencias} /> -->
-		<div class="pt-20 pb-12">
+		<div class="pt-20 pb-12" id="explorar">
             <p class="text-white/40 text-xs tracking-[0.4em] uppercase text-center mb-10">Descubre nuestros destinos</p>
             <ToursDestacados {ubicaciones} />
         </div>
 	</div>
 </div>
+
+<AvisoProximasFechasModal 
+	isOpen={isAvisoModalOpen} 
+	session={data?.props?.session} 
+	on:close={() => isAvisoModalOpen = false} 
+/>
