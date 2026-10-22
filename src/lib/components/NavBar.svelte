@@ -1,6 +1,8 @@
 <script>
 	import LogoMano from '$lib/assets/logos/logoManoNativo.png';
 	import LogoManoBlanco from '$lib/assets/logos/logoManoBlanco.png';
+	import LogoNativo from '$lib/assets/logos/logoNativo.png';
+	import LogoNativoNegro from '$lib/assets/logos/logoNativoNegro.png';
 	import Campfire from '$lib/assets/icons/campfire-thin.svg';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
@@ -55,13 +57,19 @@
 				: 'bg-black/30 backdrop-blur-md'
 	}`}
 >
-	{#if $page.url.pathname === '/'}
-		<div class="h-10 font-bold md:h-12">
-			<a href="/"><img src={LogoMano} alt="Logo NativoEcoApp" class="h-full" /></a>
+	{#if $page.url.pathname === '/' && scrollY < 50}
+		<div class="h-9 md:h-11">
+			<a href="/" class="flex items-center gap-2.5 md:gap-3 h-full">
+				<img src={LogoMano} alt="Logo Nativo" class="h-full w-auto" />
+				<img src={LogoNativoNegro} alt="Nativo Eco Tours" class="h-5 md:h-6 w-auto" />
+			</a>
 		</div>
 	{:else}
-		<div class="h-10 font-bold md:h-12">
-			<a href="/"><img src={LogoManoBlanco} alt="Logo NativoEcoApp" class="h-full" /></a>
+		<div class="h-9 md:h-11">
+			<a href="/" class="flex items-center gap-2.5 md:gap-3 h-full">
+				<img src={LogoManoBlanco} alt="Logo Nativo" class="h-full w-auto" />
+				<img src={LogoNativo} alt="Nativo Eco Tours" class="h-5 md:h-6 w-auto" />
+			</a>
 		</div>
 	{/if}
 
@@ -155,6 +163,19 @@
 						/>
 					</a>
 				</li>
+				<li>
+					<a
+						href="https://wa.me/526143604415"
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label="Contactar por WhatsApp"
+						class="flex items-center justify-center text-white hover:text-green-400 transition-transform hover:scale-110 ml-2"
+					>
+						<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#FFFFFF" viewBox="0 0 256 256">
+							<path d="M187.58,144.84l-32-16a8,8,0,0,0-8,.5l-14.69,9.8a40.55,40.55,0,0,1-16-16l9.8-14.69a8,8,0,0,0,.5-8l-16-32A8,8,0,0,0,104,64a40,40,0,0,0-40,40,88.1,88.1,0,0,0,88,88,40,40,0,0,0,40-40A8,8,0,0,0,187.58,144.84ZM152,176a72.08,72.08,0,0,1-72-72A24,24,0,0,1,99.29,80.46l11.48,23L101,118a8,8,0,0,0-.73,7.51,56.47,56.47,0,0,0,30.15,30.15A8,8,0,0,0,138,155l14.61-9.74,23,11.48A24,24,0,0,1,152,176ZM128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z"></path>
+						</svg>
+					</a>
+				</li>
 			</ul>
 		{:else}
 			<!-- Perfil de usuario logueado en desktop -->
@@ -233,6 +254,17 @@
 						<line x1="3" y1="18" x2="21" y2="18"></line>
 					</svg>
 				</button>
+				<a
+					href="https://wa.me/526143604415"
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label="Contactar por WhatsApp"
+					class="flex items-center justify-center text-white hover:text-green-400 transition-transform hover:scale-110"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#FFFFFF" viewBox="0 0 256 256">
+						<path d="M187.58,144.84l-32-16a8,8,0,0,0-8,.5l-14.69,9.8a40.55,40.55,0,0,1-16-16l9.8-14.69a8,8,0,0,0,.5-8l-16-32A8,8,0,0,0,104,64a40,40,0,0,0-40,40,88.1,88.1,0,0,0,88,88,40,40,0,0,0,40-40A8,8,0,0,0,187.58,144.84ZM152,176a72.08,72.08,0,0,1-72-72A24,24,0,0,1,99.29,80.46l11.48,23L101,118a8,8,0,0,0-.73,7.51,56.47,56.47,0,0,0,30.15,30.15A8,8,0,0,0,138,155l14.61-9.74,23,11.48A24,24,0,0,1,152,176ZM128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z"></path>
+					</svg>
+				</a>
 			</div>
 		{/if}
 	</div>
@@ -300,8 +332,8 @@
 			>
 				<span
 					class="block h-0.5 w-6 transition-all duration-300 ease-in-out"
-					class:bg-black={$page.url.pathname === '/'}
-					class:bg-white={$page.url.pathname !== '/'}
+					class:bg-black={$page.url.pathname === '/' && scrollY < 50}
+					class:bg-white={$page.url.pathname !== '/' || scrollY >= 50}
 					class:transform={menuAbierto}
 					class:rotate-45={menuAbierto}
 					class:translate-y-[0.3rem]={menuAbierto}
@@ -309,14 +341,27 @@
 
 				<span
 					class="mt-2 block h-0.5 w-6 transition-all duration-300 ease-in-out"
-					class:bg-black={$page.url.pathname === '/'}
-					class:bg-white={$page.url.pathname !== '/'}
+					class:bg-black={$page.url.pathname === '/' && scrollY < 50}
+					class:bg-white={$page.url.pathname !== '/' || scrollY >= 50}
 					class:transform={menuAbierto}
 					class:-rotate-45={menuAbierto}
 					class:-translate-y-[0.3rem]={menuAbierto}
 				></span>
 			</button>
 		{/if}
+
+		<!-- Botón directo a WhatsApp a la derecha del menú de hamburguesa -->
+		<a
+			href="https://wa.me/526143604415"
+			target="_blank"
+			rel="noopener noreferrer"
+			aria-label="Contactar por WhatsApp"
+			class="flex items-center justify-center text-white hover:text-green-400 transition-transform hover:scale-110 p-1"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#FFFFFF" viewBox="0 0 256 256">
+				<path d="M187.58,144.84l-32-16a8,8,0,0,0-8,.5l-14.69,9.8a40.55,40.55,0,0,1-16-16l9.8-14.69a8,8,0,0,0,.5-8l-16-32A8,8,0,0,0,104,64a40,40,0,0,0-40,40,88.1,88.1,0,0,0,88,88,40,40,0,0,0,40-40A8,8,0,0,0,187.58,144.84ZM152,176a72.08,72.08,0,0,1-72-72A24,24,0,0,1,99.29,80.46l11.48,23L101,118a8,8,0,0,0-.73,7.51,56.47,56.47,0,0,0,30.15,30.15A8,8,0,0,0,138,155l14.61-9.74,23,11.48A24,24,0,0,1,152,176ZM128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z"></path>
+			</svg>
+		</a>
 	</div>
 </nav>
 

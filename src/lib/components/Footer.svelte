@@ -117,7 +117,7 @@
 					disabled={cargando}
 					class="bg-white/5 border border-white/20 hover:bg-white/10 px-3 py-2 text-white font-extralight text-xs tracking-[0.3em] uppercase transition-all duration-300 disabled:opacity-50"
 				>
-					{cargando ? 'Subscribiendo...' : 'Subscribirse'}
+					{cargando ? 'Suscribiendo...' : 'Suscribirse'}
 				</button>
 			</form>
 		</div>

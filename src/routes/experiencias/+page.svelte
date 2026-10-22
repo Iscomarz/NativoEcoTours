@@ -77,7 +77,7 @@
 	<!-- Sección: Por qué nuestras experiencias son únicas -->
 		<section class="py-12">
 			<div class="max-w-7xl mx-auto px-6">
-				<h2 class="text-center text-white font-extralight text-xs tracking-[0.4em] uppercase mb-8">POR QUE NUESTRAS EXPERIENCIAS SON UNICAS</h2>
+				<h2 class="text-center text-white font-extralight text-xs tracking-[0.4em] uppercase mb-8">POR QUÉ NUESTRAS EXPERIENCIAS SON ÚNICAS</h2>
 
 				<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
 					<div class="bg-neutral-900/40 backdrop-blur-md p-6 border border-white/10">
