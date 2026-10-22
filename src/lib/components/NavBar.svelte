@@ -8,6 +8,7 @@
 
 	export let session;
 	export let user_profile = null;
+	export let navbar_siempre_blanco = false;
 
 	// Estado para controlar si el menú móvil está abiertooo
 	let menuAbierto = false;
@@ -18,17 +19,23 @@
 	// Calcular el color basado en el scroll (0-100px)
 	$: textColor =
 		$page.url.pathname === '/'
-			? `rgb(${Math.min(255, Math.floor((scrollY / 100) * 255))}, ${Math.min(255, Math.floor((scrollY / 100) * 255))}, ${Math.min(255, Math.floor((scrollY / 100) * 255))})`
+			? navbar_siempre_blanco
+				? 'rgb(255, 255, 255)'
+				: `rgb(${Math.min(255, Math.floor((scrollY / 100) * 255))}, ${Math.min(255, Math.floor((scrollY / 100) * 255))}, ${Math.min(255, Math.floor((scrollY / 100) * 255))})`
 			: 'rgb(255, 255, 255)';
 
 	$: borderColor =
 		$page.url.pathname === '/'
-			? `rgb(${Math.min(255, Math.floor((scrollY / 100) * 255))}, ${Math.min(255, Math.floor((scrollY / 100) * 255))}, ${Math.min(255, Math.floor((scrollY / 100) * 255))})`
+			? navbar_siempre_blanco
+				? 'rgb(255, 255, 255)'
+				: `rgb(${Math.min(255, Math.floor((scrollY / 100) * 255))}, ${Math.min(255, Math.floor((scrollY / 100) * 255))}, ${Math.min(255, Math.floor((scrollY / 100) * 255))})`
 			: 'rgb(255, 255, 255)';
 
 	// Calcular el filtro de inversión para el ícono (0 = negro, 1 = blanco)
 	$: iconFilter =
-		$page.url.pathname === '/' ? `invert(${Math.min(1, scrollY / 100)})` : 'invert(1)';
+		navbar_siempre_blanco || $page.url.pathname !== '/'
+			? 'invert(1)'
+			: `invert(${Math.min(1, scrollY / 100)})`;
 
 	// Alternar el estado del menú
 	function toggleMenu() {
@@ -54,7 +61,7 @@
 				: 'bg-black/30 backdrop-blur-md'
 	}`}
 >
-	{#if $page.url.pathname === '/' && scrollY < 50}
+	{#if $page.url.pathname === '/' && scrollY < 50 && !navbar_siempre_blanco}
 		<div class="h-10 md:h-12 flex items-center">
 			<a href="/" class="flex items-center h-full">
 				<img src={LogoNativo} alt="Nativo Eco Tours" width="189" height="71" class="h-10 md:h-12 w-auto" />
@@ -143,8 +150,8 @@
 					<a
 						href="/login"
 						class="login-btn flex items-center gap-1"
-						class:login-home={$page.url.pathname === '/' && scrollY < 50}
-						class:login-transition={$page.url.pathname === '/' && scrollY >= 50}
+						class:login-home={$page.url.pathname === '/' && scrollY < 50 && !navbar_siempre_blanco}
+						class:login-transition={$page.url.pathname === '/' && (scrollY >= 50 || navbar_siempre_blanco)}
 						class:login-other={$page.url.pathname !== '/'}
 						class:text-white={$page.url.pathname !== '/'}
 						style={$page.url.pathname === '/' ? `color: ${textColor};` : ''}
@@ -327,8 +334,8 @@
 			>
 				<span
 					class="block h-0.5 w-6 transition-all duration-300 ease-in-out"
-					class:bg-black={$page.url.pathname === '/' && scrollY < 50}
-					class:bg-white={$page.url.pathname !== '/' || scrollY >= 50}
+					class:bg-black={$page.url.pathname === '/' && scrollY < 50 && !navbar_siempre_blanco}
+					class:bg-white={$page.url.pathname !== '/' || scrollY >= 50 || navbar_siempre_blanco}
 					class:transform={menuAbierto}
 					class:rotate-45={menuAbierto}
 					class:translate-y-[0.3rem]={menuAbierto}
@@ -336,8 +343,8 @@
 
 				<span
 					class="mt-2 block h-0.5 w-6 transition-all duration-300 ease-in-out"
-					class:bg-black={$page.url.pathname === '/' && scrollY < 50}
-					class:bg-white={$page.url.pathname !== '/' || scrollY >= 50}
+					class:bg-black={$page.url.pathname === '/' && scrollY < 50 && !navbar_siempre_blanco}
+					class:bg-white={$page.url.pathname !== '/' || scrollY >= 50 || navbar_siempre_blanco}
 					class:transform={menuAbierto}
 					class:-rotate-45={menuAbierto}
 					class:-translate-y-[0.3rem]={menuAbierto}

@@ -11,8 +11,22 @@ export const load = async ({ locals: { session, supabase } }) => {
 		user_profile = profile;
 	}
 
+	let navbar_siempre_blanco = false;
+	try {
+		const { data: config } = await supabase
+			.from('configuracion_sitio')
+			.select('valor')
+			.eq('clave', 'navbar_siempre_blanco')
+			.maybeSingle();
+
+		navbar_siempre_blanco = config?.valor === 'true';
+	} catch (e) {
+		console.error('Error cargando navbar_siempre_blanco:', e);
+	}
+
 	return {
 		session,
-		user_profile
+		user_profile,
+		navbar_siempre_blanco
 	};
 };

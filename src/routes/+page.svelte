@@ -1,6 +1,6 @@
 <script>
     import ToursDestacados from '$lib/components/ToursDestacados.svelte';
-    import videoSrc from '$lib/assets/videos/22.mp4';
+    import defaultVideoSrc from '$lib/assets/videos/22.mp4';
     import home1 from '$lib/assets/backgrounds/home1.webp';
     import home2 from '$lib/assets/backgrounds/home2.webp';
     import home3 from '$lib/assets/backgrounds/home3.webp';
@@ -12,6 +12,7 @@
 
     export let data;
     let ubicaciones = data.props.ubicaciones;
+    $: heroVideoSrc = data?.props?.heroVideoUrl || defaultVideoSrc;
 </script>
 
 <svelte:head>
@@ -27,7 +28,8 @@
 <section class="relative w-full h-screen overflow-hidden">
     <!-- Video de fondo -->
     <video
-        src={videoSrc}
+        src={heroVideoSrc}
+        poster={home1}
         autoplay
         muted
         loop

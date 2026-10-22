@@ -55,7 +55,7 @@
 
 <div class="flex flex-col min-h-screen">
 	{#if $page.url.pathname !== '/login'}
-		<NavBar session={data.session} user_profile={data.user_profile} class="fixed top-0 left-0 w-full z-50" />
+		<NavBar session={data.session} user_profile={data.user_profile} navbar_siempre_blanco={data.navbar_siempre_blanco} class="fixed top-0 left-0 w-full z-50" />
 	{/if}
 
 	<main class="flex-1">
