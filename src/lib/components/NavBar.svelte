@@ -58,17 +58,17 @@
 	}`}
 >
 	{#if $page.url.pathname === '/' && scrollY < 50}
-		<div class="h-9 md:h-11">
+		<div class="h-10 md:h-12 flex items-center">
 			<a href="/" class="flex items-center gap-2.5 md:gap-3 h-full">
-				<img src={LogoMano} alt="Logo Nativo" class="h-full w-auto" />
-				<img src={LogoNativoNegro} alt="Nativo Eco Tours" class="h-5 md:h-6 w-auto" />
+				<img src={LogoMano} alt="Logo Nativo" class="h-8 md:h-10 w-auto" />
+				<img src={LogoNativoNegro} alt="Nativo Eco Tours" class="h-9 md:h-11 w-auto" />
 			</a>
 		</div>
 	{:else}
-		<div class="h-9 md:h-11">
+		<div class="h-10 md:h-12 flex items-center">
 			<a href="/" class="flex items-center gap-2.5 md:gap-3 h-full">
-				<img src={LogoManoBlanco} alt="Logo Nativo" class="h-full w-auto" />
-				<img src={LogoNativo} alt="Nativo Eco Tours" class="h-5 md:h-6 w-auto" />
+				<img src={LogoManoBlanco} alt="Logo Nativo" class="h-8 md:h-10 w-auto" />
+				<img src={LogoNativoNegro} alt="Nativo Eco Tours" class="h-9 md:h-11 w-auto" style="filter: brightness(0) invert(1);" />
 			</a>
 		</div>
 	{/if}
