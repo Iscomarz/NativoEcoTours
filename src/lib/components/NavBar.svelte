@@ -1,8 +1,5 @@
 <script>
-	import LogoMano from '$lib/assets/logos/logoManoNativo.png';
-	import LogoManoBlanco from '$lib/assets/logos/logoManoBlanco.png';
-	import LogoNativo from '$lib/assets/logos/logoNativo.png';
-	import LogoNativoNegro from '$lib/assets/logos/logoNativoNegro.png';
+	import LogoNativo from '$lib/assets/logos/logoNativoNegro.png';
 	import Campfire from '$lib/assets/icons/campfire-thin.svg';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
@@ -59,16 +56,14 @@
 >
 	{#if $page.url.pathname === '/' && scrollY < 50}
 		<div class="h-10 md:h-12 flex items-center">
-			<a href="/" class="flex items-center gap-2.5 md:gap-3 h-full">
-				<img src={LogoMano} alt="Logo Nativo" class="h-8 md:h-10 w-auto" />
-				<img src={LogoNativoNegro} alt="Nativo Eco Tours" class="h-9 md:h-11 w-auto" />
+			<a href="/" class="flex items-center h-full">
+				<img src={LogoNativo} alt="Nativo Eco Tours" class="h-10 md:h-12 w-auto" />
 			</a>
 		</div>
 	{:else}
 		<div class="h-10 md:h-12 flex items-center">
-			<a href="/" class="flex items-center gap-2.5 md:gap-3 h-full">
-				<img src={LogoManoBlanco} alt="Logo Nativo" class="h-8 md:h-10 w-auto" />
-				<img src={LogoNativoNegro} alt="Nativo Eco Tours" class="h-9 md:h-11 w-auto" style="filter: brightness(0) invert(1);" />
+			<a href="/" class="flex items-center h-full">
+				<img src={LogoNativo} alt="Nativo Eco Tours" class="h-10 md:h-12 w-auto" style="filter: brightness(0) invert(1);" />
 			</a>
 		</div>
 	{/if}
